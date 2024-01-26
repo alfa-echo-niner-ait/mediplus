@@ -5,9 +5,9 @@ from flask_cors import CORS
 from src.config import Config
 
 db = SQLAlchemy()
-# login_manager = LoginManager()
-# login_manager.login_view = 'home.index'
-# login_manager.login_message_category = 'danger'
+login_manager = LoginManager()
+login_manager.login_view = 'home.index'
+login_manager.login_message_category = 'danger'
 
 
 def create_app(config_class=Config):
@@ -18,7 +18,7 @@ def create_app(config_class=Config):
     
     CORS(app)
     db.init_app(app)
-    # login_manager.init_app(app)
+    login_manager.init_app(app)
 
     # Import blueprints
     from src.home.routes import home
