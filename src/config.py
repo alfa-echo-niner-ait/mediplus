@@ -1,5 +1,3 @@
-
-
 class Config:
     SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:root@localhost:3306/mediplus'
     SQLALCHEMY_CHARSET = 'utf8mb4'

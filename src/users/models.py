@@ -6,7 +6,7 @@ from flask_login import UserMixin
 class Users(db.Model, UserMixin):
     '''
     #### Users has 3 types of role:
-        - Patient
+        - Patient 
         - Doctor
         - Manager
         
@@ -18,20 +18,47 @@ class Users(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(100), nullable=False)
+    gender = db.Column(db.String(10), nullable=False)
     role = db.Column(db.String(20), nullable=False)
     
-    def __init__(self, username, pass_hash, email, role="Patient"):
+    def __init__(self, username, pass_hash, email, gender, role="Patient"):
         super().__init__()
         self.username = username
         self.password_hash = pass_hash
         self.email = email
+        self.gender = gender
         self.role = role
     
     def get_id(self):
         return self.id
     
     def __str__(self) -> str:
-        return f"User({self.id}): {self.username}, {self.role}"
+        return f"User({self.id}): {self.username}/{self.gender}, {self.role}"
+    
+    
+class User_Logs(db.Model):
+    '''
+    #### log_type
+        - Registration
+        - Login
+        - Change Password
+        - Update Profile
+    '''
+    __tablename__ = "user_logs"
+    
+    log_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'),
+                     primary_key=True, nullable=False)
+    log_type = db.Column(db.String(100), nullable=False)
+    log_date = db.Column(db.Date, nullable=False)
+    log_time = db.Column(db.Time, nullable=False)
+    
+    def __init__(self, user_id):
+        super().__init__()
+        self.user_id = user_id
+    
+    def __str__(self) -> str:
+        return f"#{self.log_id}:[{self.log_type}] @user_id: {self.user_id} on {self.log_date} {self.log_time}"
     
     
 class Patients(db.Model):
@@ -104,3 +131,24 @@ class Managers(db.Model):
 
     def __str__(self) -> str:
         return f"Manager({self.d_id}): {self.last_name} {self.first_name}"
+
+
+class Medical_Info(db.Model):
+    __tablename__ = "medical_info"
+    
+    med_info_id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.p_id'),
+                           primary_key=True, nullable=False)
+    blood_group = db.Column(db.String(10), nullable=True)
+    height_cm = db.Column(db.Float, nullable=True)
+    weight_kg = db.Column(db.Float, nullable=True)
+    allergies = db.Column(db.TEXT, nullable=True)
+    medical_conditions = db.Column(db.TEXT, nullable=True)
+    
+    
+    def __init__(self, patient_id):
+        super().__init__()
+        self.patient_id = patient_id
+    
+    def __str__(self) -> str:
+        return f"MED_INFO({self.med_info_id}) @ Patient #{self.patient_id}"

@@ -6,7 +6,7 @@ from src.config import Config
 
 db = SQLAlchemy()
 login_manager = LoginManager()
-login_manager.login_view = 'home.index'
+login_manager.login_view = 'public.index'
 login_manager.login_message_category = 'danger'
 
 
@@ -21,10 +21,11 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
 
     # Import blueprints
-    from src.home.routes import home
+    from src.public.routes import public
     from src.errors.handlers import errors
+    
     # Register blueprints
-    app.register_blueprint(home)
+    app.register_blueprint(public)
     app.register_blueprint(errors)
     
     # Return the instance of app
