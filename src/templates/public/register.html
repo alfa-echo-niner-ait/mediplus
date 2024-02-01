@@ -1,0 +1,181 @@
+{% extends 'layout/layout_public.html' %}
+
+{% block content %}
+<main class="form-signin w-100 m-auto align-items-center" style="max-width: 450px;" role="main">
+    <h5 class="display-5 mb-3 text-center">
+        <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+        <svg width="50px" height="50px" viewBox="0 0 91 91" enable-background="new 0 0 91 91" id="Layer_1" version="1.1"
+            xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g>
+                <path
+                    d="M71.619,16.685c-10.5,0-19.045,8.545-19.045,19.051c0,10.504,8.545,19.051,19.045,19.051   c10.508,0,19.055-8.547,19.055-19.051C90.674,25.229,82.127,16.685,71.619,16.685z M79.365,38.407h-5.438v5.439   c0,1.385-1.123,2.506-2.506,2.506s-2.504-1.121-2.504-2.506v-5.439h-5.439c-1.383,0-2.506-1.121-2.506-2.506   c0-1.383,1.123-2.504,2.506-2.504h5.439v-5.436c0-1.383,1.121-2.504,2.504-2.504s2.506,1.121,2.506,2.504v5.436h5.438   c1.383,0,2.504,1.121,2.504,2.504C81.869,37.286,80.748,38.407,79.365,38.407z"
+                    fill="#6EC4A7" />
+                <g>
+                    <polygon fill="#6EC4A7" points="25.506,55.183 21.086,78.269 26.541,82.632 31.99,78.272 27.504,55.183   " />
+                    <path
+                        d="M43.961,47.731c-3.236,3.193-7.326,5.506-11.889,6.576l4.76,24.412c0.18,0.859-0.139,1.744-0.82,2.289    l-2.051,1.639c5.709-0.682,11.896-2.17,18.375-4.889V59.64C52.336,54.269,49.566,50.374,43.961,47.731z"
+                        fill="#647F94" />
+                    <path
+                        d="M20.922,54.384c-4.67-1.041-8.855-3.381-12.152-6.635c-5.375,2.635-8.027,6.525-8.027,11.891v18.205    c2.584,1.201,9.234,3.908,18.488,4.896l-2.162-1.73c-0.682-0.547-1.002-1.428-0.826-2.283L20.922,54.384z"
+                        fill="#647F94" />
+                    <path
+                        d="M26.35,50.341c11.309,0,20.506-9.262,20.506-20.648S37.658,9.044,26.35,9.044    c-11.299,0-20.492,9.262-20.492,20.648S15.051,50.341,26.35,50.341z"
+                        fill="#647F94" />
+                </g>
+            </g>
+        </svg>
+        Registration
+    </h5>
+    <hr class="mb-4">
+    <form action="" method="post" class="ms-3 me-3">
+        {{ form.hidden_tag() }}
+        <!-- Username -->
+        <div class="input-group mb-3 mt-3">
+            {{ form.username.label(class='input-group-text fw-bold') }}
+            {% if form.username.errors %}
+            {{ form.username(class="form-control is-invalid", placeholder='Enter Username') }}
+            <div class="invalid-feedback">
+                {% for error in form.username.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.username(class="form-control", placeholder='Enter Username') }}
+            {% endif %}
+        </div>
+        <!-- Password -->
+        <div class="input-group mb-3 mt-3">
+            {{ form.password.label(class='input-group-text fw-bold') }}
+            {% if form.password.errors %}
+            {{ form.password(class="form-control is-invalid", placeholder='Enter Password', id='pass') }}
+            <div class="invalid-feedback">
+                {% for error in form.password.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.password(class="form-control", placeholder='Enter Password', id='pass') }}
+            {% endif %}
+        </div>
+        <!-- Re-Password -->
+        <div class="input-group mb-3 mt-3">
+            {{ form.re_password.label(class='input-group-text fw-bold') }}
+            {% if form.re_password.errors %}
+            {{ form.re_password(class="form-control is-invalid", placeholder='Re-type Password', id='re_pass') }}
+            <div class="invalid-feedback" id="pass_feed">
+                {% for error in form.re_password.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.re_password(class="form-control", placeholder='Re-type Password', id='re_pass') }}
+            {% endif %}
+        </div>
+        <!-- Email -->
+        <div class="input-group mb-3 mt-3">
+            {{ form.email.label(class='input-group-text fw-bold') }}
+            {% if form.email.errors %}
+            {{ form.email(class="form-control is-invalid", placeholder='Enter Email Address') }}
+            <div class="invalid-feedback">
+                {% for error in form.email.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.email(class="form-control", placeholder='Enter Email Address') }}
+            {% endif %}
+        </div>
+        <!-- Gender -->
+        <div class="input-group mb-3">
+            {{ form.gender.label(class='input-group-text fw-bold') }}
+            {{ form.gender(class='form-select') }}
+            {% if form.gender.errors %}
+            <div class="invalid-feedback">
+                {% for error in form.gender.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <!-- Names -->
+        <div class="input-group mb-3 mt-3">
+            <span class="input-group-text fw-bold">Full Name</span>
+            <!-- First Name -->
+            {% if form.first_name.errors %}
+            {{ form.first_name(class="form-control is-invalid", placeholder='First Name') }}
+            <div class="invalid-feedback">
+                {% for error in form.first_name.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.first_name(class="form-control", placeholder='First Name') }}
+            {% endif %}
+            <!-- Last Name -->
+            {% if form.last_name.errors %}
+            {{ form.last_name(class="form-control is-invalid", placeholder='Last Name') }}
+            <div class="invalid-feedback">
+                {% for error in form.last_name.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.last_name(class="form-control", placeholder='Last Name') }}
+            {% endif %}
+        </div>
+        <!-- Birthdate -->
+        <div class="input-group mb-3 mt-3">
+            {{ form.birthdate.label(class='input-group-text fw-bold') }}
+            {% if form.birthdate.errors %}
+            {{ form.birthdate(class="form-control is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.birthdate.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.birthdate(class="form-control") }}
+            {% endif %}
+        </div>
+        <!-- Submit -->
+        {{ form.submit(class='btn btn-mint w-100 py-2') }}
+    </form>
+
+    <p class="mt-5 mb-3 text-body-secondary text-center">
+        Already have an account?
+        <a href="{{ url_for('public.login') }}" class="text-decoration-none">Login</a>
+    </p>
+
+    <script>
+        $(document).ready(function () {
+            $("#pass").keyup(function () { 
+                var pass = $(this).val();
+                var re_pass = $('#re_pass').val();
+                if(pass == re_pass) {
+                    $('#re_pass').removeClass('is-invalid');
+                    $('#re_pass').addClass('is-valid');
+                    $(this).addClass('is-valid');
+                }
+                else {
+                    $('#re_pass').removeClass('is-valid');
+                    $('#re_pass').addClass('is-invalid');
+                    $(this).removeClass('is-valid');
+                }
+            });
+
+            $("#re_pass").keyup(function () { 
+                var pass = $("#pass").val();
+                var re_pass = $(this).val();
+                if(re_pass != pass) {
+                    $(this).addClass('is-invalid');
+                }
+                else {
+                    $(this).removeClass('is-invalid');
+                    $(this).addClass('is-valid');
+                    $('#pass').addClass('is-valid');
+                }
+            });
+        });
+    </script>
+</main>
+{% endblock content %}

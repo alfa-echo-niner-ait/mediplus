@@ -18,12 +18,10 @@
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/color.css')}}">
-    <!-- JS -->
-    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.7.1.min.js') }}"></script>
 </head>
-<body id="body" class="d-flex flex-column min-vh-100">
-    <header style="padding-bottom: 3.5em;">
-        <nav class="navbar navbar-expand-md fixed-top bg-lightmint">
+<body class="d-flex flex-column min-vh-100">
+    <header>
+        <nav class="navbar navbar-expand-md bg-lightmint">
             <div class="container">
                 <a class="navbar-brand fs-5" href="{{ url_for('public.index')}}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#198754" viewBox="0 0 16 16">
@@ -34,49 +32,52 @@
                     </svg>
                     <b class="text-danger">Medi</b><b class="text-success">Plus</b>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <ul class="navbar-nav flex-row me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="">Doctor Appointment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="">Medical Test</a>
+                    </li>
+                </ul>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+                    aria-controls="offcanvasNavbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <ul class="navbar-nav ms-auto mb-2 mb-md-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Appointments</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">Tests</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{{ url_for('public.login') }}">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{{ url_for('public.register') }}">Register</a>
-                        </li>
-                    </ul>
-                </div>
             </div>
         </nav>
+
+        <!-- Offcanvas start -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasNavbarLabel">
+                    <!-- Welcome, {{ current_user.username }}! -->
+                    Welcome, User
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('public.index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- Offcanvas end -->
     </header>
 
-    <!-- Notice section start -->
-    <div class="clearfix mt-3 ms-2 me-2">
-        <div class="mx-auto" style="max-width: 500px;">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible text-center mb-2" fade show>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    {{ message }}
-                </div>
-                {% endfor %}
-            {% endif %}
-            {% endwith %}
-        </div>
-    </div>
-    <!-- Notice section end -->
-
+    <main role="main">
     {% block content %}
     {% endblock content %}
+    </main>
 
     <footer class="mt-auto pt-2" style="background-color: #d6f6d4;">
         <p class="text-center text-muted">
@@ -85,6 +86,7 @@
     </footer>
 
     <!-- JS -->
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.7.1.min.js') }}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='myjs/index.js')}}"></script>
 </body>
