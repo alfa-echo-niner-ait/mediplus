@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, current_app, flash, request
+from flask_login import current_user, login_user, login_required, logout_user
 from .forms import LoginForm, RegisterForm, ResetRequestForm, ResetPasswordForm
 from .utils import get_datetime
 from src.users.models import Users, Patients, User_Logs, Medical_Info
@@ -18,7 +19,24 @@ def index():
 @public.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        remember = form.remember.data
+        user = Users.query.filter_by(username=username).first()
+        if user and hash_manager.check_password_hash(user.password_hash, password):
+            login_user(user, remember=remember)
+            flash("Login successfull!", category='info')
+            return redirect(url_for('public.index'))
+            
     return render_template('public/login.html', form=form, title='Login')
+
+
+@public.route('/logout')
+def logout():
+    logout_user()
+    flash('Logout successfull!', category='warning')
+    return redirect(url_for('public.index'))
 
 
 @public.route('/register', methods=['GET', 'POST'])
