@@ -31,17 +31,17 @@ def create_app(config_class=Config):
 
     # Import blueprints
     from src.public.routes import public
-    from src.errors.handlers import errors
-    from src.managers.routes import managers
-    from src.patients.routes import patients
-    from src.doctors.routes import doctors
+    from src.error.handlers import error
+    from src.manager.routes import manager
+    from src.patient.routes import patient
+    from src.doctor.routes import doctor
     
     # Register blueprints
     app.register_blueprint(public)
-    app.register_blueprint(errors)
-    app.register_blueprint(managers)
-    app.register_blueprint(patients)
-    app.register_blueprint(doctors)
+    app.register_blueprint(error)
+    app.register_blueprint(manager)
+    app.register_blueprint(patient)
+    app.register_blueprint(doctor)
     
     # Return the instance of app
     return app

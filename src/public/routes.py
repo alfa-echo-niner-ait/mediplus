@@ -11,8 +11,6 @@ public = Blueprint('public', __name__)
 
 @public.route('/', methods=['GET', 'POST'])
 def index():
-    flash('Page loading success', category='info')
-        
     return render_template('public/index.html')
 
 
@@ -26,14 +24,24 @@ def login():
         user = Users.query.filter_by(username=username).first()
         if user and hash_manager.check_password_hash(user.password_hash, password):
             login_user(user, remember=remember)
+            date, time = get_datetime()
+            
+            new_log = User_Logs(current_user.id, 'Login', date, time)
+            db.session.add(new_log)
+            db.session.commit()
             flash("Login successfull!", category='info')
             return redirect(url_for('public.index'))
-            
+
     return render_template('public/login.html', form=form, title='Login')
 
 
 @public.route('/logout')
 def logout():
+    date, time = get_datetime()        
+    new_log = User_Logs(current_user.id, 'Logout', date, time)
+    db.session.add(new_log)
+    db.session.commit()
+
     logout_user()
     flash('Logout successfull!', category='warning')
     return redirect(url_for('public.index'))
