@@ -35,6 +35,7 @@ def create_app(config_class=Config):
     from src.manager.routes import manager
     from src.patient.routes import patient
     from src.doctor.routes import doctor
+    from src.api.api import api
     
     # Register blueprints
     app.register_blueprint(public)
@@ -42,6 +43,7 @@ def create_app(config_class=Config):
     app.register_blueprint(manager)
     app.register_blueprint(patient)
     app.register_blueprint(doctor)
+    app.register_blueprint(api)
     
     # Return the instance of app
     return app

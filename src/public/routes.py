@@ -132,3 +132,12 @@ def reset_password(username, token):
                 return redirect(url_for('public.login'))
         
     
+@public.route('/dashboard')
+@login_required
+def dashboard():
+    if current_user.role == 'Patient':
+        return redirect(url_for('patient.dashboard'))
+    elif current_user.role == 'Doctor':
+        return redirect(url_for('doctor.dashboard'))
+    elif current_user.role == 'Manager':
+        return redirect(url_for('manager.dashboard'))

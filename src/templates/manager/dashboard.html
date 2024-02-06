@@ -17,7 +17,9 @@
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a class="link-body-emphasis fw-semibold text-decoration-none" href="#">Dashboard</a>
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
             </li>
             <li class="breadcrumb-item active">
                 Overview
@@ -34,6 +36,12 @@
             bdy += "Hello <br>"
         }
         txt.innerHTML = bdy;
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#side_overview").addClass("text-dark bg-white");
+        });
     </script>
 {% endblock content %}
     
