@@ -27,6 +27,15 @@
         </ol>
     </nav>
 </div>
+
+<div class="container">
+    <div class="bg-success p-2 text-white">This is default success background</div>
+    <div class="bg-success p-2 text-white bg-opacity-75">This is 75% opacity success background</div>
+    <div class="bg-success p-2 text-dark bg-opacity-50">This is 50% opacity success background</div>
+    <div class="bg-success p-2 text-dark bg-opacity-25">This is 25% opacity success background</div>
+    <div class="bg-success p-2 text-dark bg-opacity-10">This is 10% opacity success background</div>
+
+</div>
     <p id="txt" class="mt-3"></p>
 
     <script>
@@ -40,7 +49,7 @@
 
     <script>
         $(document).ready(function () {
-            $("#side_overview").addClass("text-dark bg-white");
+            $("#side_overview").addClass("text-success-emphasis bg-success-subtle");
         });
     </script>
 {% endblock content %}

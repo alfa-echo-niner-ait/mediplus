@@ -1,7 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs
-from src.manager.forms import SortForm
+from src.manager.forms import SortForm, ChangePasswordForm
+from src import db, hash_manager
+from src.public.utils import get_datetime
 
 
 manager = Blueprint('manager', __name__)
@@ -10,7 +12,53 @@ manager = Blueprint('manager', __name__)
 @manager.route('/dashboard/manager')
 @login_required
 def dashboard():
-    return render_template('manager/dashboard.html')
+    return render_template('manager/dashboard.html', title='Manager Dashboard')
+
+
+@manager.route('/dashboard/manager/managers')
+@login_required
+def managers():
+    return render_template('manager/managers.html', title='Managers')
+
+
+@manager.route('/dashboard/manager/doctors')
+@login_required
+def doctors():
+    return render_template('manager/doctors.html', title='Doctors')
+
+
+@manager.route('/dashboard/manager/patients')
+@login_required
+def patients():
+    return render_template('manager/patients.html', title='Patients')
+
+
+@manager.route('/dashboard/manager/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    
+    if form.validate_on_submit():
+        current_password = form.current_password.data
+        if hash_manager.check_password_hash(current_user.password_hash, current_password):
+            new_password = form.confirm_password.data
+            password_hash = hash_manager.generate_password_hash(new_password).decode('utf-8')
+
+            user = Users.query.filter_by(id=current_user.id).first()
+            user.password_hash = password_hash
+            
+            date, time = get_datetime()        
+            new_log = User_Logs(current_user.id, 'Change Password', date, time)
+            db.session.add(new_log)
+            db.session.commit()
+
+            flash("Password changed successfully!", category="success")
+            return redirect(url_for('manager.dashboard'))
+        else:
+            flash("Sorry, current password didn't match!", category="danger")
+
+    return render_template('manager/change_password.html', form=form, title='Change Password')
+
 
 
 @manager.route('/dashboard/manager/logs', methods=['GET', 'POST'])

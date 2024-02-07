@@ -58,7 +58,7 @@
                     {{ form.count(class="form-select") }}
                 </div>
                 <div class="col mt-auto">
-                    {{ form.submit(class='btn btn-info') }}
+                    {{ form.submit(class='btn btn-success') }}
                 </div>
             </div>
         </form>
@@ -68,7 +68,7 @@
 <!-- Log List -->
 <div class="container">
     <table class="table table-bordered table-hover shadow">
-        <thead class="table-primary">
+        <thead class="table-success">
             <tr>
                 <th scope="col text-primary">Log ID</th>
                 <th scope="col">User ID</th>
@@ -109,11 +109,11 @@
         {% for page_num in logs.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
         {% if logs.page == page_num %}
-        <a class="btn btn-info m-2" href="{{ url_for('manager.logs', page=page_num) }}" id="pg_link{{ page_num }}">
+        <a class="btn btn-success m-2" href="{{ url_for('manager.logs', page=page_num) }}" id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
-        <a class="btn btn-outline-info m-2" href="{{ url_for('manager.logs', page=page_num) }}" id="pg_link{{ page_num }}">
+        <a class="btn btn-outline-success m-2" href="{{ url_for('manager.logs', page=page_num) }}" id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% endif %}
@@ -129,9 +129,8 @@
 
 <script>
     $(document).ready(function () {
-        $("#side_logs").addClass("text-dark bg-white");
+        $("#side_logs").addClass("text-success-emphasis bg-success-subtle");
     });
 </script>
 
-<!-- {% include 'manager/js.html' %} -->
 {% endblock content %}

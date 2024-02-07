@@ -18,6 +18,12 @@ def error_404(error):
     code = 404
     return render_template('error/error.html', error=error, code=code), 404
 
+
+@error.app_errorhandler(405)
+def error_405(error):
+    code = 405
+    return render_template('error/error.html', error=error, code=code), 405
+
     
 @error.app_errorhandler(500)
 def error_500(error):

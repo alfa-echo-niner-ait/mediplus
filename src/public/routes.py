@@ -126,6 +126,10 @@ def reset_password(username, token):
 
                 user.password_hash = password_hash
                 user.token = ""
+                
+                date, time = get_datetime()        
+                new_log = User_Logs(user.id, 'Change Password', date, time)
+                db.session.add(new_log)
                 db.session.commit()
                 
                 flash('Password changed successfully! Login to continue.', category='success')
