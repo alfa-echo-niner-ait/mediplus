@@ -41,8 +41,8 @@
 
                 <hr>
                 <div class="navbar-brand mb-3">
-                    <img src="{{ url_for('static', filename='avatars/manager/manager.svg') }}"
-                        width="60" class="rounded-pill float-start" alt="😊">
+                    <img src="{{ url_for('static', filename='avatars/manager/manager.svg') }}" width="60"
+                        class="rounded-pill float-start" alt="😊">
                     <div class="fs-5 d-none d-sm-inline">
                         {{ current_user.username }}
                     </div>
@@ -161,7 +161,8 @@
                                 <li><a href="#" class="fs-6 text-success text-decoration-none mb-3">Update Profile</a>
                                 </li>
                                 <li>
-                                    <a href="{{ url_for('manager.change_password') }}" class="fs-6 text-success text-decoration-none mb-3">
+                                    <a href="{{ url_for('manager.change_password') }}"
+                                        class="fs-6 text-success text-decoration-none mb-3">
                                         Change Password
                                     </a>
                                 </li>

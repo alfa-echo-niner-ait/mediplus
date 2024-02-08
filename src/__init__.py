@@ -12,17 +12,17 @@ db = SQLAlchemy()
 mail_manager = Mail()
 login_manager = LoginManager()
 hash_manager = Bcrypt()
-token_manager = TimestampSigner(os.environ.get('MEDIPLUS_SECRET_KEY'))
-login_manager.login_view = 'public.login'
-login_manager.login_message_category = 'danger'
+token_manager = TimestampSigner(os.environ.get("MEDIPLUS_SECRET_KEY"))
+login_manager.login_view = "public.login"
+login_manager.login_message_category = "danger"
 
 
 def create_app(config_class=Config):
     # Initiate app
     app = Flask(__name__)
     app.config.from_object(config_class)
-    app.secret_key = os.environ.get('MEDIPLUS_SECRET_KEY')
-    
+    app.secret_key = os.environ.get("MEDIPLUS_SECRET_KEY")
+
     CORS(app)
     db.init_app(app)
     mail_manager.init_app(app)
@@ -36,7 +36,7 @@ def create_app(config_class=Config):
     from src.patient.routes import patient
     from src.doctor.routes import doctor
     from src.api.api import api
-    
+
     # Register blueprints
     app.register_blueprint(public)
     app.register_blueprint(error)
@@ -44,6 +44,6 @@ def create_app(config_class=Config):
     app.register_blueprint(patient)
     app.register_blueprint(doctor)
     app.register_blueprint(api)
-    
+
     # Return the instance of app
     return app
