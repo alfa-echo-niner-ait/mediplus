@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from src.users.models import Users, User_Logs
-from src.manager.forms import SortForm, ChangePasswordForm
+from src.users.models import Users, User_Logs, Patients
+from src.manager.forms import LogSortForm, ChangePasswordForm, PatientSearchForm
 from src import db, hash_manager
 from src.public.utils import get_datetime
 
@@ -30,7 +30,21 @@ def doctors():
 @manager.route("/dashboard/manager/patients")
 @login_required
 def patients():
-    return render_template("manager/patients.html", title="Patients")
+    page_num = request.args.get("page", 1, int)
+
+    form = PatientSearchForm()
+    patients = Patients.query.join(Users, Patients.p_id == Users.id).add_columns(
+            Users.id,
+            Users.username,
+            Users.email,
+            Users.gender,
+            Patients.first_name,
+            Patients.last_name,
+            Patients.birthdate,
+            Patients.avatar,
+        ).order_by(
+        Patients.p_id.desc()).paginate(page=page_num, per_page=15)
+    return render_template("manager/patients.html", title="Patients", form=form, patients=patients)
 
 
 @manager.route("/dashboard/manager/change_password", methods=["GET", "POST"])
@@ -71,7 +85,7 @@ def change_password():
 def logs():
     page_num = request.args.get("page", 1, int)
 
-    form = SortForm()
+    form = LogSortForm()
     logs = (
         User_Logs.query.join(Users, User_Logs.user_id == Users.id)
         .order_by(User_Logs.log_id.desc())

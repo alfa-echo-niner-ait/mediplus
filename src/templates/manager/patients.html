@@ -26,10 +26,139 @@
     </nav>
 </div>
 
+<!-- Filter -->
+<div class="container">
+    <div class="border rounded mb-3 p-3">
+        <h4 class="fs-5 mb-2">
+            <svg width="25" height="25" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                <path
+                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+            </svg>
+            Search Patient
+        </h4>
+        <div class="row">
+            <div class="col">
+                <label class="form-label" for="search_by">Search By</label>
+                <select class="form-select" id="search_by">
+                    <option value="username">Username</option>
+                    <option value="id">User ID</option>
+                    <option value="email">User Email</option>
+                </select>
+            </div>
+            <div class="col">
+                <label class="form-label" for="keyword">Keyword</label>
+                <input class="form-control" id="keyword" placeholder="Enter Keyword" required type="text">
+            </div>
+            <div class="col mt-auto">
+                <button class="btn btn-success" id="search">Search</button>
+            </div>
+        </div>
+        <div id="msg"></div>
+    </div>
+</div>
+
+<!-- Patient List -->
+<div class="container">
+    <table class="table table-bordered table-hover shadow">
+        <thead class="table-success">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Username</th>
+                <th scope="col">Firstname</th>
+                <th scope="col">Lastname</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Email</th>
+                <th scope="col">Birthdate</th>
+                <th scope="col">Avatar</th>
+            </tr>
+        </thead>
+        <tbody id="patient_data">
+            {% for pat in patients %}
+            <tr>
+                <td>{{ pat.id }}</td>
+                <td>{{ pat.username }}</td>
+                <td>{{ pat.first_name }}</td>
+                <td>{{ pat.last_name }}</td>
+                <td>{{ pat.gender }}</td>
+                <td>{{ pat.email }}</td>
+                <td>{{ pat.birthdate }}</td>
+                <td>{{ pat.avatar }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="container mt-3 mb-3" id="patient_pagination">
+    <div class="d-flex justify-content-center border rounded">
+        {% for page_num in patients.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+        {% if page_num %}
+        {% if patients.page == page_num %}
+        <a class="btn btn-success m-2" href="{{ url_for('manager.patients', page=page_num) }}"
+            id="pg_link{{ page_num }}">
+            {{ page_num }}
+        </a>
+        {% else %}
+        <a class="btn btn-outline-success m-2" href="{{ url_for('manager.patients', page=page_num) }}"
+            id="pg_link{{ page_num }}">
+            {{ page_num }}
+        </a>
+        {% endif %}
+        {% else %}
+        <button class="btn btn-outline-secondary m-2" disabled>
+            ...
+        </button>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
 
 <script>
     $(document).ready(function () {
         $("#side_patient").addClass("text-success-emphasis bg-success-subtle");
     });
+
+    // Post data
+    $("#search").click(function () {
+
+        $.ajax({
+            type: "POST",
+            url: "{{ url_for('api.search_patient') }}",
+            data: {
+                search_by: $("#search_by").val(),
+                keyword: $("#keyword").val()
+            },
+            success: function (response) {
+                $("#msg").empty();
+                $("#patient_data").empty();
+                $("#patient_pagination").remove();
+                
+                if(response[0]["result"] == "success") {
+                    var data = ""
+                    $.each(response[1]["patients"], function (index, patient) { 
+                        data +=  `
+                         <tr>
+                            <td>${patient.id}</td>
+                            <td>${patient.username}</td>
+                            <td>${patient.first_name}</td>
+                            <td>${patient.last_name}</td>
+                            <td>${patient.gender}</td>
+                            <td>${patient.email}</td>
+                            <td>${patient.birthdate}</td>
+                            <td>${patient.avatar}</td>
+                        </tr>
+                         `
+                    });
+                    
+                    $("#patient_data").html(data);
+                }
+                else if(response[0]["result"] == "fail") {
+                    $("#msg").html("<div class='text-center text-danger mt-2'>Sorry, No Result Found!</div>");
+                }
+            }
+        });
+    });
+
 </script>
 {% endblock content %}

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectField, SubmitField, DateField, PasswordField
+from wtforms import SelectField, SubmitField, DateField, PasswordField, StringField
 from wtforms.validators import DataRequired, EqualTo
 from datetime import date
 
@@ -14,7 +14,17 @@ class ChangePasswordForm(FlaskForm):
     submit = SubmitField("Change Password")
 
 
-class SortForm(FlaskForm):
+class PatientSearchForm(FlaskForm):
+    search_by = SelectField(
+        "Search By",
+        validators=[DataRequired()],
+        choices=[("username", "Username"), ("id", "User ID"), ("email", "User Email")],
+    )
+    keyword = StringField("Keyword", validators=[DataRequired()])
+    
+
+
+class LogSortForm(FlaskForm):
     role = SelectField(
         "Role",
         validators=[DataRequired()],
