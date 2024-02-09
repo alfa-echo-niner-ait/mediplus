@@ -12,15 +12,6 @@ class ChangePasswordForm(FlaskForm):
     )
 
     submit = SubmitField("Change Password")
-
-
-class PatientSearchForm(FlaskForm):
-    search_by = SelectField(
-        "Search By",
-        validators=[DataRequired()],
-        choices=[("username", "Username"), ("id", "User ID"), ("email", "User Email")],
-    )
-    keyword = StringField("Keyword", validators=[DataRequired()])
     
 
 

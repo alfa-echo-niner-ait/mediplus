@@ -32,70 +32,58 @@
         <h4 class="fs-5 mb-2">
             <svg width="25" height="25" fill="currentColor" class="bi" viewBox="0 0 16 16">
                 <path
-                    d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z" />
+                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
             </svg>
-            Filter Logs
+            Search Manager
         </h4>
-
-        <form action="" method="post">
-            {{ form.hidden_tag() }}
-            <div class="row">
-                <div class="col">
-                    {{ form.role.label(class="form-label") }}
-                    {{ form.role(class="form-select") }}
-                </div>
-                <div class="col">
-                    {{ form.date.label(class="form-label") }}
-                    {{ form.date(class="form-control") }}
-                </div>
-                <div class="col">
-                    {{ form.order.label(class="form-label") }}
-                    {{ form.order(class="form-select") }}
-                </div>
-                <div class="col">
-                    {{ form.count.label(class="form-label") }}
-                    {{ form.count(class="form-select") }}
-                </div>
-                <div class="col mt-auto">
-                    {{ form.submit(class='btn btn-success') }}
-                </div>
+        <div class="row">
+            <div class="col">
+                <label class="form-label" for="search_by">Search By</label>
+                <select class="form-select" id="search_by">
+                    <option value="username">Username</option>
+                    <option value="id">User ID</option>
+                    <option value="email">User Email</option>
+                </select>
             </div>
-        </form>
+            <div class="col">
+                <label class="form-label" for="keyword">Keyword</label>
+                <input class="form-control" id="keyword" placeholder="Enter Keyword" required type="text">
+            </div>
+            <div class="col mt-auto">
+                <button class="btn btn-success" id="search">Search</button>
+            </div>
+        </div>
+        <div id="msg"></div>
     </div>
 </div>
 
-<!-- Log List -->
+
+<!-- Manager List -->
 <div class="container">
     <table class="table table-bordered table-hover shadow">
         <thead class="table-success">
             <tr>
-                <th scope="col text-primary">Log ID</th>
-                <th scope="col">User ID</th>
-                <th scope="col">Log Event</th>
+                <th scope="col">ID</th>
                 <th scope="col">Username</th>
-                <th scope="col">Role</th>
-                <th scope="col">Date</th>
-                <th scope="col">Time</th>
+                <th scope="col">Firstname</th>
+                <th scope="col">Lastname</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Avatar</th>
             </tr>
         </thead>
-        <tbody id="log_data">
-            {% for log in logs %}
+        <tbody id="manager_data">
+            {% for man in managers %}
             <tr>
-                <td>{{ log.log_id }}</td>
-                <td>{{ log.user_id }}</td>
-                <td>{{ log.log_type }}</td>
-                <td>{{ log.username }}</td>
-                {% if log.role == 'Manager' %}
-                <td class="table-warning">{{ log.role }}</td>
-                {% endif %}
-                {% if log.role == 'Patient' %}
-                <td class="table-info">{{ log.role }}</td>
-                {% endif %}
-                {% if log.role == 'Doctor' %}
-                <td class="table-success">{{ log.role }}</td>
-                {% endif %}
-                <td>{{ log.log_date }}</td>
-                <td>{{ log.log_time }}</td>
+                <td>{{ man.id }}</td>
+                <td>{{ man.username }}</td>
+                <td>{{ man.first_name }}</td>
+                <td>{{ man.last_name }}</td>
+                <td>{{ man.gender }}</td>
+                <td>{{ man.email }}</td>
+                <td>{{ man.phone }}</td>
+                <td>{{ man.avatar }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -103,16 +91,17 @@
 </div>
 
 <!-- Pagination -->
-<div class="container mt-3 mb-3" id="patient_pagination">
+<div class="container mt-3 mb-3" id="manager_pagination">
     <div class="d-flex justify-content-center border rounded">
-        {% for page_num in logs.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+        {% for page_num in managers.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
-        {% if logs.page == page_num %}
-        <a class="btn btn-success m-2" href="{{ url_for('manager.logs', page=page_num) }}" id="pg_link{{ page_num }}">
+        {% if managers.page == page_num %}
+        <a class="btn btn-success m-2" href="{{ url_for('manager.managers', page=page_num) }}"
+            id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
-        <a class="btn btn-outline-success m-2" href="{{ url_for('manager.logs', page=page_num) }}"
+        <a class="btn btn-outline-success m-2" href="{{ url_for('manager.managers', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
@@ -125,6 +114,7 @@
         {% endfor %}
     </div>
 </div>
+
 
 <!-- JS -->
 <script>

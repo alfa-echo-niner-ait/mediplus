@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from src.users.models import Users, User_Logs, Patients
-from src.manager.forms import LogSortForm, ChangePasswordForm, PatientSearchForm
+from src.users.models import Users, User_Logs, Patients, Doctors, Managers
+from src.manager.forms import LogSortForm, ChangePasswordForm
 from src import db, hash_manager
 from src.public.utils import get_datetime
 
@@ -18,7 +18,25 @@ def dashboard():
 @manager.route("/dashboard/manager/managers")
 @login_required
 def managers():
-    return render_template("manager/managers.html", title="Managers")
+    page_num = request.args.get("page", 1, int)
+
+    managers = (
+        Managers.query.join(Users, Managers.m_id == Users.id)
+        .add_columns(
+            Users.id,
+            Users.username,
+            Users.email,
+            Users.gender,
+            Managers.first_name,
+            Managers.last_name,
+            Managers.phone,
+            Managers.avatar,
+        )
+        .order_by(Managers.m_id.desc())
+        .paginate(page=page_num, per_page=12)
+    )
+    
+    return render_template("manager/managers.html", managers=managers, title="Managers")
 
 
 @manager.route("/dashboard/manager/doctors")
@@ -27,13 +45,15 @@ def doctors():
     return render_template("manager/doctors.html", title="Doctors")
 
 
+# Patients
 @manager.route("/dashboard/manager/patients")
 @login_required
 def patients():
     page_num = request.args.get("page", 1, int)
 
-    form = PatientSearchForm()
-    patients = Patients.query.join(Users, Patients.p_id == Users.id).add_columns(
+    patients = (
+        Patients.query.join(Users, Patients.p_id == Users.id)
+        .add_columns(
             Users.id,
             Users.username,
             Users.email,
@@ -42,44 +62,16 @@ def patients():
             Patients.last_name,
             Patients.birthdate,
             Patients.avatar,
-        ).order_by(
-        Patients.p_id.desc()).paginate(page=page_num, per_page=15)
-    return render_template("manager/patients.html", title="Patients", form=form, patients=patients)
-
-
-@manager.route("/dashboard/manager/change_password", methods=["GET", "POST"])
-@login_required
-def change_password():
-    form = ChangePasswordForm()
-
-    if form.validate_on_submit():
-        current_password = form.current_password.data
-        if hash_manager.check_password_hash(
-            current_user.password_hash, current_password
-        ):
-            new_password = form.confirm_password.data
-            password_hash = hash_manager.generate_password_hash(new_password).decode(
-                "utf-8"
-            )
-
-            user = Users.query.filter_by(id=current_user.id).first()
-            user.password_hash = password_hash
-
-            date, time = get_datetime()
-            new_log = User_Logs(current_user.id, "Change Password", date, time)
-            db.session.add(new_log)
-            db.session.commit()
-
-            flash("Password changed successfully!", category="success")
-            return redirect(url_for("manager.dashboard"))
-        else:
-            flash("Sorry, current password didn't match!", category="danger")
-
+        )
+        .order_by(Patients.p_id.desc())
+        .paginate(page=page_num, per_page=15)
+    )
     return render_template(
-        "manager/change_password.html", form=form, title="Change Password"
+        "manager/patients.html", title="Patients", patients=patients
     )
 
 
+# Activity Logs
 @manager.route("/dashboard/manager/logs", methods=["GET", "POST"])
 @login_required
 def logs():
@@ -195,4 +187,44 @@ def logs():
 
     return render_template(
         "manager/logs.html", title="Activity Logs", logs=logs, form=form
+    )
+
+
+@manager.route("/dashboard/manager/account", methods=["GET", "POST"])
+@login_required
+def account():
+    return render_template("manager/account.html", title="My Account", logs=logs)
+
+
+# Self Change Password
+@manager.route("/dashboard/manager/change_password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+
+    if form.validate_on_submit():
+        current_password = form.current_password.data
+        if hash_manager.check_password_hash(
+            current_user.password_hash, current_password
+        ):
+            new_password = form.confirm_password.data
+            password_hash = hash_manager.generate_password_hash(new_password).decode(
+                "utf-8"
+            )
+
+            user = Users.query.filter_by(id=current_user.id).first()
+            user.password_hash = password_hash
+
+            date, time = get_datetime()
+            new_log = User_Logs(current_user.id, "Change Password", date, time)
+            db.session.add(new_log)
+            db.session.commit()
+
+            flash("Password changed successfully!", category="success")
+            return redirect(url_for("manager.dashboard"))
+        else:
+            flash("Sorry, current password didn't match!", category="danger")
+
+    return render_template(
+        "manager/change_password.html", form=form, title="Change Password"
     )
