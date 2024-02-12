@@ -12,7 +12,6 @@ class ChangePasswordForm(FlaskForm):
     )
 
     submit = SubmitField("Change Password")
-    
 
 
 class LogSortForm(FlaskForm):
@@ -53,3 +52,18 @@ class LogSortForm(FlaskForm):
     )
 
     submit = SubmitField("Show")
+
+
+class SelfProfileForm(FlaskForm):
+    first_name = StringField("First Name", validators=[DataRequired()])
+    last_name = StringField("Last Name", validators=[DataRequired()])
+    gender = SelectField(
+        "Gender",
+        validators=[DataRequired()],
+        choices=[("Male", "Male"), ("Female", "Female")],
+    )
+    birthdate = DateField("Birth Date", validators=[DataRequired()])
+    email = StringField("Email Address", validators=[DataRequired()])
+    phone = StringField("Phone Number", validators=[DataRequired()])
+
+    submit = SubmitField("Update Profile")

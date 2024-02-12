@@ -24,10 +24,20 @@
 }
 
 .arrow-icon[aria-expanded="true"] {
-    background-color: #eee;
+    background-color: #D1E7DD;
 }
 
 .arrow-icon[aria-expanded="true"]::after {
     display: inline-block;
     transform: rotate(90deg);
+}
+
+.mTab.nav-item .nav-link {
+    background-color: #eee;
+    color: #198754;
+}
+
+.mTab.nav-item .nav-link.active {
+    background-color: #198754;
+    color: #f0f1f2;
 }

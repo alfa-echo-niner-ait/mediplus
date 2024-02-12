@@ -155,14 +155,16 @@ class Managers(db.Model):
     first_name = db.Column(db.String(255), nullable=True)
     last_name = db.Column(db.String(255), nullable=True)
     phone = db.Column(db.String(20), nullable=True)
+    birthdate = db.Column(db.Date, nullable=True)
     avatar = db.Column(db.String(100), nullable=True)
 
-    def __init__(self, m_id, fname, lname, phone, avatar="manager.svg"):
+    def __init__(self, m_id, fname, lname, phone, birthdate, avatar="manager.svg"):
         super().__init__()
         self.m_id = m_id
         self.first_name = fname
         self.last_name = lname
         self.phone = phone
+        self.birthdate = birthdate
         self.avatar = avatar
 
     def __str__(self) -> str:
