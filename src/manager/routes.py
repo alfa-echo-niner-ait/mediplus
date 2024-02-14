@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
 from .forms import LogSortForm, ChangePasswordForm, SelfProfileForm
 from src import db, hash_manager
-from src.public.utils import get_datetime
+from src.public.utils import get_datetime, profile_picture_saver, profile_picture_remover
 
 
 manager = Blueprint("manager", __name__)
@@ -204,6 +204,18 @@ def account():
     )
     
     if form.validate_on_submit():
+        avatar = ""
+        if form.avatar.data:
+            # Remove the old picture from the file system
+            if profile.avatar != 'manager.svg':
+                profile_picture_remover(profile.avatar, 'manager')
+            
+            # Store the new picture in the file system
+            avatar = profile_picture_saver(form.avatar.data, "manager")
+            profile.avatar = avatar
+            session['avatar'] = avatar
+        
+        # Add new informaiton to the model
         profile.first_name = form.first_name.data
         profile.last_name = form.last_name.data
         user.gender = form.gender.data
@@ -214,6 +226,7 @@ def account():
         date, time = get_datetime()
         new_log = User_Logs(current_user.id, "Update Profile", date, time)
         db.session.add(new_log)
+        # Commit to the database
         db.session.commit()
 
         flash("Profile Updated Successfully!", category="success")

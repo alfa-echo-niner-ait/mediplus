@@ -41,8 +41,8 @@
 
                 <hr>
                 <div class="navbar-brand mb-3">
-                    <img src="{{ url_for('static', filename='avatars/manager/'~session['avatar']) }}" width="60"
-                        class="rounded-pill float-start" alt="😊">
+                    <img src="{{ url_for('static', filename='avatars/manager/'~session['avatar']) }}" width="40" height="40"
+                        class="thumbnail rounded mt-2 pe-1 float-start" alt="😊">
                     <div class="fs-5 d-none d-sm-inline">
                         <a href="{{ url_for('manager.account') }}" class="text-decoration-none text-success">
                             {{ current_user.username }}

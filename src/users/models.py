@@ -60,7 +60,7 @@ class User_Logs(db.Model):
 
     __tablename__ = "user_logs"
 
-    log_id = db.Column(db.Integer, primary_key=True)
+    log_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(
         db.Integer, db.ForeignKey("users.id"), primary_key=True, nullable=False
     )

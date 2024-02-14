@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import SelectField, SubmitField, DateField, PasswordField, StringField
 from wtforms.validators import DataRequired, EqualTo
 from datetime import date
@@ -65,5 +66,9 @@ class SelfProfileForm(FlaskForm):
     birthdate = DateField("Birth Date", validators=[DataRequired()])
     email = StringField("Email Address", validators=[DataRequired()])
     phone = StringField("Phone Number", validators=[DataRequired()])
+    avatar = FileField(
+        "Update Avatar",
+        validators=[FileAllowed(["jpg", "jpeg", "png", "svg"], "Please pick correct format!")],
+    )
 
     submit = SubmitField("Update Profile")

@@ -6,12 +6,12 @@ from flask import (
     current_app,
     flash,
     request,
-    session
+    session,
 )
 from flask_login import current_user, login_user, login_required, logout_user
 from .forms import LoginForm, RegisterForm, ResetRequestForm, ResetPasswordForm
 from .utils import get_datetime
-from src.users.models import Users, Patients, User_Logs, Medical_Info, Managers
+from src.users.models import Users, Patients, User_Logs, Medical_Info, Managers, Doctors
 from src.users.utils import reset_mail_sender
 from src import db, token_manager, hash_manager
 
@@ -20,6 +20,18 @@ public = Blueprint("public", __name__)
 
 @public.route("/", methods=["GET", "POST"])
 def index():
+    if current_user.is_authenticated:
+        if "avatar" not in session:
+            if current_user.role == "Manager":
+                manager = Managers.query.filter_by(m_id=current_user.id).first()
+                session["avatar"] = manager.avatar
+            elif current_user.role == "Patient":
+                patient = Patients.query.filter_by(p_id=current_user.id).first()
+                session["avatar"] = patient.avatar
+            elif current_user.role == "Doctor":
+                doctor = Doctors.query.filter_by(d_id=current_user.id).first()
+                session["avatar"] = doctor.avatar
+
     return render_template("public/index.html")
 
 
@@ -33,13 +45,12 @@ def login():
         user = Users.query.filter_by(username=username).first()
         if user and hash_manager.check_password_hash(user.password_hash, password):
             login_user(user, remember=remember)
-            
-            if user.role == 'Manager':
+
+            if user.role == "Manager":
                 manager = Managers.query.filter_by(m_id=user.id).first()
-                session['avatar'] = manager.avatar
-                
+                session["avatar"] = manager.avatar
+
             date, time = get_datetime()
-            
 
             new_log = User_Logs(current_user.id, "Login", date, time)
             db.session.add(new_log)
@@ -56,8 +67,8 @@ def logout():
     new_log = User_Logs(current_user.id, "Logout", date, time)
     db.session.add(new_log)
     db.session.commit()
-    
-    session.pop('avatar', None)
+
+    session.pop("avatar", None)
 
     logout_user()
     flash("Logout successfull!", category="warning")

@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-sm-12 col-md-8 col-lg-6">
-        <form action="" method="post">
+        <form action="" method="post" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <!-- First Name -->
             <div class="mb-3">
@@ -69,6 +69,18 @@
                 {% if form.phone.errors %}
                 <div class="invalid-feedback">
                     {% for error in form.phone.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <!-- Avatar -->
+            <div class="mb-3">
+                {{ form.avatar.label(class='form-label') }}
+                {{ form.avatar(class='form-control') }}
+                {% if form.avatar.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.avatar.errors %}
                     {{ error }}
                     {% endfor %}
                 </div>
