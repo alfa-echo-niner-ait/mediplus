@@ -41,15 +41,15 @@
 
                 <hr>
                 <div class="navbar-brand mb-3">
-                    <img src="{{ url_for('static', filename='avatars/manager/'~session['avatar']) }}" width="40" height="40"
-                        class="thumbnail rounded mt-2 pe-1 float-start" alt="😊">
-                    <div class="fs-5 d-none d-sm-inline">
+                    <img src="{{ url_for('static', filename='avatars/manager/'~session['avatar']) }}" width="50" height="50"
+                        class="rounded-circle mt-2 float-start" alt="😊">
+                    <div class="fs-5 d-none d-sm-inline ps-3">
                         <a href="{{ url_for('manager.account') }}" class="text-decoration-none text-success">
                             {{ current_user.username }}
                         </a>
                     </div>
                     <br>
-                    <div class="small text-secondary d-none d-sm-inline">
+                    <div class="small text-secondary d-none d-sm-inline ps-3">
                         {{ current_user.role }}
                     </div>
                 </div>
@@ -71,7 +71,8 @@
                     </li>
 
                     <li class="nav-item mb-2">
-                        <a href="#" class="navbar-brand nav-link text-success rounded p-2">
+                        <a href="{{ url_for('manager.appointemnts') }}"
+                            class="navbar-brand nav-link text-success rounded p-2" id="side_appointments">
                             <svg width="20" height="20" fill="currentColor" class="bi"
                                 viewBox="0 0 16 16">
                                 <path
@@ -84,7 +85,8 @@
                     </li>
 
                     <li class="nav-item mb-2">
-                        <a href="#" class="navbar-brand nav-link text-success rounded p-2">
+                        <a href="{{ url_for('manager.tests') }}"
+                            class="navbar-brand nav-link text-success rounded p-2" id="side_tests">
                             <svg width="20" height="20" class="bi" fill="currentColor" viewBox="0 0 16 16">
                                 <path
                                     d="M9.5 0a.5.5 0 0 1 .5.5.5.5 0 0 0 .5.5.5.5 0 0 1 .5.5V2a.5.5 0 0 1-.5.5h-5A.5.5 0 0 1 5 2v-.5a.5.5 0 0 1 .5-.5.5.5 0 0 0 .5-.5.5.5 0 0 1 .5-.5z" />
@@ -94,6 +96,19 @@
                                     d="M9.979 5.356a.5.5 0 0 0-.968.04L7.92 10.49l-.94-3.135a.5.5 0 0 0-.926-.08L4.69 10H4.5a.5.5 0 0 0 0 1H5a.5.5 0 0 0 .447-.276l.936-1.873 1.138 3.793a.5.5 0 0 0 .968-.04L9.58 7.51l.94 3.135A.5.5 0 0 0 11 11h.5a.5.5 0 0 0 0-1h-.128z" />
                             </svg>
                             <span class="ps-1 fs-5 d-none d-sm-inline">Medical Tests</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item mb-2">
+                        <a href="{{ url_for('manager.invoices') }}"
+                            class="navbar-brand nav-link text-success rounded p-2" id="side_invoices">
+                            <svg width="20" height="20" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                                <path
+                                    d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .801.13l.5 1A.5.5 0 0 1 15 2v12a.5.5 0 0 1-.053.224l-.5 1a.5.5 0 0 1-.8.13L13 14.707l-.646.647a.5.5 0 0 1-.708 0L11 14.707l-.646.647a.5.5 0 0 1-.708 0L9 14.707l-.646.647a.5.5 0 0 1-.708 0L7 14.707l-.646.647a.5.5 0 0 1-.708 0L5 14.707l-.646.647a.5.5 0 0 1-.708 0L3 14.707l-.646.647a.5.5 0 0 1-.801-.13l-.5-1A.5.5 0 0 1 1 14V2a.5.5 0 0 1 .053-.224l.5-1a.5.5 0 0 1 .367-.27m.217 1.338L2 2.118v11.764l.137.274.51-.51a.5.5 0 0 1 .707 0l.646.647.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.509.509.137-.274V2.118l-.137-.274-.51.51a.5.5 0 0 1-.707 0L12 1.707l-.646.647a.5.5 0 0 1-.708 0L10 1.707l-.646.647a.5.5 0 0 1-.708 0L8 1.707l-.646.647a.5.5 0 0 1-.708 0L6 1.707l-.646.647a.5.5 0 0 1-.708 0L4 1.707l-.646.647a.5.5 0 0 1-.708 0z" />
+                                <path
+                                    d="M3 4.5a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5" />
+                            </svg>
+                            <span class="ps-1 fs-5 d-none d-sm-inline">Invoices</span>
                         </a>
                     </li>
 

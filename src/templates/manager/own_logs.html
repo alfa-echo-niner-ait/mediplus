@@ -12,7 +12,12 @@
             {% for log in logs %}
             <tr>
                 <td>{{ log.log_id }}</td>
-                <td>{{ log.log_type }}</td>
+                <td>
+                    <a href="{{ url_for('manager.log_details', id=log.log_id)}}"
+                        class="text-decoration-none text-success">
+                        {{ log.log_type }}  
+                    </a>
+                </td>
                 <td>{{ log.log_date }}</td>
                 <td>{{ log.log_time }}</td>
             </tr>

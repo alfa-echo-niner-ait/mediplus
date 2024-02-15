@@ -1,0 +1,108 @@
+{% extends 'layout/layout_manager.html' %}
+
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                Invoices
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<!-- Filter -->
+<div class="container">
+    <div class="border rounded mb-3 p-3">
+        <h4 class="fs-5 mb-2">
+            <svg width="25" height="25" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                <path
+                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+            </svg>
+            Search Invoices
+        </h4>
+        <div class="row">
+            <div class="col">
+                <label class="form-label" for="search_by">Search By</label>
+                <select class="form-select" id="search_by">
+                    <option value="id">Invoice ID</option>
+                    <option value="userid">User ID</option>
+                    <option value="name">User Name</option>
+                </select>
+            </div>
+            <div class="col">
+                <label class="form-label" for="keyword">Keyword</label>
+                <input class="form-control" id="keyword" placeholder="Enter Keyword" required type="text">
+            </div>
+            <div class="col mt-auto">
+                <button class="btn btn-success" id="search">Search</button>
+            </div>
+        </div>
+        <div id="msg"></div>
+    </div>
+</div>
+
+<!-- Invoice List -->
+<div class="container">
+    <table class="table table-bordered table-hover shadow">
+        <thead class="table-success">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Patient</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Total Amount</th>
+                <th scope="col">Status</th>
+                <th scope="col">Creation Date</th>
+                <th scope="col">Creation Time</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody id="manager_data">
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.invoice_id }}</td>
+                <td>
+                    {{ invoice.last_name }} {{ invoice.first_name }}
+                </td>
+                <td>{{ invoice.phone }}</td>
+                <td>{{ invoice.total_amount }}</td>
+                {% if invoice.status == 'Unpaid' %}
+                <td class="table-danger">{{ invoice.status }}</td>
+                {% else %}
+                <td class="table-info">{{ invoice.status }}</td>
+                {% endif %}
+                <td>{{ invoice.invoice_date }}</td>
+                <td>{{ invoice.invoice_time }}</td>
+                <td>
+                    <a href="" class="btn btn-sm btn-success">Update</a>
+                    <a href="{{ url_for('public.invoice', id=invoice.invoice_id)}}"
+                        class="btn btn-sm btn-secondary" target="_blank">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- JS -->
+<script>
+    $(document).ready(function () {
+        $("#side_invoices").addClass("text-success-emphasis bg-success-subtle");
+    });
+</script>
+{% endblock content %}

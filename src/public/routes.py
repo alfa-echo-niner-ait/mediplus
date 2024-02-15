@@ -12,6 +12,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from .forms import LoginForm, RegisterForm, ResetRequestForm, ResetPasswordForm
 from .utils import get_datetime
 from src.users.models import Users, Patients, User_Logs, Medical_Info, Managers, Doctors
+from src.patient.models import Invoices, Invoice_Items, Payments
 from src.users.utils import reset_mail_sender
 from src import db, token_manager, hash_manager
 
@@ -22,12 +23,12 @@ public = Blueprint("public", __name__)
 def index():
     if current_user.is_authenticated:
         if "avatar" not in session:
-            if current_user.role == "Manager":
-                manager = Managers.query.filter_by(m_id=current_user.id).first()
-                session["avatar"] = manager.avatar
-            elif current_user.role == "Patient":
+            if current_user.role == "Patient":
                 patient = Patients.query.filter_by(p_id=current_user.id).first()
                 session["avatar"] = patient.avatar
+            elif current_user.role == "Manager":
+                manager = Managers.query.filter_by(m_id=current_user.id).first()
+                session["avatar"] = manager.avatar
             elif current_user.role == "Doctor":
                 doctor = Doctors.query.filter_by(d_id=current_user.id).first()
                 session["avatar"] = doctor.avatar
@@ -46,9 +47,15 @@ def login():
         if user and hash_manager.check_password_hash(user.password_hash, password):
             login_user(user, remember=remember)
 
-            if user.role == "Manager":
+            if user.role == "Patient":
+                patient = Patients.query.filter_by(p_id=user.id).first()
+                session["avatar"] = patient.avatar
+            elif user.role == "Manager":
                 manager = Managers.query.filter_by(m_id=user.id).first()
                 session["avatar"] = manager.avatar
+            elif user.role == "Doctor":
+                doctor = Doctors.query.filter_by(d_id=user.id).first()
+                session["avatar"] = doctor.avatar
 
             date, time = get_datetime()
 
@@ -56,7 +63,7 @@ def login():
             db.session.add(new_log)
             db.session.commit()
             flash("Login successfull!", category="info")
-            return redirect(url_for("public.index"))
+            return redirect(url_for("public.dashboard"))
 
     return render_template("public/login.html", form=form, title="Login")
 
@@ -175,9 +182,30 @@ def reset_password(username, token):
 @public.route("/dashboard")
 @login_required
 def dashboard():
+    if "avatar" not in session:
+        if current_user.role == "Patient":
+            patient = Patients.query.filter_by(p_id=current_user.id).first()
+            session["avatar"] = patient.avatar
+        elif current_user.role == "Manager":
+            manager = Managers.query.filter_by(m_id=current_user.id).first()
+            session["avatar"] = manager.avatar
+        elif current_user.role == "Doctor":
+            doctor = Doctors.query.filter_by(d_id=current_user.id).first()
+            session["avatar"] = doctor.avatar
+
     if current_user.role == "Patient":
         return redirect(url_for("patient.dashboard"))
     elif current_user.role == "Doctor":
         return redirect(url_for("doctor.dashboard"))
     elif current_user.role == "Manager":
         return redirect(url_for("manager.dashboard"))
+
+
+@public.route("/invoice/<id>")
+def invoice(id):
+    invoice:Invoices = Invoices.query.filter_by(invoice_id=id).first()
+    patient:Patients = Patients.query.filter_by(p_id=invoice.invoice_patient_id).first()
+    items:Invoice_Items = Invoice_Items.query.filter_by(invoice_id=id).all()
+
+    return render_template(
+        "public/invoice.html", title=f"Invoice #{id}", invoice=invoice, patient=patient, items=items)

@@ -1,6 +1,10 @@
-{% extends 'layout/layout_patient.html' %}
+{% extends 'layout/layout_public.html' %}
 
 
 {% block content %}
-
+<div class="conatiner mt-3">
+    <h3 class="text-center">
+        Welcome, <strong>{{ current_user.username }}</strong>
+    </h3>
+</div>
 {% endblock content %}

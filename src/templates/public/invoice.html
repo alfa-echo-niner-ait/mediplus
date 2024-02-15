@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if title %}
+    <title>{{ title }} - MediPlus</title>
+    {% else %}
+    <title>Invoice - MediPlus</title>
+    {% endif %}
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' fill='%23198754' viewBox='0 0 16 16'%3E%3Cpath
+        d='M1.475 9C2.702 10.84 4.779 12.871 8 15c3.221-2.129 5.298-4.16 6.525-6H12a.5.5 0 0 1-.464-.314l-1.457-3.642-1.598
+        5.593a.5.5 0 0 1-.945.049L5.889 6.568l-1.473 2.21A.5.5 0 0 1 4 9z'/%3E%3Cpath d='M.88 8C-2.427 1.68 4.41-2 7.823
+        1.143q.09.083.176.171a3 3 0 0 1 .176-.17C11.59-2 18.426 1.68 15.12 8h-2.783l-1.874-4.686a.5.5 0 0 0-.945.049L7.921 8.956
+        6.464 5.314a.5.5 0 0 0-.88-.091L3.732 8z'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+</head>
+
+<body>
+    <div class="card">
+        <div class="card-body">
+            <div class="container mb-3">
+                <div class="container-fluid">
+                    <div class="d-flex justify-content-between">
+                        <div class="thumbnail">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#198754"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M1.475 9C2.702 10.84 4.779 12.871 8 15c3.221-2.129 5.298-4.16 6.525-6H12a.5.5 0 0 1-.464-.314l-1.457-3.642-1.598 5.593a.5.5 0 0 1-.945.049L5.889 6.568l-1.473 2.21A.5.5 0 0 1 4 9z" />
+                                <path
+                                    d="M.88 8C-2.427 1.68 4.41-2 7.823 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C11.59-2 18.426 1.68 15.12 8h-2.783l-1.874-4.686a.5.5 0 0 0-.945.049L7.921 8.956 6.464 5.314a.5.5 0 0 0-.88-.091L3.732 8z" />
+                            </svg>
+                            <b class="fs-4 text-danger">Medi</b><b class="text-success fs-4">Plus</b>
+                        </div>
+
+                        <div style="color: #7e8d9f;" class="fs-6 mt-2 text-center">
+                            <strong>Invoice: #{{ invoice.invoice_id }}</strong>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <div class="me-auto">
+                            <ul class="list-unstyled">
+                                <li class="text-muted">
+                                    <span class="fw-bold">
+                                        Patient:
+                                    </span>
+                                    <span class="text-capitalize">
+                                        {{ patient.last_name }} {{ patient.first_name }}
+                                    </span>
+                                </li>
+                                <li class="text-muted">
+                                    <span class="fw-bold">Phone:</span> {{ patient.phone }}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="ms-auto">
+                            <ul class="list-unstyled">
+                                <li class="text-muted">
+                                    <span class="fw-bold">Creation Date: </span>{{ invoice.invoice_date }}
+                                </li>
+                                <li class="text-muted">
+                                    <span class="fw-bold">Creation Time: </span>{{ invoice.invoice_time }}
+                                </li>
+                                <li class="text-muted">
+                                    <span class="me-1 fw-bold">Status:</span>
+                                    {% if invoice.status == 'Unpaid' %}
+                                    <span class="badge bg-danger fw-bold">Unpaid</span>
+                                    {% else %}
+                                    <span class="badge bg-success fw-bold">Paid</span>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="row my-2 mx-1 justify-content-center">
+                        <table class="table table-striped table-borderless">
+                            <thead style="background-color:#84B0CA ;" class="text-white">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col" class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <th scope="row">{{ loop.index }}</th>
+                                    <td>{{ item.item_desc }}</td>
+                                    <td class="text-end">{{ item.item_price }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div class="me-auto">
+                            <p class="ms-3">Additional notes and payment information</p>
+
+                        </div>
+                        <div class="ms-auto">
+                            <ul class="list-unstyled">
+                                <li class="text-muted ms-3">
+                                    <span class="text-black me-4">SubTotal</span> {{ invoice.total_amount }}
+                                </li>
+                                <li class="text-muted ms-3 mt-2">
+                                    <span class="text-black me-4">Tax(0%)</span> 0</li>
+                            </ul>
+                            <p class="text-black float-start">
+                                <span class="text-black me-3">Total Amount</span>
+                                <span style="font-size: 25px;">¥ {{ invoice.total_amount }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <p>Thank you for using our service.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

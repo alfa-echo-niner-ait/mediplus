@@ -67,6 +67,7 @@ class User_Logs(db.Model):
     log_type = db.Column(db.String(100), nullable=False)
     log_date = db.Column(db.Date, nullable=False)
     log_time = db.Column(db.Time, nullable=False)
+    log_desc = db.Column(db.TEXT, nullable=True)
 
     def __init__(self, user_id, log_type, log_date, log_time):
         super().__init__()

@@ -1,9 +1,14 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
+from src.patient.models import Invoices, Invoice_Items, Payments
 from .forms import LogSortForm, ChangePasswordForm, SelfProfileForm
 from src import db, hash_manager
-from src.public.utils import get_datetime, profile_picture_saver, profile_picture_remover
+from src.public.utils import (
+    get_datetime,
+    profile_picture_saver,
+    profile_picture_remover,
+)
 
 
 manager = Blueprint("manager", __name__)
@@ -13,6 +18,43 @@ manager = Blueprint("manager", __name__)
 @login_required
 def dashboard():
     return render_template("manager/dashboard.html", title="Manager Dashboard")
+
+
+@manager.route("/dashboard/appointments")
+@login_required
+def appointemnts():
+    return render_template("manager/appointments.html", title="Appointments Management")
+
+
+@manager.route("/dashboard/tests")
+@login_required
+def tests():
+    return render_template("manager/tests.html", title="Tests Management")
+
+
+@manager.route("/dashboard/invoices")
+@login_required
+def invoices():
+    page_num = request.args.get("page", 1, int)
+
+    invoices = (
+        Invoices.query.join(Patients, Invoices.invoice_patient_id == Patients.p_id)
+        .order_by(Invoices.invoice_id.desc())
+        .add_columns(
+            Patients.p_id,
+            Patients.first_name,
+            Patients.last_name,
+            Patients.phone,
+            Invoices.invoice_id,
+            Invoices.total_amount,
+            Invoices.status,
+            Invoices.invoice_date,
+            Invoices.invoice_time,
+        )
+        .paginate(page=page_num, per_page=12)
+    )
+    
+    return render_template("manager/invoices.html", title="Invoices Management", invoices=invoices)
 
 
 @manager.route("/dashboard/manager/managers")
@@ -188,11 +230,35 @@ def logs():
     )
 
 
+@manager.route("/dashboard/manager/logs/<id>")
+@login_required
+def log_details(id):
+    log = (
+        User_Logs.query.filter_by(log_id=int(id))
+        .join(Users, User_Logs.user_id == Users.id)
+        .add_columns(
+            Users.id,
+            Users.username,
+            Users.email,
+            Users.role,
+            User_Logs.log_id,
+            User_Logs.log_type,
+            User_Logs.log_date,
+            User_Logs.log_time,
+            User_Logs.log_type,
+            User_Logs.log_desc
+        )
+        .first()
+    )
+    
+    return render_template("manager/log_details.html", title=f"Log #{id} Details", log=log)
+
+
 @manager.route("/dashboard/manager/account", methods=["GET", "POST"])
 @login_required
 def account():
     page_num = request.args.get("page", 1, int)
-    
+
     form = SelfProfileForm()
     user: Users = Users.query.filter_by(id=current_user.id).first()
     profile: Managers = Managers.query.filter_by(m_id=current_user.id).first()
@@ -202,19 +268,19 @@ def account():
         .order_by(User_Logs.log_id.desc())
         .paginate(page=page_num, per_page=10)
     )
-    
+
     if form.validate_on_submit():
         avatar = ""
         if form.avatar.data:
             # Remove the old picture from the file system
-            if profile.avatar != 'manager.svg':
-                profile_picture_remover(profile.avatar, 'manager')
-            
+            if profile.avatar != "manager.svg":
+                profile_picture_remover(profile.avatar, "manager")
+
             # Store the new picture in the file system
             avatar = profile_picture_saver(form.avatar.data, "manager")
             profile.avatar = avatar
-            session['avatar'] = avatar
-        
+            session["avatar"] = avatar
+
         # Add new informaiton to the model
         profile.first_name = form.first_name.data
         profile.last_name = form.last_name.data
@@ -222,7 +288,7 @@ def account():
         user.email = form.email.data
         profile.phone = form.phone.data
         profile.birthdate = form.birthdate.data
-        
+
         date, time = get_datetime()
         new_log = User_Logs(current_user.id, "Update Profile", date, time)
         db.session.add(new_log)
@@ -230,17 +296,19 @@ def account():
         db.session.commit()
 
         flash("Profile Updated Successfully!", category="success")
-        return redirect(url_for('manager.account'))
+        return redirect(url_for("manager.account"))
 
-    elif request.method == 'GET':
+    elif request.method == "GET":
         form.first_name.data = profile.first_name
         form.last_name.data = profile.last_name
         form.gender.data = user.gender
         form.email.data = user.email
         form.phone.data = profile.phone
         form.birthdate.data = profile.birthdate
-        
-    return render_template("manager/account.html", title="My Account", logs=logs, form=form)
+
+    return render_template(
+        "manager/account.html", title="My Account", logs=logs, form=form
+    )
 
 
 # Self Change Password

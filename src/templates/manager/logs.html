@@ -84,7 +84,12 @@
             <tr>
                 <td>{{ log.log_id }}</td>
                 <td>{{ log.user_id }}</td>
-                <td>{{ log.log_type }}</td>
+                <td>
+                    <a href="{{ url_for('manager.log_details', id=log.log_id)}}"
+                        class="text-decoration-none text-success">
+                        {{ log.log_type }}
+                    </a>
+                </td>
                 <td>{{ log.username }}</td>
                 {% if log.role == 'Manager' %}
                 <td class="table-warning">{{ log.role }}</td>

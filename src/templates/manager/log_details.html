@@ -1,0 +1,86 @@
+{% extends 'layout/layout_manager.html' %}
+
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('manager.logs') }}">
+                    Activity Logs
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                Log #{{ log.log_id }}
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container">
+
+    <table class="table table-bordered" style="width: 50%;">
+        <tr>
+            <th scope="row">User ID</th>
+            <td>{{ log.id }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Username</th>
+            <td>{{ log.username }}</td>
+        </tr>
+        <tr>
+            <th scope="row">User Email</th>
+            <td>{{ log.email }}</td>
+        </tr>
+        <tr>
+            <th scope="row">User Role</th>
+            <td>{{ log.role }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Log Type</th>
+            <td>{{ log.log_type }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Log Date</th>
+            <td>{{ log.log_date }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Log Time</th>
+            <td>{{ log.log_time }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Description</th>
+            <td>{{ log.log_desc }}</td>
+        </tr>
+    </table>
+    
+    <button class="btn btn-secondary mt-3" onclick="goBack()">Go Back</button>
+</div>
+
+
+<!-- JS -->
+<script>
+    function goBack() {
+            window.history.back();
+        }
+
+    $(document).ready(function () {
+        $("#side_logs").addClass("text-success-emphasis bg-success-subtle");
+    });
+</script>
+
+{% endblock content %}
