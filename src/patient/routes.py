@@ -46,7 +46,7 @@ def update_profile():
         avatar = ""
         if form.avatar.data:
             # Remove the old picture from the file system
-            if profile.avatar != "user_male.svg" or "user_female.svg":
+            if profile.avatar != "user_male.svg" or profile.avatar != "user_female.svg":
                 profile_picture_remover(profile.avatar, "patient")
 
             # Store the new picture in the file system
@@ -110,7 +110,6 @@ def change_password():
             flash("Sorry, current password didn't match!", category="danger")
             
     return render_template("patient/change_password.html", form=form, title="Change Password")
-
 
 
 @patient.route("/dashboard/patient/medical_records", methods=["GET", "POST"])
