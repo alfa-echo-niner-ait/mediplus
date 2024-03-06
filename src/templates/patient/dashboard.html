@@ -26,9 +26,21 @@
             <div class="fs-5">
                 {{ user.last_name}} {{ user.first_name}}
                 {% if user.gender == "Male" %}
-                <span class="badge text-bg-info">♂️</span>
+                <span class="badge text-bg-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi"
+                        viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8" />
+                    </svg>
+                </span>
                 {% else %}
-                <span class="badge text-bg-warning">♀️</span>
+                <span class="badge text-bg-warning">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi"
+                        viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5" />
+                    </svg>
+                </span>
                 {% endif %}
             </div>
             <div class="fs-5">Phone: <span class="text-secondary">{{ user.phone }}</span></div>
@@ -76,7 +88,7 @@
                     <p class="card-text">
                         It's necessary to keep your account updated with latest medical records to get better treatment.
                     </p>
-                    <a href="#" class="btn btn-danger bg-gradient shadow-lg text-white">Update Records</a>
+                    <a href="{{ url_for('patient.medical_records') }}" class="btn btn-danger bg-gradient shadow-lg text-white">Update Records</a>
                 </div>
             </div>
         </div>

@@ -110,3 +110,10 @@ def change_password():
             flash("Sorry, current password didn't match!", category="danger")
             
     return render_template("patient/change_password.html", form=form, title="Change Password")
+
+
+
+@patient.route("/dashboard/patient/medical_records", methods=["GET", "POST"])
+@login_required
+def medical_records():
+    return render_template("patient/medical_records.html", title="Medical Records")
