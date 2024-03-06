@@ -22,19 +22,27 @@
                 alt="{{ user.username }}" title="{{ user.username }}">
         </div>
         <div class="col-md-5 mb-2">
-            <div class="fs-4 fw-bold">
+            <div class="fs-4 fw-bold">{{ user.username }}</div>
+            <div class="fs-5">
                 {{ user.last_name}} {{ user.first_name}}
                 {% if user.gender == "Male" %}
-                ♂️
+                <span class="badge text-bg-info">♂️</span>
                 {% else %}
-                ♀️
+                <span class="badge text-bg-warning">♀️</span>
                 {% endif %}
             </div>
-            <div class="fs-5">Phone: {{ user.phone }}</div>
-            <div class="fs-5">Email: {{ user.email }}</div>
-            <div class="fs-5">Birthdate: {{ user.birthdate }}</div>
+            <div class="fs-5">Phone: <span class="text-secondary">{{ user.phone }}</span></div>
+            <div class="fs-5">Email: <span class="text-secondary">{{ user.email }}</span></div>
+            <div class="fs-5">Birthdate: <span class="text-secondary">{{ user.birthdate }}</span></div>
+            <div class="fs-5">Account ID: <span class="text-secondary">#{{ current_user.id }}</span></div>
         </div>
-        <div class="col-md-4 mb-2"></div>
+        <div class="col-md-4 mb-2 ms-auto">
+            <div class="ms-auto float-end">
+                <a href="{{ url_for('patient.update_profile') }}" class="btn btn-primary mb-2">Update Profile</a>
+                <a href="{{ url_for('patient.change_password') }}" class="btn btn-secondary mb-2">Change Password</a>
+            </div>
+            </p>
+        </div>
     </div>
 </div>
 <div class="container mt-3">
@@ -75,9 +83,4 @@
     </div>
 </div>
 
-<div class="conatiner mt-3">
-    <h3 class="text-center">
-        Welcome, <strong>{{ current_user.username }}</strong>
-    </h3>
-</div>
 {% endblock content %}

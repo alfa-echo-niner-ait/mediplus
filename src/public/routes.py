@@ -70,7 +70,7 @@ def login():
             new_log = User_Logs(current_user.id, "Login", date, time)
             db.session.add(new_log)
             db.session.commit()
-            flash("Login successfull!", category="info")
+            
             return redirect(url_for("public.dashboard"))
 
     return render_template("public/login.html", form=form, title="Login")
