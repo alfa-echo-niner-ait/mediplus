@@ -1,7 +1,80 @@
 {% extends 'layout/layout_public.html' %}
 
-
 {% block content %}
+<style>
+    .pop {
+        /* All transition take 0.3s */
+        transition: all 0.3s;
+    }
+    .pop:hover {
+        /* Make 15% bigger */
+        transform: scale(1.15);
+        z-index: 1;
+
+    }
+</style>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-3 mb-2">
+            <img src="{{ url_for('static', filename='avatars/patient/'~user.avatar) }}"
+                class="img-thumbnail me-2" alt="{{ current_user.username }}"
+                style="max-width: 200px;"
+                alt="{{ user.username }}" title="{{ user.username }}">
+        </div>
+        <div class="col-md-5 mb-2">
+            <div class="fs-4 fw-bold">
+                {{ user.last_name}} {{ user.first_name}}
+                {% if user.gender == "Male" %}
+                ♂️
+                {% else %}
+                ♀️
+                {% endif %}
+            </div>
+            <div class="fs-5">Phone: {{ user.phone }}</div>
+            <div class="fs-5">Email: {{ user.email }}</div>
+            <div class="fs-5">Birthdate: {{ user.birthdate }}</div>
+        </div>
+        <div class="col-md-4 mb-2"></div>
+    </div>
+</div>
+<div class="container mt-3">
+    <div class="row gy-3">
+        <div class="col-md-4 mb-2 pop">
+            <div class="card h-100 bg-success-subtle">
+                <div class="card-body">
+                    <h5 class="card-title">Doctor Appointment</h5>
+                    <p class="card-text">
+                        Pick a doctor that you need and make appointment on your favourable time.
+                    </p>
+                    <a href="#" class="btn btn-success bg-gradient shadow-lg">Get Appointment</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-2 pop">
+            <div class="card h-100">
+                <div class="card-body bg-info-subtle">
+                    <h5 class="card-title">Medical Test</h5>
+                    <p class="card-text">
+                        Need to do medical test? Check our available tests and register for your need.
+                    </p>
+                    <a href="#" class="btn btn-info bg-gradient shadow-lg text-white">Apply for Test</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-2 pop">
+            <div class="card h-100">
+                <div class="card-body bg-danger-subtle">
+                    <h5 class="card-title">Medical Records</h5>
+                    <p class="card-text">
+                        It's necessary to keep your account updated with latest medical records to get better treatment.
+                    </p>
+                    <a href="#" class="btn btn-danger bg-gradient shadow-lg text-white">Update Records</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="conatiner mt-3">
     <h3 class="text-center">
         Welcome, <strong>{{ current_user.username }}</strong>

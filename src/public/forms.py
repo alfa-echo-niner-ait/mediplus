@@ -13,14 +13,14 @@ from datetime import date
 
 
 class LoginForm(FlaskForm):
-    username = StringField(
-        "Username", validators=[DataRequired(), Length(min=2, max=50)]
+    account = StringField(
+        "Account", validators=[DataRequired(), Length(min=2, max=50)]
     )
     password = PasswordField("Password", validators=[DataRequired()])
-    role = SelectField(
-        "Login As",
+    login_with = SelectField(
+        "Login With",
         validators=[DataRequired()],
-        choices=[("patient", "Patient"), ("doctor", "Doctor"), ("manager", "Manager")],
+        choices=[("username", "Username"), ("email", "Email")],
     )
     remember = BooleanField("Keep Me Logged In")
 

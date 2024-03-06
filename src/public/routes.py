@@ -40,10 +40,18 @@ def index():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        username = form.username.data
+        user: Users
+
+        login_with = form.login_with.data
+        account = form.account.data
         password = form.password.data
         remember = form.remember.data
-        user = Users.query.filter_by(username=username).first()
+
+        if login_with == "username":
+            user = Users.query.filter_by(username=account).first()
+        elif login_with == "email":
+            user = Users.query.filter_by(email=account).first()
+
         if user and hash_manager.check_password_hash(user.password_hash, password):
             login_user(user, remember=remember)
 
@@ -207,5 +215,10 @@ def invoice(id):
     patient:Patients = Patients.query.filter_by(p_id=invoice.invoice_patient_id).first()
     items:Invoice_Items = Invoice_Items.query.filter_by(invoice_id=id).all()
 
+    url = url_for(
+        "public.invoice",
+        id=invoice.invoice_id,
+        _external=True,
+    )
     return render_template(
-        "public/invoice.html", title=f"Invoice #{id}", invoice=invoice, patient=patient, items=items)
+        "public/invoice.html", title=f"Invoice #{id}", invoice=invoice, patient=patient, items=items, url=url)

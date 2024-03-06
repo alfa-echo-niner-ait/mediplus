@@ -33,30 +33,30 @@
     <hr class="mb-4">
     <form action="" method="post" class="ms-3 me-3">
         {{ form.hidden_tag() }}
-        <!-- Select Role -->
+        <!-- Select Login Type -->
         <div class="input-group mb-3">
-            {{ form.role.label(class='input-group-text fw-bold') }}
-            {{ form.role(class='form-select') }}
-            {% if form.role.errors %}
+            {{ form.login_with.label(class='input-group-text fw-bold') }}
+            {{ form.login_with(class='form-select') }}
+            {% if form.login_with.errors %}
             <div class="invalid-feedback">
-                {% for error in form.role.errors %}
+                {% for error in form.login_with.errors %}
                 {{ error }}
                 {% endfor %}
             </div>
             {% endif %}
         </div>
-        <!-- Username -->
+        <!-- Account -->
         <div class="input-group mb-3 mt-3">
-            {{ form.username.label(class='input-group-text fw-bold') }}
-            {% if form.username.errors %}
-            {{ form.username(class="form-control is-invalid", placeholder='Enter Username') }}
+            {{ form.account.label(class='input-group-text fw-bold') }}
+            {% if form.account.errors %}
+            {{ form.account(class="form-control is-invalid", placeholder='Enter Username/Email') }}
             <div class="invalid-feedback">
-                {% for error in form.username.errors %}
+                {% for error in form.account.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-            {{ form.username(class="form-control", placeholder='Enter Username') }}
+            {{ form.account(class="form-control", placeholder='Enter Username/Email') }}
             {% endif %}
         </div>
         <!-- Password -->

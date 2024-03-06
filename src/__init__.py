@@ -5,6 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
+from flask_qrcode import QRcode
+
 from src.config import Config
 from itsdangerous import TimestampSigner
 
@@ -24,6 +26,7 @@ def create_app(config_class=Config):
     app.secret_key = os.environ.get("MEDIPLUS_SECRET_KEY")
 
     CORS(app)
+    QRcode(app)
     db.init_app(app)
     mail_manager.init_app(app)
     hash_manager.init_app(app)
