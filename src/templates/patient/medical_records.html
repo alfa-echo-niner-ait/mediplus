@@ -3,6 +3,12 @@
 
 {% block content %}
 <div class="container mt-3">
-    <div class="h4">Medical Records</div>
+    <div class="row">
+        {% include '/patient/update_medical_info.html' %}
+        {% include '/patient/medical_files.html' %}
+    </div>
+    <div class="text-center mb-3">
+        <a class="btn btn-secondary" href="{{ url_for('public.dashboard') }}">Back to Dashboard</a>
+    </div>
 </div>
 {% endblock content %}

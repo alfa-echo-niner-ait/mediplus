@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import SelectField, SubmitField, DateField, PasswordField, StringField
+from wtforms import SelectField, SubmitField, DateField, PasswordField, StringField, DecimalField
 from wtforms.validators import DataRequired, EqualTo
 from datetime import date
 
@@ -34,3 +34,12 @@ class UpdateProfileForm(FlaskForm):
     )
 
     submit = SubmitField("Update Profile")
+
+
+class MedicalInfoForm(FlaskForm):
+    blood_group = StringField("Blood Group")
+    height_cm = DecimalField("Height(CM)")
+    weight_kg = DecimalField("Weight(KG)")
+    allergies = StringField("Allergies")
+    medical_conditions = StringField("Medical Conditions")
+    submit = SubmitField("Update Information")

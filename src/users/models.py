@@ -179,11 +179,11 @@ class Medical_Info(db.Model):
     patient_id = db.Column(
         db.Integer, db.ForeignKey("patients.p_id"), primary_key=True, nullable=False
     )
-    blood_group = db.Column(db.String(10), nullable=True)
+    blood_group = db.Column(db.String(20), nullable=True)
     height_cm = db.Column(db.Float, nullable=True)
     weight_kg = db.Column(db.Float, nullable=True)
-    allergies = db.Column(db.TEXT, nullable=True)
-    medical_conditions = db.Column(db.TEXT, nullable=True)
+    allergies = db.Column(db.String(255), nullable=True)
+    medical_conditions = db.Column(db.String(255), nullable=True)
 
     def __init__(self, patient_id):
         super().__init__()

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user
-from src.users.models import Users, Patients, User_Logs
-from src.patient.forms import ChangePasswordForm, UpdateProfileForm
+from src.users.models import Users, Patients, User_Logs, Medical_Info
+from src.patient.forms import ChangePasswordForm, UpdateProfileForm, MedicalInfoForm
 from src import db, hash_manager
 from src.public.utils import (
     get_datetime,
@@ -31,7 +31,7 @@ def dashboard():
         )
         .first()
     )
-    
+
     return render_template("patient/dashboard.html", user=user, title="Dashboard")
 
 
@@ -78,7 +78,12 @@ def update_profile():
         form.phone.data = profile.phone
         form.birthdate.data = profile.birthdate
 
-    return render_template("patient/update_profile.html", form=form, avatar=profile.avatar, title="Update Profile")
+    return render_template(
+        "patient/update_profile.html",
+        form=form,
+        avatar=profile.avatar,
+        title="Update Profile",
+    )
 
 
 @patient.route("/dashboard/patient/change_password", methods=["GET", "POST"])
@@ -108,11 +113,46 @@ def change_password():
             return redirect(url_for("patient.change_password"))
         else:
             flash("Sorry, current password didn't match!", category="danger")
-            
-    return render_template("patient/change_password.html", form=form, title="Change Password")
+
+    return render_template(
+        "patient/change_password.html", form=form, title="Change Password"
+    )
 
 
 @patient.route("/dashboard/patient/medical_records", methods=["GET", "POST"])
 @login_required
 def medical_records():
-    return render_template("patient/medical_records.html", title="Medical Records")
+    form = MedicalInfoForm()
+
+    records: Medical_Info = Medical_Info.query.filter_by(
+        patient_id=current_user.id
+    ).first()
+
+    if request.method == "POST":
+        print(f"\nForm received: {form.blood_group.data}\n")
+        records.blood_group = form.blood_group.data
+        records.height_cm = form.height_cm.data
+        records.weight_kg = form.weight_kg.data
+        records.allergies = form.allergies.data
+        records.medical_conditions = form.medical_conditions.data
+
+        date, time = get_datetime()
+        new_log = User_Logs(current_user.id, "Update Medical Info", date, time)
+        new_log.log_desc = f"({form.blood_group.data}), ({form.height_cm.data} CM), ({form.weight_kg.data} KG),({form.allergies.data}), ({form.medical_conditions.data}))"
+        db.session.add(new_log)
+        # Commit to the database
+        db.session.commit()
+
+        flash("Information Updated Successfully!", category="success")
+        return redirect(url_for("patient.medical_records"))
+
+    elif request.method == "GET":
+        form.blood_group.data = records.blood_group
+        form.height_cm.data = records.height_cm
+        form.weight_kg.data = records.weight_kg
+        form.allergies.data = records.allergies
+        form.medical_conditions.data = records.medical_conditions
+
+    return render_template(
+        "patient/medical_records.html", form=form, title="Medical Records"
+    )
