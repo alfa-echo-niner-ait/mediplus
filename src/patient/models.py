@@ -33,21 +33,23 @@ class Patient_Record_Files(db.Model):
     )
     file_name = db.Column(db.String(100), nullable=False)
     file_path_name = db.Column(db.String(100), nullable=False)
+    file_size_kb = db.Column(db.Float, nullable=False)
     upload_date = db.Column(db.Date, nullable=False)
     upload_time = db.Column(db.Time, nullable=False)
 
     def __init__(
-        self, record_patient_id, file_name, file_path_name, upload_date, upload_time
+        self, record_patient_id, file_name, file_path_name, file_size_kb, upload_date, upload_time
     ):
         super().__init__()
         self.record_patient_id = record_patient_id
         self.file_name = file_name
         self.file_path_name = file_path_name
+        self.file_size_kb = file_size_kb
         self.upload_date = upload_date
         self.upload_time = upload_time
 
     def __str__(self) -> str:
-        return f"Record File: #{self.file_id} {self.file_name} on {self.upload_date}, {self.upload_time}"
+        return f"Record File: #{self.file_id} {self.file_name} ({self.file_size_kb} KB) on {self.upload_date}, {self.upload_time}"
 
 
 class Invoices(db.Model):

@@ -9,6 +9,9 @@
                 {{ file.file_name }}
             </div>
             <div class="fs-6 text-secondary">
+                Size: {{ file.file_size_kb }} KB
+            </div>
+            <div class="fs-6 text-secondary">
                 File: {{ file.file_path_name }}
             </div>
             <div class="fs-6 text-secondary">
@@ -16,8 +19,7 @@
             </div>
         </div>
         <div class="col-md-6 text-end mt-3">
-            <a href="{{ url_for('patient.download_file', file_id=file.file_id) }}"
-                class="btn btn-primary">
+            <a href="{{ url_for('patient.download_file', file_id=file.file_id) }}" class="btn btn-primary">
                 Download
             </a>
             <a href="{{ url_for('patient.delete_record', id=file.file_id)}}" class="btn btn-danger"
@@ -30,8 +32,12 @@
         </div>
     </div>
     <div class="embed-responsive embed-responsive-16by9">
-        <embed src="{{ url_for('static', filename='upload/patient/records/'~file.file_path_name) }}"
-            type="application/pdf" style="width: 100%; min-height: 800px;" />
+        <object data="{{ url_for('static', filename='upload/patient/records/'~file.file_path_name) }}"
+            type="application/pdf" style="width: 100%; min-height: 600px;" />
+            <div class="alert alert-danger" role="alert">
+                Sorry, your browser not supported. Try using desktop browser.
+            </div>
+        </object>
     </div>
 </div>
 

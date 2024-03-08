@@ -140,15 +140,18 @@ def change_password():
 @patient.route("/dashboard/patient/medical_records", methods=["GET", "POST"])
 @login_required
 def medical_records():
+    page_num = request.args.get("page", 1, int)
     form = MedicalInfoForm()
     upload_form = Record_Upload_Form()
 
     records: Medical_Info = Medical_Info.query.filter_by(
         patient_id=current_user.id
     ).first()
-    files: Patient_Record_Files = Patient_Record_Files.query.filter_by(
-        record_patient_id=current_user.id
-    ).all()
+    files: Patient_Record_Files = (
+        Patient_Record_Files.query.filter_by(record_patient_id=current_user.id)
+        .order_by(Patient_Record_Files.file_id.desc())
+        .paginate(page=page_num, per_page=6)
+    )
 
     # Information form handler
     if request.method == "POST":
@@ -205,13 +208,14 @@ def upload_record():
             current_app.root_path, "static/upload/patient/records/", file_path_name
         )
         file.save(file_path)
+        file_size_kb = float(format(os.path.getsize(file_path) / 1024, ".2f"))
 
         # Add information to database
         new_file = Patient_Record_Files(
-            current_user.id, file_name, file_path_name, date, time
+            current_user.id, file_name, file_path_name, file_size_kb, date, time
         )
         new_log = User_Logs(current_user.id, "Upload Medical Record", date, time)
-        new_log.log_desc = f"{file_name} @path_file_name: {file_path_name}"
+        new_log.log_desc = f"{file_name} ({file_size_kb} KB) @path_file_name: {file_path_name}"
 
         db.session.add(new_file)
         db.session.add(new_log)
@@ -234,7 +238,7 @@ def delete_record(id):
     if file.record_patient_id == current_user.id:
         date, time = get_datetime()
         new_log = User_Logs(current_user.id, "Delete Medical Record", date, time)
-        new_log.log_desc = f"{file.file_name} ({file.file_path_name})"
+        new_log.log_desc = f"{file.file_name}({file.file_size_kb} KB), {file.file_path_name}"
 
         os.remove(
             os.path.join(
@@ -277,11 +281,15 @@ def download_file(file_id):
 
     if file.record_patient_id == current_user.id:
         file_name = f"{file.file_name}_{file.file_path_name}"
-        return send_file(os.path.join(
+        return send_file(
+            os.path.join(
                 current_app.root_path,
                 "static/upload/patient/records/",
                 file.file_path_name,
-            ), download_name=file_name, as_attachment=True)
+            ),
+            download_name=file_name,
+            as_attachment=True,
+        )
     else:
         flash("Download failed! Access denied.", category="danger")
         return redirect(url_for("patient.medical_records"))
