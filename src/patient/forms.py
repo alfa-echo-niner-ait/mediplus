@@ -1,6 +1,13 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import SelectField, SubmitField, DateField, PasswordField, StringField, DecimalField
+from wtforms import (
+    SelectField,
+    SubmitField,
+    DateField,
+    PasswordField,
+    StringField,
+    DecimalField,
+)
 from wtforms.validators import DataRequired, EqualTo
 from datetime import date
 
@@ -37,9 +44,23 @@ class UpdateProfileForm(FlaskForm):
 
 
 class MedicalInfoForm(FlaskForm):
-    blood_group = StringField("Blood Group")
+    blood_group = StringField("Blood Group", validators=[DataRequired()])
     height_cm = DecimalField("Height(CM)")
     weight_kg = DecimalField("Weight(KG)")
     allergies = StringField("Allergies")
     medical_conditions = StringField("Medical Conditions")
     submit = SubmitField("Update Information")
+
+
+class Record_Upload_Form(FlaskForm):
+    file_name = StringField("File Name", validators=[DataRequired()])
+    file = FileField(
+        "Pick a Record File",
+        validators=[
+            DataRequired(),
+            FileAllowed(
+                ["jpg", "jpeg", "png", "svg", "pdf"], "Please pick allowed format!"
+            ),
+        ],
+    )
+    submit = SubmitField("Upload New Record")

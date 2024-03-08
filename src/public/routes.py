@@ -11,8 +11,8 @@ from flask import (
 from flask_login import current_user, login_user, login_required, logout_user
 from .forms import LoginForm, RegisterForm, ResetRequestForm, ResetPasswordForm
 from .utils import get_datetime
-from src.users.models import Users, Patients, User_Logs, Medical_Info, Managers, Doctors
-from src.patient.models import Invoices, Invoice_Items, Payments
+from src.users.models import Users, Patients, User_Logs, Managers, Doctors
+from src.patient.models import Medical_Info, Invoices, Invoice_Items, Payments
 from src.users.utils import reset_mail_sender
 from src import db, token_manager, hash_manager
 

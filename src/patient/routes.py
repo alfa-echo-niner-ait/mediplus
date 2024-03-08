@@ -1,7 +1,25 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request
+import os
+import secrets
+from flask import (
+    Blueprint,
+    render_template,
+    flash,
+    redirect,
+    url_for,
+    request,
+    current_app,
+    send_file,
+    send_from_directory,
+)
 from flask_login import login_required, current_user
-from src.users.models import Users, Patients, User_Logs, Medical_Info
-from src.patient.forms import ChangePasswordForm, UpdateProfileForm, MedicalInfoForm
+from src.users.models import Users, Patients, User_Logs
+from src.patient.models import Medical_Info, Patient_Record_Files
+from src.patient.forms import (
+    ChangePasswordForm,
+    UpdateProfileForm,
+    MedicalInfoForm,
+    Record_Upload_Form,
+)
 from src import db, hash_manager
 from src.public.utils import (
     get_datetime,
@@ -123,11 +141,16 @@ def change_password():
 @login_required
 def medical_records():
     form = MedicalInfoForm()
+    upload_form = Record_Upload_Form()
 
     records: Medical_Info = Medical_Info.query.filter_by(
         patient_id=current_user.id
     ).first()
+    files: Patient_Record_Files = Patient_Record_Files.query.filter_by(
+        record_patient_id=current_user.id
+    ).all()
 
+    # Information form handler
     if request.method == "POST":
         print(f"\nForm received: {form.blood_group.data}\n")
         records.blood_group = form.blood_group.data
@@ -154,5 +177,111 @@ def medical_records():
         form.medical_conditions.data = records.medical_conditions
 
     return render_template(
-        "patient/medical_records.html", form=form, title="Medical Records"
+        "patient/medical_records.html",
+        form=form,
+        upload_form=upload_form,
+        files=files,
+        title="Medical Records",
     )
+
+
+# Record file upload handler
+@patient.route("/dashboard/patient/upload_record", methods=["POST"])
+@login_required
+def upload_record():
+    upload_form = Record_Upload_Form()
+
+    # File upload form handler
+    if upload_form.validate_on_submit() and request.method == "POST":
+        file_name = upload_form.file_name.data
+        file = upload_form.file.data
+
+        date, time = get_datetime()
+        _, file_extension = os.path.splitext(file.filename)
+        random_hex = secrets.token_hex(20)
+        file_path_name = random_hex + file_extension
+
+        file_path = os.path.join(
+            current_app.root_path, "static/upload/patient/records/", file_path_name
+        )
+        file.save(file_path)
+
+        # Add information to database
+        new_file = Patient_Record_Files(
+            current_user.id, file_name, file_path_name, date, time
+        )
+        new_log = User_Logs(current_user.id, "Upload Medical Record", date, time)
+        new_log.log_desc = f"{file_name} @path_file_name: {file_path_name}"
+
+        db.session.add(new_file)
+        db.session.add(new_log)
+        db.session.commit()
+
+        flash("File Uploaded Successfully!", category="success")
+        return redirect(url_for("patient.medical_records"))
+    else:
+        flash("Please select correct format!", category="danger")
+        return redirect(url_for("patient.medical_records"))
+
+
+@patient.route("/dashboard/patient/delete_record/<id>", methods=["GET"])
+@login_required
+def delete_record(id):
+    file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
+        file_id=int(id)
+    ).first_or_404()
+
+    if file.record_patient_id == current_user.id:
+        date, time = get_datetime()
+        new_log = User_Logs(current_user.id, "Delete Medical Record", date, time)
+        new_log.log_desc = f"{file.file_name} ({file.file_path_name})"
+
+        os.remove(
+            os.path.join(
+                current_app.root_path,
+                "static/upload/patient/records/",
+                file.file_path_name,
+            )
+        )
+
+        db.session.delete(file)
+        db.session.add(new_log)
+        db.session.commit()
+
+        flash("File deleted successfully!", category="info")
+        return redirect(url_for("patient.medical_records"))
+    else:
+        flash("Delete failed! Access denied.", category="danger")
+        return redirect(url_for("patient.medical_records"))
+
+
+@patient.route("/dashboard/patient/file/<id>")
+@login_required
+def view_file(id):
+    file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
+        file_id=int(id)
+    ).first_or_404()
+
+    if file.record_patient_id == current_user.id:
+        return render_template(
+            "patient/file_view.html", title=file.file_name, file=file
+        )
+
+
+@patient.route("/download/file/<file_id>")
+@login_required
+def download_file(file_id):
+    file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
+        file_id=int(file_id)
+    ).first_or_404()
+
+    if file.record_patient_id == current_user.id:
+        file_name = f"{file.file_name}_{file.file_path_name}"
+        return send_file(os.path.join(
+                current_app.root_path,
+                "static/upload/patient/records/",
+                file.file_path_name,
+            ), download_name=file_name, as_attachment=True)
+    else:
+        flash("Download failed! Access denied.", category="danger")
+        return redirect(url_for("patient.medical_records"))

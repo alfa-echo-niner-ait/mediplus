@@ -3,6 +3,53 @@ from src import db
 # Models that represents database tables
 
 
+class Medical_Info(db.Model):
+    __tablename__ = "medical_info"
+
+    med_info_id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(
+        db.Integer, db.ForeignKey("patients.p_id"), primary_key=True, nullable=False
+    )
+    blood_group = db.Column(db.String(20), nullable=True)
+    height_cm = db.Column(db.Float, nullable=True)
+    weight_kg = db.Column(db.Float, nullable=True)
+    allergies = db.Column(db.String(255), nullable=True)
+    medical_conditions = db.Column(db.String(255), nullable=True)
+
+    def __init__(self, patient_id):
+        super().__init__()
+        self.patient_id = patient_id
+
+    def __str__(self) -> str:
+        return f"MED_INFO({self.med_info_id}) @ Patient #{self.patient_id}"
+
+
+class Patient_Record_Files(db.Model):
+    __tablename__ = "patient_record_files"
+
+    file_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    record_patient_id = db.Column(
+        db.Integer, db.ForeignKey("patients.p_id"), primary_key=True, nullable=False
+    )
+    file_name = db.Column(db.String(100), nullable=False)
+    file_path_name = db.Column(db.String(100), nullable=False)
+    upload_date = db.Column(db.Date, nullable=False)
+    upload_time = db.Column(db.Time, nullable=False)
+
+    def __init__(
+        self, record_patient_id, file_name, file_path_name, upload_date, upload_time
+    ):
+        super().__init__()
+        self.record_patient_id = record_patient_id
+        self.file_name = file_name
+        self.file_path_name = file_path_name
+        self.upload_date = upload_date
+        self.upload_time = upload_time
+
+    def __str__(self) -> str:
+        return f"Record File: #{self.file_id} {self.file_name} on {self.upload_date}, {self.upload_time}"
+
+
 class Invoices(db.Model):
     """
     #### status
@@ -92,6 +139,6 @@ class Payments(db.Model):
         self.payment_amount = payment_amount
         self.payment_date = payment_date
         self.payment_time = payment_time
-        
+
     def __str__(self) -> str:
         return f"#{self.payment_id} Invoice #{self.payment_invoice_id} ({self.payment_amount}) on {self.payment_date}, {self.payment_date}"
