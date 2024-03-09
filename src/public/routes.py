@@ -68,9 +68,11 @@ def login():
             date, time = get_datetime()
 
             new_log = User_Logs(current_user.id, "Login", date, time)
+            new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
+
             db.session.add(new_log)
             db.session.commit()
-            
+
             return redirect(url_for("public.dashboard"))
 
     return render_template("public/login.html", form=form, title="Login")
@@ -80,6 +82,8 @@ def login():
 def logout():
     date, time = get_datetime()
     new_log = User_Logs(current_user.id, "Logout", date, time)
+    new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
+
     db.session.add(new_log)
     db.session.commit()
 
@@ -114,6 +118,8 @@ def register():
         user = Users.query.filter_by(username=username).first()
         new_patient = Patients(user.id, first_name, last_name, birthdate, avatar)
         new_log = User_Logs(user.id, "Registration", date, time)
+        new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
+        
         db.session.add(new_patient)
         db.session.add(new_log)
         db.session.commit()
@@ -135,14 +141,21 @@ def reset_request():
     if form.validate_on_submit():
         email = form.email.data
         user = Users.query.filter_by(email=email).first()
-        print(f"\n{user}\n")
+        
         if user:
             token = token_manager.sign(f"{user.role}{user.email}{user.id}").decode(
                 "utf-8"
             )
             user.token = token
-            db.session.commit()
             reset_mail_sender(user)
+            
+            date, time = get_datetime()
+            new_log = User_Logs(user.id, "Password Reset Request", date, time)
+            new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
+
+            db.session.add(new_log)
+            db.session.commit()
+            
             flash("Password reset link sent to your email!", category="success")
         else:
             flash("Sorry, no user found with this email!", category="warning")
@@ -178,6 +191,8 @@ def reset_password(username, token):
 
             date, time = get_datetime()
             new_log = User_Logs(user.id, "Change Password", date, time)
+            new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
+
             db.session.add(new_log)
             db.session.commit()
 

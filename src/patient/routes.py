@@ -49,8 +49,12 @@ def dashboard():
         )
         .first()
     )
+    ip = request.remote_addr
+    info = request.headers.get("User-Agent")
 
-    return render_template("patient/dashboard.html", user=user, title="Dashboard")
+    return render_template(
+        "patient/dashboard.html", user=user, ip=ip, info=info, title="Dashboard"
+    )
 
 
 @patient.route("/dashboard/patient/update_profile", methods=["GET", "POST"])
@@ -215,7 +219,9 @@ def upload_record():
             current_user.id, file_name, file_path_name, file_size_kb, date, time
         )
         new_log = User_Logs(current_user.id, "Upload Medical Record", date, time)
-        new_log.log_desc = f"{file_name} ({file_size_kb} KB) @path_file_name: {file_path_name}"
+        new_log.log_desc = (
+            f"{file_name} ({file_size_kb} KB) @path_file_name: {file_path_name}"
+        )
 
         db.session.add(new_file)
         db.session.add(new_log)
@@ -238,7 +244,9 @@ def delete_record(id):
     if file.record_patient_id == current_user.id:
         date, time = get_datetime()
         new_log = User_Logs(current_user.id, "Delete Medical Record", date, time)
-        new_log.log_desc = f"{file.file_name}({file.file_size_kb} KB), {file.file_path_name}"
+        new_log.log_desc = (
+            f"{file.file_name}({file.file_size_kb} KB), {file.file_path_name}"
+        )
 
         os.remove(
             os.path.join(
@@ -293,3 +301,16 @@ def download_file(file_id):
     else:
         flash("Download failed! Access denied.", category="danger")
         return redirect(url_for("patient.medical_records"))
+
+
+@patient.route("/dashboard/patient/logs")
+@login_required
+def logs():
+    page_num = request.args.get("page", 1, int)
+    logs = (
+        User_Logs.query.filter_by(user_id=current_user.id)
+        .order_by(User_Logs.log_id.desc())
+        .paginate(page=page_num, per_page=10)
+    )
+    
+    return render_template("patient/logs.html", logs=logs, title="Activity Logs")

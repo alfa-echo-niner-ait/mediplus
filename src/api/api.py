@@ -1,8 +1,27 @@
 from flask import Blueprint, jsonify, request
-from src.users.models import Users, Patients
+from src.users.models import Users, Patients, User_Logs
 
 
 api = Blueprint("api", __name__)
+
+@api.route('/api/public/log/<log_id>')
+def log(log_id):
+    log:User_Logs = User_Logs.query.filter_by(log_id=int(log_id)).first()
+    if log:
+        response = [{"result": "success"}]
+        log_data = {
+            'log_id': log.log_id,
+            'log_type': log.log_type,
+            'log_date': str(log.log_date), 
+            'log_time': str(log.log_time),
+            'log_desc': log.log_desc
+        }
+        response.append({"log": log_data})
+    else:
+        response = [{"result": "fail"}]
+    
+    return jsonify(response)
+        
 
 
 @api.route("/api/manager/search_patient", methods=["GET", "POST"])
