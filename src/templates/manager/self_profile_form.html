@@ -3,8 +3,8 @@
         <form action="" method="post" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <!-- First Name -->
-            <div class="mb-3">
-                {{ form.first_name.label(class='form-label') }}
+            <div class="input-group mb-2">
+                {{ form.first_name.label(class='input-group-text fw-bold') }}
                 {{ form.first_name(class='form-control', placeholder='Enter First Name') }}
                 {% if form.first_name.errors %}
                 <div class="invalid-feedback">
@@ -15,8 +15,8 @@
                 {% endif %}
             </div>
             <!-- Last Name -->
-            <div class="mb-3">
-                {{ form.last_name.label(class='form-label') }}
+            <div class="input-group mb-2">
+                {{ form.last_name.label(class='input-group-text fw-bold') }}
                 {{ form.last_name(class='form-control', placeholder='Enter Last Name') }}
                 {% if form.last_name.errors %}
                 <div class="invalid-feedback">
@@ -27,8 +27,8 @@
                 {% endif %}
             </div>
             <!-- Gender -->
-            <div class="mb-3">
-                {{ form.gender.label(class='form-label') }}
+            <div class="input-group mb-2">
+                {{ form.gender.label(class='input-group-text fw-bold') }}
                 {{ form.gender(class='form-select') }}
                 {% if form.gender.errors %}
                 <div class="invalid-feedback">
@@ -39,8 +39,8 @@
                 {% endif %}
             </div>
             <!-- Birthdate -->
-            <div class="mb-3">
-                {{ form.birthdate.label(class='form-label') }}
+            <div class="input-group mb-2">
+                {{ form.birthdate.label(class='input-group-text fw-bold') }}
                 {{ form.birthdate(class='form-control') }}
                 {% if form.birthdate.errors %}
                 <div class="invalid-feedback">
@@ -51,8 +51,8 @@
                 {% endif %}
             </div>
             <!-- Email -->
-            <div class="mb-3">
-                {{ form.email.label(class='form-label') }}
+            <div class="input-group mb-2">
+                {{ form.email.label(class='input-group-text fw-bold') }}
                 {{ form.email(class='form-control', placeholder='Enter Email Address') }}
                 {% if form.email.errors %}
                 <div class="invalid-feedback">
@@ -63,8 +63,8 @@
                 {% endif %}
             </div>
             <!-- Phone -->
-            <div class="mb-3">
-                {{ form.phone.label(class='form-label') }}
+            <div class="input-group mb-2">
+                {{ form.phone.label(class='input-group-text fw-bold') }}
                 {{ form.phone(class='form-control', placeholder='Enter Phone Number') }}
                 {% if form.phone.errors %}
                 <div class="invalid-feedback">
@@ -75,8 +75,8 @@
                 {% endif %}
             </div>
             <!-- Avatar -->
-            <div class="mb-3">
-                {{ form.avatar.label(class='form-label') }}
+            <div class="input-group mb-2">
+                {{ form.avatar.label(class='input-group-text fw-bold') }}
                 {{ form.avatar(class='form-control') }}
                 {% if form.avatar.errors %}
                 <div class="invalid-feedback">

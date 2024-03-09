@@ -13,7 +13,7 @@
     <form action="{{ url_for('patient.medical_records')}}" method="post">
         {{ form.hidden_tag() }}
         <!-- Blood Group -->
-        <div class="mb-3">
+        <div class="mb-2">
             {{ form.blood_group.label(class='form-label') }}
             {{ form.blood_group(class='form-control', placeholder='Enter Blood Group') }}
             {% if form.blood_group.errors %}
@@ -25,7 +25,7 @@
             {% endif %}
         </div>
         <!-- Height -->
-        <div class="mb-3">
+        <div class="mb-2">
             {{ form.height_cm.label(class='form-label') }}
             {{ form.height_cm(class='form-control', placeholder='Enter Height in CM. Eg, 165') }}
             {% if form.height_cm.errors %}
@@ -37,7 +37,7 @@
             {% endif %}
         </div>
         <!-- Weight -->
-        <div class="mb-3">
+        <div class="mb-2">
             {{ form.weight_kg.label(class='form-label') }}
             {{ form.weight_kg(class='form-control', placeholder='Enter Weight in KG. Eg, 60') }}
             {% if form.weight_kg.errors %}
@@ -49,7 +49,7 @@
             {% endif %}
         </div>
         <!-- Allergies -->
-        <div class="mb-3">
+        <div class="mb-2">
             {{ form.allergies.label(class='form-label') }}
             {{ form.allergies(class='form-control', placeholder='Type if you have any allergies') }}
             {% if form.allergies.errors %}
@@ -61,7 +61,7 @@
             {% endif %}
         </div>
         <!-- Medical Conditions -->
-        <div class="mb-3">
+        <div class="mb-2">
             {{ form.medical_conditions.label(class='form-label') }}
             {{ form.medical_conditions(class='form-control', placeholder='Type if you have any medical conditions') }}
             {% if form.medical_conditions.errors %}
@@ -73,6 +73,6 @@
             {% endif %}
         </div>
         <!-- Submit -->
-        {{ form.submit(class='btn btn-mint w-100 mt-2 mb-5 py-2') }}
+        {{ form.submit(class='btn btn-mint w-100 mt-2 mb-3') }}
     </form>
 </div>
