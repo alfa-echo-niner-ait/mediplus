@@ -226,7 +226,7 @@ def upload_record():
         )
         new_log = User_Logs(current_user.id, "Upload Medical Record", date, time)
         new_log.log_desc = (
-            f"{file_name} ({file_size_kb} KB) @path_file_name: {file_path_name}"
+            f"{file_name} ({file_size_kb} KB), file: {file_path_name}"
         )
 
         db.session.add(new_file)
