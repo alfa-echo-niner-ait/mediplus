@@ -13,7 +13,13 @@ from flask import (
 )
 from flask_login import login_required, current_user
 from src.users.models import Users, Patients, User_Logs
-from src.patient.models import Medical_Info, Patient_Record_Files
+from src.patient.models import (
+    Medical_Info,
+    Patient_Record_Files,
+    Invoices,
+    Invoice_Items,
+    Payments,
+)
 from src.patient.forms import (
     ChangePasswordForm,
     UpdateProfileForm,
@@ -312,5 +318,21 @@ def logs():
         .order_by(User_Logs.log_id.desc())
         .paginate(page=page_num, per_page=10)
     )
-    
+
     return render_template("patient/logs.html", logs=logs, title="Activity Logs")
+
+
+@patient.route("/dashboard/patient/invoices")
+@login_required
+def invoices():
+    page_num = request.args.get("page", 1, int)
+
+    invoices = (
+        Invoices.query.filter_by(invoice_patient_id=current_user.id)
+        .order_by(Invoices.invoice_id.desc())
+        .paginate(page=page_num, per_page=12)
+    )
+
+    return render_template(
+        "patient/invoices.html", title="Invoices", invoices=invoices
+    )
