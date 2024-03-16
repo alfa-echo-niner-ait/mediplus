@@ -61,6 +61,13 @@ def tests():
         "manager/tests.html", new_test_form=new_test_form, title="Tests Management"
     )
 
+@manager.route("/dashboard/manager/tests/catalog")
+@login_required
+def test_catalog():
+    page_num = request.args.get("page", 1, int)
+    tests = Medical_Tests.query.order_by(Medical_Tests.test_name.asc()).paginate(page=page_num, per_page=12)
+
+    return render_template('manager/test_catalog.html', tests=tests, title="Test Catalog")
 
 @manager.route("/dashboard/invoices")
 @login_required
