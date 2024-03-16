@@ -14,4 +14,6 @@ Software Engineering, 2020
 Shandong University of Science and Technology
 ```
 
-![image](https://github.com/alfa-echo-niner-ait/mediplus/assets/78315132/f28d2a7a-4524-4eaa-8149-fa630600fc3a)
+  ![MediPlus](https://github.com/alfa-echo-niner-ait/mediplus/assets/78315132/899831d1-8aba-4cbf-8db0-e6a277584328)
+
+
