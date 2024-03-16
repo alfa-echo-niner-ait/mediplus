@@ -1,8 +1,14 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
-from src.patient.models import Invoices, Invoice_Items, Payments
-from .forms import LogSortForm, ChangePasswordForm, SelfProfileForm
+from src.patient.models import Invoices, Invoice_Items, Payments, Medical_Tests
+from .forms import (
+    LogSortForm,
+    ChangePasswordForm,
+    SelfProfileForm,
+    NewMedicalTestForm,
+    UpdateMedicalTestForm,
+)
 from src import db, hash_manager
 from src.public.utils import (
     get_datetime,
@@ -26,10 +32,34 @@ def appointemnts():
     return render_template("manager/appointments.html", title="Appointments Management")
 
 
-@manager.route("/dashboard/tests")
+@manager.route("/dashboard/tests", methods=["GET", "POST"])
 @login_required
 def tests():
-    return render_template("manager/tests.html", title="Tests Management")
+    new_test_form = NewMedicalTestForm()
+
+    if new_test_form.validate_on_submit():
+        date, time = get_datetime()
+        new_test = Medical_Tests(
+            new_test_form.test_name.data,
+            new_test_form.test_price.data,
+            date,
+            time,
+            new_test_form.test_desc.data,
+        )
+        db.session.add(new_test)
+
+        new_log = User_Logs(current_user.id, "Create New Test", date, time)
+        new_log.log_desc = f"Name: {new_test_form.test_name.data}, Price: {new_test_form.test_price.data}"
+        db.session.add(new_log)
+        # Commit to the database
+        db.session.commit()
+
+        flash("New Test Added to the Catalog!", category="success")
+        return redirect(url_for("manager.tests"))
+
+    return render_template(
+        "manager/tests.html", new_test_form=new_test_form, title="Tests Management"
+    )
 
 
 @manager.route("/dashboard/invoices")
@@ -53,8 +83,10 @@ def invoices():
         )
         .paginate(page=page_num, per_page=12)
     )
-    
-    return render_template("manager/invoices.html", title="Invoices Management", invoices=invoices)
+
+    return render_template(
+        "manager/invoices.html", title="Invoices Management", invoices=invoices
+    )
 
 
 @manager.route("/dashboard/manager/managers")
@@ -246,12 +278,14 @@ def log_details(id):
             User_Logs.log_date,
             User_Logs.log_time,
             User_Logs.log_type,
-            User_Logs.log_desc
+            User_Logs.log_desc,
         )
         .first()
     )
-    
-    return render_template("manager/log_details.html", title=f"Log #{id} Details", log=log)
+
+    return render_template(
+        "manager/log_details.html", title=f"Log #{id} Details", log=log
+    )
 
 
 @manager.route("/dashboard/manager/account", methods=["GET", "POST"])

@@ -1,0 +1,65 @@
+<div class="modal modal-lg" id="addTestModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Header -->
+            <div class="modal-header bg-secondary-subtle">
+                <h4 class="modal-title">
+                    <svg width="22" height="22" fill="currentColor" class="bi"
+                        viewBox="0 0 16 16">
+                        <path d="M7 6h2v2h2v2H9v2H7v-2H5V8h2z" />
+                        <path
+                            d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v10.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 14.5V4a1 1 0 0 1-1-1zm2 3v10.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V4zM3 3h10V1H3z" />
+                    </svg>
+                    Add New Test to Catalog
+                </h4>
+                <button type="button" class="btn-close bg-danger" data-bs-dismiss="modal"></button>
+                <!-- <span class="badge bg-danger">
+                </span> -->
+            </div>
+            <!-- Body -->
+            <div class="modal-body">
+                <form method="POST" action="">
+                    {{ new_test_form.hidden_tag() }}
+                    <!-- Test Name -->
+                    <div class="mb-3">
+                        {{ new_test_form.test_name.label(class='form-label fw-bold') }}
+                        {% if new_test_form.test_name.errors %}
+                        {{ new_test_form.test_name(class="form-control is-invalid", placeholder='Enter Test Name') }}
+                        <div class="invalid-feedback">
+                            {% for error in new_test_form.test_name.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ new_test_form.test_name(class="form-control", placeholder='Enter Test Name') }}
+                        {% endif %}
+                    </div>
+                    <!-- Test Price -->
+                    <div class="mb-3">
+                        {{ new_test_form.test_price.label(class='form-label fw-bold') }}
+                        {% if new_test_form.test_price.errors %}
+                        {{ new_test_form.test_price(class="form-control is-invalid", placeholder='Enter Test Price') }}
+                        <div class="invalid-feedback">
+                            {% for error in new_test_form.test_price.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ new_test_form.test_price(class="form-control", placeholder='Enter Test Price') }}
+                        {% endif %}
+                    </div>
+                    <!-- Test Description -->
+                    <div class="mb-3">
+                        {{ new_test_form.test_desc.label(class='form-label fw-bold') }}
+                        {{ new_test_form.test_desc(class='form-control', style="height: 180px;", placeholder='Enter Description/Details of the Test')
+                        }}
+                    </div>
+                    <!-- Add Button -->
+                    <div class="d-grid mb-3">
+                        {{ new_test_form.submit(class='btn btn-success fw-bold text-white mt-2 mb-2') }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

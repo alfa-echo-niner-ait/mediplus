@@ -144,3 +144,25 @@ class Payments(db.Model):
 
     def __str__(self) -> str:
         return f"#{self.payment_id} Invoice #{self.payment_invoice_id} ({self.payment_amount}) on {self.payment_date}, {self.payment_date}"
+
+
+class Medical_Tests(db.Model):
+    __tablename__ = "medical_tests"
+
+    test_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    test_name = db.Column(db.String(200), nullable=False)
+    test_price = db.Column(db.Float, nullable=False)
+    add_date = db.Column(db.Date, nullable=True)
+    add_time = db.Column(db.Time, nullable=True)
+    test_desc = db.Column(db.TEXT, nullable=True)
+
+    def __init__(self, test_name, test_price, add_date, add_time, test_desc=None) -> None:
+        super().__init__()
+        self.test_name = test_name
+        self.test_price = test_price
+        self.add_date = add_date
+        self.add_time = add_time
+        self.test_desc = test_desc
+
+    def __str__(self) -> str:
+        return f"#{self.test_id} {self.test_name} ({self.test_price}) on {self.add_date}, {self.add_time}"
