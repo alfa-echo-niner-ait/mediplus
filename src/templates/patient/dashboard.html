@@ -1,18 +1,6 @@
 {% extends 'layout/layout_public.html' %}
 
 {% block content %}
-<style>
-    .pop {
-        /* All transition take 0.3s */
-        transition: all 0.3s;
-    }
-    .pop:hover {
-        /* Make 15% bigger */
-        transform: scale(1.15);
-        z-index: 1;
-
-    }
-</style>
 <div class="container mt-2">
     <div class="row">
         <div class="col-md-3 mb-2">
@@ -88,7 +76,7 @@
                     <p class="card-text">
                         Need to do medical test? Check our available tests and register for your need.
                     </p>
-                    <a href="#" class="btn btn-info bg-gradient shadow-lg text-white">Apply for Test</a>
+                    <a href="{{ url_for('public.tests') }}" class="btn btn-info bg-gradient shadow-lg text-white">Apply for Test</a>
                 </div>
             </div>
         </div>
