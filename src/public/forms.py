@@ -59,3 +59,7 @@ class ResetPasswordForm(FlaskForm):
         "Confirm Password", validators=[DataRequired(), EqualTo("password")]
     )
     submit = SubmitField("Change Password")
+
+class SearchTestForm(FlaskForm):
+    keyword = StringField("Test Name", validators=[DataRequired()])
+    submit = SubmitField("Search Test")

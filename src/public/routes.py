@@ -9,7 +9,7 @@ from flask import (
     session,
 )
 from flask_login import current_user, login_user, login_required, logout_user
-from .forms import LoginForm, RegisterForm, ResetRequestForm, ResetPasswordForm
+from .forms import LoginForm, RegisterForm, ResetRequestForm, ResetPasswordForm, SearchTestForm
 from .utils import get_datetime
 from src.users.models import Users, Patients, User_Logs, Managers, Doctors
 from src.patient.models import Medical_Info, Invoices, Invoice_Items, Payments, Medical_Tests
@@ -239,11 +239,20 @@ def invoice(id):
         "public/invoice.html", title=f"Invoice #{id}", invoice=invoice, patient=patient, items=items, url=url)
 
 
-@public.route("/tests")
+@public.route("/tests", methods=["GET", "POST"])
 def tests():
     page_num = request.args.get("page", 1, int)
     
+    form = SearchTestForm()
     tests = Medical_Tests.query.order_by(Medical_Tests.test_name.asc()).paginate(
         page=page_num, per_page=10
     )
-    return render_template("public/tests.html", tests=tests, title="Medical Tests")
+    
+    if form.validate_on_submit():
+        tests = Medical_Tests.query.filter(
+            Medical_Tests.test_name.like(f"%{form.keyword.data}%")
+            ).paginate(page=page_num, per_page=10)
+        
+        return render_template("public/tests.html", form=form, tests=tests, title=f"Search Result: {form.keyword.data}")
+    
+    return render_template("public/tests.html", form=form, tests=tests, title="Medical Tests")

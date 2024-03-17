@@ -6,21 +6,55 @@
         Medical Tests
     </div>
 </div>
+
+<!-- Search -->
 <div class="container mt-3">
-    {% for test in tests %}
-        <div class="card mb-2">
-            <div class="card-body">
-                <h5 class="card-title">{{ test.test_name }}</h5>
-                <h6 class="card-subtitle mb-2 text-body-secondary">
-                    {{ test.test_price }} RMB
-                </h6>
-                <p class="card-text">
-                    {{ test.test_desc }}
-                </p>
-                <a href="#" class="btn btn-mint pop">Make Booking</a>
+    <div class="border rounded mb-3 p-3">
+        <form action="" method="POST">
+            {{ form.hidden_tag() }}
+            <div class="input-group">
+                <div class="input-group-text">
+                    <svg width="20" height="20" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path
+                            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                    </svg>
+                </div>
+                {{ form.keyword(class='form-control', placeholder='Type Test Name') }}
+                {% if form.keyword.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.keyword.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {{ form.submit(class='input-group-text btn btn-success fw-bold') }}
             </div>
+    
+        </form>
+    </div>
+</div>
+</div>
+<div class="container mt-3">
+
+    {% if tests %}
+    {% for test in tests %}
+    <div class="card mb-2">
+        <div class="card-body">
+            <h5 class="card-title">{{ test.test_name }}</h5>
+            <h6 class="card-subtitle mb-2 text-body-secondary">
+                {{ test.test_price }} RMB
+            </h6>
+            <p class="card-text">
+                {{ test.test_desc }}
+            </p>
+            <a href="#" class="btn btn-mint pop">Make Booking</a>
         </div>
+    </div>
     {% endfor %}
+    {% else %}
+    <div class="text-center text-danger fw-bold">Sorry, no results found!</div>
+    {% endif %}
+
 </div>
 
 <!-- Pagination -->
