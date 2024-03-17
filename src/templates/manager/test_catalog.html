@@ -47,9 +47,13 @@
             {% for test in tests %}
             <tr>
                 <td>{{ test.test_id }}</td>
-                <td class="text-nowrap">
-                    {{ test.test_name }}
-                </td>
+
+                {% if test.test_name|length < 50 %}
+                <td class="text-nowrap">{{ test.test_name }}</td>
+                {% else %}
+                <td>{{ test.test_name }}</td>
+                {% endif %}
+
                 <td>{{ test.test_price }}</td>
                 <td>
                     <p class="text-break">
@@ -60,9 +64,12 @@
                 </td>
                 <td>
                     <div class="btn-group">
-                        <a href="" class="btn btn-sm btn-success">Update</a>
-                        <a href="" class="btn btn-sm btn-secondary">
-                            View
+                        <a href="{{ url_for('manager.view_test', test_id=test.test_id )}}"
+                            class="btn btn-sm btn-success">View</a>
+                        <a href="{{ url_for('manager.delete_test', test_id=test.test_id )}}"
+                            class="btn btn-sm btn-danger"
+                            onclick="return confirm('Delete: {{ test.test_name }}?')">
+                            Delete
                         </a>
                     </div>
                 </td>

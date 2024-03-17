@@ -1,4 +1,13 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from flask import (
+    Blueprint,
+    render_template,
+    redirect,
+    url_for,
+    flash,
+    request,
+    session,
+    abort,
+)
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
 from src.patient.models import Invoices, Invoice_Items, Payments, Medical_Tests
@@ -61,13 +70,70 @@ def tests():
         "manager/tests.html", new_test_form=new_test_form, title="Tests Management"
     )
 
+
 @manager.route("/dashboard/manager/tests/catalog")
 @login_required
 def test_catalog():
     page_num = request.args.get("page", 1, int)
-    tests = Medical_Tests.query.order_by(Medical_Tests.test_name.asc()).paginate(page=page_num, per_page=12)
+    tests = Medical_Tests.query.order_by(Medical_Tests.test_name.asc()).paginate(
+        page=page_num, per_page=12
+    )
 
-    return render_template('manager/test_catalog.html', tests=tests, title="Test Catalog")
+    return render_template(
+        "manager/test_catalog.html", tests=tests, title="Test Catalog"
+    )
+
+
+@manager.route("/dashboard/manager/tests/catalog/<test_id>", methods=["GET", "POST"])
+@login_required
+def view_test(test_id):
+    form = UpdateMedicalTestForm()
+    test: Medical_Tests = Medical_Tests.query.filter_by(test_id=test_id).first_or_404()
+
+    if form.validate_on_submit():
+        test.test_name = form.test_name.data
+        test.test_price = form.test_price.data
+        test.test_desc = form.test_desc.data
+
+        date, time = get_datetime()
+        new_log = User_Logs(current_user.id, "Update Test", date, time)
+        new_log.log_desc = f"#{test.test_id} {test.test_name}"
+        db.session.add(new_log)
+        db.session.commit()
+
+        flash("Test Updated Successfully!", category="success")
+        return redirect(url_for("manager.view_test", test_id=test_id))
+    elif request.method == "GET":
+        form.test_name.data = test.test_name
+        form.test_price.data = test.test_price
+        form.test_desc.data = test.test_desc
+
+    return render_template(
+        "manager/view_test.html", test=test, form=form, title=test.test_name
+    )
+
+
+@manager.route("/dashboard/manager/tests/delete/<test_id>")
+@login_required
+def delete_test(test_id):
+    if current_user.role == "Manager":
+        test: Medical_Tests = Medical_Tests.query.filter_by(
+            test_id=test_id
+        ).first_or_404()
+        db.session.delete(test)
+
+        date, time = get_datetime()
+        new_log = User_Logs(current_user.id, "Delete Test", date, time)
+        new_log.log_desc = f"#{test.test_id} {test.test_name} ({test.test_price})"
+        db.session.add(new_log)
+        # Commit to the database
+        db.session.commit()
+
+        flash("Test deleted successfully!", category="warning")
+        return redirect(url_for("manager.test_catalog"))
+    else:
+        abort(403)
+
 
 @manager.route("/dashboard/invoices")
 @login_required
