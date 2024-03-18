@@ -108,6 +108,12 @@ class Invoice_Items(db.Model):
 
 
 class Payments(db.Model):
+    """
+    #### payment_method
+        - Cash
+        - Online
+        - Other
+    """
     __tablename__ = "payments"
 
     payment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -126,6 +132,8 @@ class Payments(db.Model):
     payment_amount = db.Column(db.Float, nullable=False)
     payment_date = db.Column(db.Date, nullable=False)
     payment_time = db.Column(db.Time, nullable=False)
+    payment_method = db.Column(db.String(10), nullable=True)
+    payment_note = db.Column(db.String(255), nullable=True)
 
     def __init__(
         self,

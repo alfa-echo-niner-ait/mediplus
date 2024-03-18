@@ -1,0 +1,219 @@
+{% extends 'layout/layout_manager.html' %}
+
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('manager.invoices') }}">
+                    Invoices
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                # {{ invoice.invoice_id }}
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container mt-3">
+    <div class="d-flex justify-content-between">
+        <div class="me-auto">
+            <ul class="list-unstyled">
+                <li class="text-muted">
+                    <span class="fw-bold">
+                        Patient:
+                    </span>
+                    <span class="text-capitalize">
+                        {{ patient.last_name }} {{ patient.first_name }}
+                    </span>
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Phone:</span> {{ patient.phone }}
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Creation Date: </span>{{ invoice.invoice_date }}
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Creation Time: </span>{{ invoice.invoice_time }}
+                </li>
+            </ul>
+        </div>
+
+        <div class="ms-auto">
+            <ul class="list-unstyled">
+                <li class="text-muted">
+                    <span class="me-1 fw-bold">Status:</span>
+                    {% if invoice.status == 'Unpaid' %}
+                    <span class="badge bg-danger fw-bold">Unpaid</span>
+                    <br>
+                    <button data-bs-toggle="modal" data-bs-target="#updateInvoiceModal"
+                        class="btn btn-success btn-sm fw-bold mt-3">
+                        Receive Payment
+                    </button>
+                    {% else %}
+                    <span class="badge bg-success fw-bold">Paid</span>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% include '/manager/invoice_update_modal.html' %}
+
+<!-- Invoice Items -->
+<div class="container mt-3">
+    <div class="fs-4 fw-bold">
+        Invoice Items
+    </div>
+    <hr>
+    <table class="table table-striped table-borderless">
+        <thead style="background-color:#84B0CA ;" class="text-white">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Description</th>
+                <th scope="col" class="text-end">Amount</th>
+                {% if invoice.status == 'Unpaid' %}
+                <th scope="col" class="text-end">Action</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ item.item_desc }}</td>
+                <td class="text-end">{{ item.item_price }}</td>
+                {% if invoice.status == 'Unpaid' %}
+                <td class="text-end">
+                    <a href="{{ url_for('manager.invoice_item_delete', invoice_id=invoice.invoice_id, item_id=item.item_id)}}"
+                        class="btn btn-sm btn-danger" onclick="return confirm('Delete Item: {{ item.item_desc }}?')">
+                        <svg width="18" height="18" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                            <path
+                                d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                        </svg>
+                    </a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+
+<div class="container">
+    <div class="d-flex justify-content-between">
+        <div class="ms-auto">
+            <p class="text-black float-start">
+                <span class="text-black me-3">Total Amount</span>
+                <span style="font-size: 25px;">¥ {{ invoice.total_amount }}</span>
+                {% if invoice.status == 'Paid' %}
+                <br>
+                <span class="text-black me-3">Paid Amount</span>
+                <span style="font-size: 25px;">¥ <span id="amount"></span></span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+
+{% if invoice.status == 'Paid' %}
+<div class="container">
+    <div class="fs-4 fw-bold">
+        Payment Details
+    </div>
+    <hr>
+    <div class="d-flex justify-content-between">
+        <div class="me-auto">
+            <ul class="list-unstyled">
+                <li class="text-muted">
+                    <span class="fw-bold">Payment ID: </span>
+                    #<span id="payment_id"></span>
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Payment Amount: </span>
+                    <span id="amount"></span>
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Payment Method: </span>
+                    <span id="method"></span>
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Payment Note: </span>
+                    <span id="note"></span>
+                </li>
+            </ul>
+        </div>
+        <div class="ms-auto">
+            <ul class="list-unstyled">
+                <li class="text-muted">
+                    <span class="fw-bold">Received By: </span>
+                    <span class="text-capitalize">
+                        <span id="manager_lname"></span> <span id="manager_fname"></span>
+                    </span>
+                    
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Phone: </span>
+                    <span id="manager_phone"></span>
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Payment Date: </span>
+                    <span id="payment_date"></span>
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Payment Time: </span>
+                    <span id="payment_time"></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- JS -->
+<script>
+    $.ajax({
+        type: "GET",
+        url: "{{ url_for('api.payment_info', invoice_id=invoice.invoice_id) }}",
+        data: "data",
+        success: function (response) {
+            var info = response[1]["info"]
+
+            $("#payment_id").html(info.payment_id);
+            $("#amount").html(info.payment_amount);
+            $("#method").html(info.payment_method);
+            $("#note").html(info.payment_note);
+            $("#payment_date").html(info.payment_date);
+            $("#payment_time").html(info.payment_time);
+            $("#manager_lname").html(info.manager_lname);
+            $("#manager_fname").html(info.manager_fname);
+            $("#manager_phone").html(info.manager_phone);
+        }
+    });
+</script>
+{% endif %}
+
+<!-- JS -->
+<script>
+    $(document).ready(function () {
+        $("#side_invoices").addClass("text-success-emphasis bg-success-subtle");
+    });
+</script>
+{% endblock content %}

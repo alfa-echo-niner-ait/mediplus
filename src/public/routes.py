@@ -253,6 +253,6 @@ def tests():
             Medical_Tests.test_name.like(f"%{form.keyword.data}%")
             ).paginate(page=page_num, per_page=10)
         
-        return render_template("public/tests.html", form=form, tests=tests, title=f"Search Result: {form.keyword.data}")
+        return render_template("public/tests.html", search="yes", form=form, tests=tests, title=f"Search Result: {form.keyword.data}")
     
     return render_template("public/tests.html", form=form, tests=tests, title="Medical Tests")

@@ -1,6 +1,14 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import SelectField, SubmitField, DateField, PasswordField, StringField, DecimalField, TextAreaField
+from wtforms import (
+    SelectField,
+    SubmitField,
+    DateField,
+    PasswordField,
+    StringField,
+    DecimalField,
+    TextAreaField,
+)
 from wtforms.validators import DataRequired, EqualTo
 from datetime import date
 
@@ -68,7 +76,9 @@ class SelfProfileForm(FlaskForm):
     phone = StringField("Phone Number", validators=[DataRequired()])
     avatar = FileField(
         "Update Avatar",
-        validators=[FileAllowed(["jpg", "jpeg", "png", "svg"], "Please pick correct format!")],
+        validators=[
+            FileAllowed(["jpg", "jpeg", "png", "svg"], "Please pick correct format!")
+        ],
     )
 
     submit = SubmitField("Update Profile")
@@ -86,3 +96,14 @@ class UpdateMedicalTestForm(FlaskForm):
     test_price = DecimalField("Test Price", validators=[DataRequired()])
     test_desc = TextAreaField("Test Description")
     submit = SubmitField("Update Test")
+
+
+class UpdateInvoiceForm(FlaskForm):
+    payment_amount = DecimalField("Total Amount", validators=[DataRequired()])
+    payment_method = SelectField(
+        "Payment Method",
+        validators=[DataRequired()],
+        choices=[("Cash", "Cash"), ("Online", "Online"), ("Other", "Other")],
+    )
+    payment_note = StringField("Payment Note")
+    submit = SubmitField("Update")

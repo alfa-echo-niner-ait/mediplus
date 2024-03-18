@@ -62,4 +62,4 @@ class ResetPasswordForm(FlaskForm):
 
 class SearchTestForm(FlaskForm):
     keyword = StringField("Test Name", validators=[DataRequired()])
-    submit = SubmitField("Search Test")
+    submit = SubmitField("Search")

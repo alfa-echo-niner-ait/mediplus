@@ -27,16 +27,22 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-                {{ form.submit(class='input-group-text btn btn-success fw-bold') }}
+                {{ form.submit(class='input-group-text btn btn-success fw-bold pop') }}
             </div>
-    
         </form>
+        
+        {% if search == "yes" %}
+        <div class="text-center fw-bold mt-2">
+            <a href="{{ url_for('public.tests') }}">Show All</a>
+        </div>
+        {% endif %}
+            
     </div>
 </div>
 </div>
 <div class="container mt-3">
 
-    {% if tests %}
+    {% if tests.total != 0 %}
     {% for test in tests %}
     <div class="card mb-2">
         <div class="card-body">
@@ -44,8 +50,10 @@
             <h6 class="card-subtitle mb-2 text-body-secondary">
                 {{ test.test_price }} RMB
             </h6>
-            <p class="card-text">
-                {{ test.test_desc }}
+            <p class="card-text text-break">
+                {%for line in test.test_desc %}{%if line=='\n'%}
+                <br>
+                {% else %}{{line}}{%endif%}{%endfor%}
             </p>
             <a href="#" class="btn btn-mint pop">Make Booking</a>
         </div>
@@ -63,11 +71,11 @@
         {% for page_num in tests.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
         {% if tests.page == page_num %}
-        <a class="btn btn-success m-2" href="{{ url_for('public.tests', page=page_num) }}" id="pg_link{{ page_num }}">
+        <a class="btn btn-success m-2 pop" href="{{ url_for('public.tests', page=page_num) }}" id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
-        <a class="btn btn-outline-success m-2" href="{{ url_for('public.tests', page=page_num) }}"
+        <a class="btn btn-outline-success m-2 pop" href="{{ url_for('public.tests', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>

@@ -17,6 +17,7 @@ from .forms import (
     SelfProfileForm,
     NewMedicalTestForm,
     UpdateMedicalTestForm,
+    UpdateInvoiceForm,
 )
 from src import db, hash_manager
 from src.public.utils import (
@@ -25,7 +26,7 @@ from src.public.utils import (
     profile_picture_remover,
 )
 
-
+# Declare Blueprint
 manager = Blueprint("manager", __name__)
 
 
@@ -76,7 +77,7 @@ def tests():
 def test_catalog():
     page_num = request.args.get("page", 1, int)
     tests = Medical_Tests.query.order_by(Medical_Tests.test_name.asc()).paginate(
-        page=page_num, per_page=12
+        page=page_num, per_page=20
     )
 
     return render_template(
@@ -135,7 +136,7 @@ def delete_test(test_id):
         abort(403)
 
 
-@manager.route("/dashboard/invoices")
+@manager.route("/dashboard/manager/invoices")
 @login_required
 def invoices():
     page_num = request.args.get("page", 1, int)
@@ -160,6 +161,75 @@ def invoices():
     return render_template(
         "manager/invoices.html", title="Invoices Management", invoices=invoices
     )
+
+
+@manager.route("/dashboard/manager/invoices/<id>")
+@login_required
+def invoice_update(id):
+    if current_user.role != "Manager":
+        abort(403)
+        
+    form = UpdateInvoiceForm()
+    invoice: Invoices = Invoices.query.filter_by(invoice_id=id).first_or_404()
+    items: Invoice_Items = Invoice_Items.query.filter_by(invoice_id=id).all()
+    patient: Patients = Patients.query.filter_by(
+        p_id=invoice.invoice_patient_id
+    ).first()
+    
+    if request.method == "GET":
+        form.payment_amount.data = invoice.total_amount
+        
+    return render_template(
+        "manager/invoice_update.html",
+        invoice=invoice,
+        items=items,
+        patient=patient,
+        form=form,
+        title=f"Invoice #{invoice.invoice_id}",
+    )
+
+
+@manager.route("/dashboard/manager/invoices/<invoice_id>/update", methods=["POST"])
+@login_required
+def invoice_payment_update(invoice_id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    form = UpdateInvoiceForm()
+    invoice: Invoices = Invoices.query.filter_by(invoice_id=invoice_id).first_or_404()
+    date, time = get_datetime()
+    
+    payment = Payments(invoice.invoice_id, current_user.id, form.payment_amount.data, date, time)
+    payment.payment_method = form.payment_method.data
+    payment.payment_note = form.payment_note.data
+    db.session.add(payment)
+    invoice.status = "Paid"
+
+    new_log = User_Logs(current_user.id, "Receive Payment", date, time)
+    new_log.log_desc = f"Invoice #{invoice.invoice_id}, Amount: {form.payment_amount.data} ({form.payment_method.data})"
+    db.session.add(new_log)
+    # Commit to the database
+    db.session.commit()
+
+    flash("Invoice updated successfully!", category="success")
+    return redirect(url_for("manager.invoice_update", id=invoice_id))
+
+
+@manager.route("/dashboard/manager/invoices/<invoice_id>/delete/<item_id>")
+@login_required
+def invoice_item_delete(invoice_id, item_id):
+    item: Invoice_Items = Invoice_Items.query.filter_by(item_id=item_id).first_or_404()
+    db.session.delete(item)
+
+    date, time = get_datetime()
+    new_log: User_Logs = User_Logs(current_user.id, "Delete Test", date, time)
+    new_log.log_desc = f"#{item.item_id} {item.item_desc} ({item.item_price} RMB) from Invoice #{invoice_id}"
+    db.session.add(new_log)
+    # Commit to the database
+    db.session.commit()
+
+    flash("Item deleted successfully!", category="warning")
+    return redirect(url_for("manager.invoice_update", id=invoice_id))
 
 
 @manager.route("/dashboard/manager/managers")
