@@ -19,6 +19,7 @@ from .forms import (
     UpdateMedicalTestForm,
     UpdateInvoiceForm,
 )
+from src.public.forms import SearchTestForm
 from src import db, hash_manager
 from src.public.utils import (
     get_datetime,
@@ -47,6 +48,46 @@ def appointemnts():
 def tests():
     new_test_form = NewMedicalTestForm()
 
+    return render_template(
+        "manager/tests.html", new_test_form=new_test_form, title="Tests Management"
+    )
+
+
+@manager.route("/dashboard/manager/tests/catalog", methods=["GET", "POST"])
+@login_required
+def test_catalog():
+    new_test_form = NewMedicalTestForm()
+    search_form = SearchTestForm()
+
+    page_num = request.args.get("page", 1, int)
+    tests = Medical_Tests.query.order_by(Medical_Tests.test_name.asc()).paginate(
+        page=page_num, per_page=15
+    )
+
+    if search_form.validate_on_submit():
+        tests = Medical_Tests.query.filter(
+            Medical_Tests.test_name.like(f"%{search_form.keyword.data}%")
+        ).paginate(page=page_num, per_page=15)
+        return render_template(
+            "manager/test_catalog.html",
+            search="yes",
+            new_test_form=new_test_form,
+            search_form=search_form,
+            tests=tests,
+            title=f"Search Result: {search_form.keyword.data}",
+        )
+
+    return render_template(
+        "manager/test_catalog.html", new_test_form=new_test_form, search_form=search_form, tests=tests, title="Test Catalog"
+    )
+
+@manager.route("/dashboard/manager/tests/add", methods=["POST"])
+@login_required
+def add_new_test():
+    if current_user.role != "Manager":
+        abort(403)
+
+    new_test_form = NewMedicalTestForm()
     if new_test_form.validate_on_submit():
         date, time = get_datetime()
         new_test = Medical_Tests(
@@ -65,24 +106,10 @@ def tests():
         db.session.commit()
 
         flash("New Test Added to the Catalog!", category="success")
-        return redirect(url_for("manager.tests"))
-
-    return render_template(
-        "manager/tests.html", new_test_form=new_test_form, title="Tests Management"
-    )
-
-
-@manager.route("/dashboard/manager/tests/catalog")
-@login_required
-def test_catalog():
-    page_num = request.args.get("page", 1, int)
-    tests = Medical_Tests.query.order_by(Medical_Tests.test_name.asc()).paginate(
-        page=page_num, per_page=20
-    )
-
-    return render_template(
-        "manager/test_catalog.html", tests=tests, title="Test Catalog"
-    )
+        return redirect(url_for("manager.test_catalog"))
+    else:
+        flash("Operation failed! Submission error", category="danger")
+        return redirect(url_for("manager.test_catalog"))
 
 
 @manager.route("/dashboard/manager/tests/catalog/<test_id>", methods=["GET", "POST"])

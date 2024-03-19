@@ -127,7 +127,7 @@
                 {% if invoice.status == 'Paid' %}
                 <br>
                 <span class="text-black me-3">Paid Amount</span>
-                <span style="font-size: 25px;">¥ <span id="amount"></span></span>
+                <span style="font-size: 25px;">¥ <span id="paid_amount"></span></span>
                 {% endif %}
             </p>
         </div>
@@ -143,27 +143,11 @@
     <hr>
     <div class="d-flex justify-content-between">
         <div class="me-auto">
-            <ul class="list-unstyled">
-                <li class="text-muted">
-                    <span class="fw-bold">Payment ID: </span>
-                    #<span id="payment_id"></span>
-                </li>
-                <li class="text-muted">
-                    <span class="fw-bold">Payment Amount: </span>
-                    <span id="amount"></span>
-                </li>
-                <li class="text-muted">
-                    <span class="fw-bold">Payment Method: </span>
-                    <span id="method"></span>
-                </li>
-                <li class="text-muted">
-                    <span class="fw-bold">Payment Note: </span>
-                    <span id="note"></span>
-                </li>
+            <ul class="list-unstyled" id="payment_info">
             </ul>
         </div>
         <div class="ms-auto">
-            <ul class="list-unstyled">
+            <ul class="list-unstyled" id="manager_info">
                 <li class="text-muted">
                     <span class="fw-bold">Received By: </span>
                     <span class="text-capitalize">
@@ -194,17 +178,44 @@
         url: "{{ url_for('api.payment_info', invoice_id=invoice.invoice_id) }}",
         data: "data",
         success: function (response) {
-            var info = response[1]["info"]
-
-            $("#payment_id").html(info.payment_id);
-            $("#amount").html(info.payment_amount);
-            $("#method").html(info.payment_method);
-            $("#note").html(info.payment_note);
-            $("#payment_date").html(info.payment_date);
-            $("#payment_time").html(info.payment_time);
-            $("#manager_lname").html(info.manager_lname);
-            $("#manager_fname").html(info.manager_fname);
-            $("#manager_phone").html(info.manager_phone);
+            if (response[0]["result"] == "success") {
+                var info = response[1]["info"];
+                var payment_data = `
+                <li class="text-muted">
+                    <span class="fw-bold">Payment ID: </span> #${info.payment_id}
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Payment Amount: </span>¥ ${info.payment_amount}
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Payment Method: </span>${info.payment_method}
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Payment Note: </span>${info.payment_note}
+                </li>
+                `;
+                var manager_data = `
+                <li class="text-muted">
+                    <span class="fw-bold">Received By: </span>
+                    <span class="text-capitalize">${info.manager_lname} ${info.manager_fname}</span>
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Phone: </span>${info.manager_phone}
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Payment Date: </span>${info.payment_date}
+                </li>
+                <li class="text-muted">
+                    <span class="fw-bold">Payment Time: </span>${info.payment_time}
+                </li>
+                `;
+                $("#paid_amount").html(info.payment_amount);
+                $("#payment_info").html(payment_data);
+                $("#manager_info").html(manager_data);
+            }
+            else {
+                $("#manager_info").html("<div class='text-danger fw-bold'>Data fetching failed, please reload or try later!</div>");
+            }
         }
     });
 </script>

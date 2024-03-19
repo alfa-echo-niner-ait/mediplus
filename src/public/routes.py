@@ -226,6 +226,9 @@ def dashboard():
 
 @public.route("/invoice/<id>")
 def invoice(id):
+    if current_user.role == "Manager":
+        return redirect(url_for('manager.invoice_update', id=id))
+        
     invoice:Invoices = Invoices.query.filter_by(invoice_id=id).first_or_404()
     patient:Patients = Patients.query.filter_by(p_id=invoice.invoice_patient_id).first()
     items:Invoice_Items = Invoice_Items.query.filter_by(invoice_id=id).all()

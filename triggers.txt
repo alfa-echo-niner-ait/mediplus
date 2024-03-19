@@ -1,3 +1,5 @@
+On new invoice item added
+--------------------------
 DELIMITER //
 CREATE TRIGGER update_invoice_total_amount
 AFTER INSERT ON invoice_items
@@ -14,6 +16,29 @@ BEGIN
     UPDATE mediplus.invoices
     SET total_amount = total
     WHERE invoice_id = NEW.invoice_id;
+END;
+
+//
+DELIMITER ;
+
+On invoice item deleted
+------------------------
+DELIMITER //
+CREATE TRIGGER update_invoice_total_after_delete
+AFTER DELETE ON invoice_items
+FOR EACH ROW
+BEGIN
+    DECLARE total FLOAT;
+    
+    -- Calculate the total sum of price for the affected invoice_id
+    SELECT SUM(item_price) INTO total
+    FROM mediplus.invoice_items
+    WHERE invoice_id = OLD.invoice_id;
+    
+    -- Update the total in the invoice table in the other database
+    UPDATE mediplus.invoices
+    SET total_amount = total
+    WHERE invoice_id = OLD.invoice_id;
 END;
 
 //
