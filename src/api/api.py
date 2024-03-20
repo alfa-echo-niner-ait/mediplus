@@ -25,6 +25,35 @@ def log(log_id):
     return jsonify(response)
 
 
+@api.route("/api/public/payment/<invoice_id>")
+def payment_info_public(invoice_id):
+    payment: Payments = (
+        Payments.query.filter_by(payment_invoice_id=int(invoice_id))
+        .add_columns(
+            Payments.payment_id,
+            Payments.payment_method,
+            Payments.payment_amount,
+            Payments.payment_date,
+            Payments.payment_time,
+        )
+        .first()
+    )
+    if payment:
+        response = [{"result": "success"}]
+        info = {
+            "payment_id": payment.payment_id,
+            "payment_amount": payment.payment_amount,
+            "payment_date": str(payment.payment_date),
+            "payment_time": str(payment.payment_time),
+            "payment_method": payment.payment_method,
+        }
+        response.append({"info": info})
+    else:
+        response = [{"result": "fail"}]
+
+    return jsonify(response)
+
+
 @api.route("/api/manager/payment/<invoice_id>")
 def payment_info(invoice_id):
     payment = (
@@ -56,12 +85,12 @@ def payment_info(invoice_id):
             "payment_date": str(payment.payment_date),
             "payment_time": str(payment.payment_time),
             "payment_method": payment.payment_method,
-            "payment_note": payment.payment_note
+            "payment_note": payment.payment_note,
         }
         response.append({"info": info})
     else:
         response = [{"result": "fail"}]
-    
+
     return jsonify(response)
 
 
