@@ -19,6 +19,7 @@ from src.patient.models import (
     Invoices,
     Invoice_Items,
     Payments,
+    Pending_Items,
 )
 from src.patient.forms import (
     ChangePasswordForm,
@@ -35,6 +36,22 @@ from src.public.utils import (
 
 
 patient = Blueprint("patient", __name__)
+
+@patient.route("/add_to_cart", methods=["POST"])
+@login_required
+def add_item_to_cart():
+    item_name = request.form.get("item_name")
+    item_price = float(request.form.get("item_price"))
+    
+    item = Pending_Items(current_user.id, item_name, item_price)
+    db.session.add(item)
+    date, time = get_datetime()
+    new_log = User_Logs(current_user.id, "Add Item to Cart", date, time)
+    db.session.add(new_log)
+    # Commit to the database
+    db.session.commit()
+    return "success"
+
 
 
 @patient.route("/dashboard/patient")

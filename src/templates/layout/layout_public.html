@@ -43,20 +43,32 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <ul class="navbar-nav ms-auto mb-2 mb-md-0">
                         {% if current_user.is_authenticated %}
+                        {% if current_user.role == "Patient" %}
+                        {% if session['pending_items'] >= 0 %}
                         <li class="nav-item">
-                            <a class="nav-link" aria-current="page" href="{{ url_for('public.dashboard') }}">
+                            <a class="nav-link" href="{{ url_for('public.dashboard') }}">
+                                Pending Items
+                                <small>
+                                    <sup class="badge rounded-pill text-bg-danger">{{ session['pending_items'] }}</sup>
+                                </small>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('public.dashboard') }}">
                                 Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-danger" aria-current="page" href="{{ url_for('public.logout') }}">
+                            <a class="nav-link text-danger" href="{{ url_for('public.logout') }}">
                                 Logout
                             </a>
                         </li>
 
                         {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" aria-current="page" href="#">Appointments</a>
+                            <a class="nav-link" href="#">Appointments</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Tests</a>

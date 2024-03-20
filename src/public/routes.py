@@ -12,7 +12,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from .forms import LoginForm, RegisterForm, ResetRequestForm, ResetPasswordForm, SearchTestForm
 from .utils import get_datetime
 from src.users.models import Users, Patients, User_Logs, Managers, Doctors
-from src.patient.models import Medical_Info, Invoices, Invoice_Items, Payments, Medical_Tests
+from src.patient.models import Medical_Info, Invoices, Invoice_Items, Payments, Medical_Tests, Pending_Items
 from src.users.utils import reset_mail_sender
 from src import db, token_manager, hash_manager
 
@@ -22,6 +22,8 @@ public = Blueprint("public", __name__)
 @public.route("/", methods=["GET", "POST"])
 def index():
     if current_user.is_authenticated:
+        if current_user.role == "Patient":
+            session["pending_items"] = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
         if "avatar" not in session:
             if current_user.role == "Patient":
                 patient = Patients.query.filter_by(p_id=current_user.id).first()
@@ -32,7 +34,7 @@ def index():
             elif current_user.role == "Doctor":
                 doctor = Doctors.query.filter_by(d_id=current_user.id).first()
                 session["avatar"] = doctor.avatar
-
+        
     return render_template("public/index.html")
 
 
@@ -58,6 +60,7 @@ def login():
             if user.role == "Patient":
                 patient = Patients.query.filter_by(p_id=user.id).first()
                 session["avatar"] = patient.avatar
+                session["pending_items"] = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
             elif user.role == "Manager":
                 manager = Managers.query.filter_by(m_id=user.id).first()
                 session["avatar"] = manager.avatar
@@ -88,6 +91,7 @@ def logout():
     db.session.commit()
 
     session.pop("avatar", None)
+    session.pop("pending_items", None)
 
     logout_user()
     flash("Logout successfull!", category="warning")
@@ -205,6 +209,8 @@ def reset_password(username, token):
 @public.route("/dashboard")
 @login_required
 def dashboard():
+    if current_user.role == "Patient":
+        session["pending_items"] = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
     if "avatar" not in session:
         if current_user.role == "Patient":
             patient = Patients.query.filter_by(p_id=current_user.id).first()
@@ -244,6 +250,8 @@ def invoice(id):
 
 @public.route("/tests", methods=["GET", "POST"])
 def tests():
+    if current_user.is_authenticated and current_user.role == "Patient":
+        session["pending_items"] = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
     page_num = request.args.get("page", 1, int)
     
     form = SearchTestForm()

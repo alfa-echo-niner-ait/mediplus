@@ -107,6 +107,29 @@ class Invoice_Items(db.Model):
         return f"#{self.item_id} {self.item_desc} ({self.item_price} @ Invoice #{self.invoice_id})"
 
 
+class Pending_Items(db.Model):
+    __tablename__ = "pending_items"
+
+    item_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    item_user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("patients.p_id"),
+        primary_key=True,
+        nullable=False,
+    )
+    item_desc = db.Column(db.TEXT, nullable=False)
+    item_price = db.Column(db.Float, nullable=False)
+
+    def __init__(self, item_user_id, item_desc, item_price) -> None:
+        super().__init__()
+        self.item_user_id = item_user_id
+        self.item_desc = item_desc
+        self.item_price = item_price
+
+    def __str__(self) -> str:
+        return f"#{self.item_id} {self.item_desc} ({self.item_price} by User #{self.item_user_id}"
+
+
 class Payments(db.Model):
     """
     #### payment_method
