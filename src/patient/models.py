@@ -71,11 +71,10 @@ class Invoices(db.Model):
     invoice_time = db.Column(db.Time, nullable=False)
 
     def __init__(
-        self, invoice_patient_id, total_amount, status, invoice_date, invoice_time
+        self, invoice_patient_id, status, invoice_date, invoice_time
     ) -> None:
         super().__init__()
         self.invoice_patient_id = invoice_patient_id
-        self.total_amount = total_amount
         self.status = status
         self.invoice_date = invoice_date
         self.invoice_time = invoice_time

@@ -10,6 +10,8 @@ from flask import (
     current_app,
     send_file,
     send_from_directory,
+    abort,
+    session,
 )
 from flask_login import login_required, current_user
 from src.users.models import Users, Patients, User_Logs
@@ -47,11 +49,80 @@ def add_item_to_cart():
     db.session.add(item)
     date, time = get_datetime()
     new_log = User_Logs(current_user.id, "Add Item to Cart", date, time)
+    new_log.log_desc = f"{item_name} ({item_price} RMB)"
     db.session.add(new_log)
     # Commit to the database
     db.session.commit()
     return "success"
 
+@patient.route("/items", methods=["GET", "POST"])
+@login_required
+def pending_items():
+    if session["pending_items"] == 0:
+        return redirect(url_for("public.dashboard"))
+    items = Pending_Items.query.filter_by(item_user_id=current_user.id).all()
+    price_sum = sum(item.item_price for item in items)
+    
+
+    return render_template(
+        "patient/pending_items.html", items=items, price_sum=price_sum, title="Create Invoice")
+
+
+@patient.route("/items/delete/<item_id>")
+@login_required
+def delete_pending_item(item_id):
+    item:Pending_Items = Pending_Items.query.filter_by(item_id=item_id).first_or_404()
+    if item.item_user_id != current_user.id:
+        abort(403)
+
+    db.session.delete(item)
+
+    date, time = get_datetime()
+    new_log = User_Logs(current_user.id, "Remove Item from Cart", date, time)
+    new_log.log_desc = f"{item.item_desc} ({item.item_price} RMB)"
+    db.session.add(new_log)
+    # Commit to the database
+    db.session.commit()
+
+    total_items = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
+    session["pending_items"] = total_items
+    if total_items == 0:
+        flash("Invoice Closed, No Items Left!", category="info")
+        return redirect(url_for('public.dashboard'))
+    else:
+        flash("Item Removed Successfully!", category="warning")
+        return redirect(url_for("patient.pending_items"))
+
+
+@patient.route("/create_invoice")
+@login_required
+def create_invoice():
+    if session["pending_items"] == 0:
+        flash("Invoice Closed, No Items Left!", category="info")
+        return redirect(url_for("public.dashboard"))
+
+    date, time = get_datetime()
+    items:Pending_Items = Pending_Items.query.filter_by(item_user_id=current_user.id).all()
+
+    new_invoice = Invoices(current_user.id, "Unpaid", date, time)
+    db.session.add(new_invoice)
+    db.session.commit()
+
+    new_log = User_Logs(current_user.id, "Create New Invoice", date, time)
+    new_log.log_desc = f"New Invoice ID: {new_invoice.invoice_id}"
+    db.session.add(new_log)
+
+    for item in items:
+        new_invoice_item = Invoice_Items(new_invoice.invoice_id, item.item_desc, item.item_price)
+        db.session.add(new_invoice_item)
+        db.session.delete(item)
+
+    # Commit to the database
+    db.session.commit()
+
+    session["pending_items"] = 0
+    flash("Invoice Created Successfully!", category="success")
+    return redirect(url_for("patient.invoices"))
 
 
 @patient.route("/dashboard/patient")
