@@ -84,7 +84,7 @@
                 {% if invoice.status == 'Unpaid' %}
                 <td class="table-danger">{{ invoice.status }}</td>
                 {% else %}
-                <td class="table-success">{{ invoice.status }}</td>
+                <td class="table-warning">{{ invoice.status }}</td>
                 {% endif %}
                 <td>{{ invoice.invoice_date }}</td>
                 <td>{{ invoice.invoice_time }}</td>
@@ -109,7 +109,7 @@
                         </svg>
                     </a>
                     <!-- Delete -->
-                    <a href=""
+                    <a href="{{ url_for('manager.invoice_delete', id=invoice.invoice_id)}}"
                         class="btn btn-sm btn-danger" onclick="return confirm('Delete Invoice #{{ invoice.invoice_id }}?')">
                         <svg width="18" height="18" fill="currentColor" class="bi" viewBox="0 0 16 16">
                             <path

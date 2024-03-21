@@ -70,6 +70,12 @@
                     <span class="badge bg-success fw-bold">Paid</span>
                     {% endif %}
                 </li>
+                <li class="text-muted mt-3">
+                    <a href="{{ url_for('public.invoice', id=invoice.invoice_id)}}" target="_blank"
+                        class="btn btn-outline-info">
+                        View Invoice
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

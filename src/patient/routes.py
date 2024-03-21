@@ -39,6 +39,33 @@ from src.public.utils import (
 
 patient = Blueprint("patient", __name__)
 
+
+@patient.route("/dashboard/patient")
+@login_required
+def dashboard():
+    user = (
+        Patients.query.join(Users, Patients.p_id == Users.id)
+        .filter(Patients.p_id == current_user.id)
+        .add_columns(
+            Users.username,
+            Users.gender,
+            Users.email,
+            Patients.first_name,
+            Patients.last_name,
+            Patients.phone,
+            Patients.birthdate,
+            Patients.avatar,
+        )
+        .first()
+    )
+    ip = request.remote_addr
+    info = request.headers.get("User-Agent")
+
+    return render_template(
+        "patient/dashboard.html", user=user, ip=ip, info=info, title="Dashboard"
+    )
+
+
 @patient.route("/add_to_cart", methods=["POST"])
 @login_required
 def add_item_to_cart():
@@ -123,32 +150,6 @@ def create_invoice():
     session["pending_items"] = 0
     flash("Invoice Created Successfully!", category="success")
     return redirect(url_for("patient.invoices"))
-
-
-@patient.route("/dashboard/patient")
-@login_required
-def dashboard():
-    user = (
-        Patients.query.join(Users, Patients.p_id == Users.id)
-        .filter(Patients.p_id == current_user.id)
-        .add_columns(
-            Users.username,
-            Users.gender,
-            Users.email,
-            Patients.first_name,
-            Patients.last_name,
-            Patients.phone,
-            Patients.birthdate,
-            Patients.avatar,
-        )
-        .first()
-    )
-    ip = request.remote_addr
-    info = request.headers.get("User-Agent")
-
-    return render_template(
-        "patient/dashboard.html", user=user, ip=ip, info=info, title="Dashboard"
-    )
 
 
 @patient.route("/dashboard/patient/update_profile", methods=["GET", "POST"])

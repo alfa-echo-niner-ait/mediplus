@@ -215,7 +215,30 @@ def invoice_update(id):
         title=f"Invoice #{invoice.invoice_id}",
     )
 
+@manager.route("/dashboard/manager/invoices/delete/<id>")
+@login_required
+def invoice_delete(id):
+    if current_user.role != "Manager":
+        abort(403)
 
+    invoice: Invoices = Invoices.query.filter_by(invoice_id=id).first_or_404()
+    db.session.delete(invoice)
+
+    date, time = get_datetime()
+    new_log_manager: User_Logs = User_Logs(current_user.id, "Delete Invoice", date, time)
+    new_log_manager.log_desc = f"Invoice #{invoice.invoice_id}, Total Amount: {invoice.total_amount} ({invoice.status})"
+    db.session.add(new_log_manager)
+    new_log_patient: User_Logs = User_Logs(invoice.invoice_patient_id, "*Invoice Deleted", date, time)
+    new_log_patient.log_desc = f"Invoice #{invoice.invoice_id} Deleted by Manager, Total Amount: {invoice.total_amount} ({invoice.status})"
+    db.session.add(new_log_patient)
+    # Commit to the database
+    db.session.commit()
+
+    flash("Invoice deleted successfully!", category="info")
+    return redirect(url_for("manager.invoices"))
+
+
+# Receive Payment for Invoice
 @manager.route("/dashboard/manager/invoices/<invoice_id>/update", methods=["POST"])
 @login_required
 def invoice_payment_update(invoice_id):
@@ -225,16 +248,21 @@ def invoice_payment_update(invoice_id):
     form = UpdateInvoiceForm()
     invoice: Invoices = Invoices.query.filter_by(invoice_id=invoice_id).first_or_404()
     date, time = get_datetime()
-    
+
     payment = Payments(invoice.invoice_id, current_user.id, form.payment_amount.data, date, time)
     payment.payment_method = form.payment_method.data
     payment.payment_note = form.payment_note.data
     db.session.add(payment)
     invoice.status = "Paid"
+    db.session.commit()
 
-    new_log = User_Logs(current_user.id, "Receive Payment", date, time)
-    new_log.log_desc = f"Invoice #{invoice.invoice_id}, Amount: {form.payment_amount.data} ({form.payment_method.data})"
-    db.session.add(new_log)
+    new_log_manager = User_Logs(current_user.id, "Receive Payment", date, time)
+    new_log_manager.log_desc = f"Payment #{payment.payment_id}, Invoice #{invoice.invoice_id}, Amount: {form.payment_amount.data} ({form.payment_method.data})"
+    db.session.add(new_log_manager)
+
+    new_log_patient = User_Logs(invoice.invoice_patient_id, "Invoice Paid", date, time)
+    new_log_patient.log_desc = f"Payment #{payment.payment_id}, Invoice #{invoice.invoice_id}, Amount: {form.payment_amount.data} ({form.payment_method.data})"
+    db.session.add(new_log_patient)
     # Commit to the database
     db.session.commit()
 
