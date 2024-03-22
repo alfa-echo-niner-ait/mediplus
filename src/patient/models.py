@@ -93,12 +93,19 @@ class Invoice_Items(db.Model):
         primary_key=True,
         nullable=False,
     )
+    test_id_ref = db.Column(
+        db.Integer,
+        db.ForeignKey("medical_tests.test_id"),
+        primary_key=True,
+        nullable=False,
+    )
     item_desc = db.Column(db.TEXT, nullable=False)
     item_price = db.Column(db.Float, nullable=False)
 
-    def __init__(self, invoice_id, item_desc, item_price) -> None:
+    def __init__(self, invoice_id, test_id_ref, item_desc, item_price) -> None:
         super().__init__()
         self.invoice_id = invoice_id
+        self.test_id_ref = test_id_ref
         self.item_desc = item_desc
         self.item_price = item_price
 
@@ -110,6 +117,12 @@ class Pending_Items(db.Model):
     __tablename__ = "pending_items"
 
     item_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    item_test_id = db.Column(
+        db.Integer,
+        db.ForeignKey("medical_tests.test_id"),
+        primary_key=True,
+        nullable=False,
+    )
     item_user_id = db.Column(
         db.Integer,
         db.ForeignKey("patients.p_id"),
@@ -119,8 +132,9 @@ class Pending_Items(db.Model):
     item_desc = db.Column(db.TEXT, nullable=False)
     item_price = db.Column(db.Float, nullable=False)
 
-    def __init__(self, item_user_id, item_desc, item_price) -> None:
+    def __init__(self, item_test_id, item_user_id, item_desc, item_price) -> None:
         super().__init__()
+        self.item_test_id = item_test_id
         self.item_user_id = item_user_id
         self.item_desc = item_desc
         self.item_price = item_price
@@ -196,3 +210,29 @@ class Medical_Tests(db.Model):
 
     def __str__(self) -> str:
         return f"#{self.test_id} {self.test_name} ({self.test_price}) on {self.add_date}, {self.add_time}"
+
+
+class Medical_Test_Book(db.Model):
+    __tablename__ = "medical_test_book"
+
+    serial_number = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    item_test_ref_id = db.Column(
+        db.Integer,
+        db.ForeignKey("medical_tests.test_id"),
+        primary_key=True,
+        nullable=False,
+    )
+    test_patient_id = db.Column(
+        db.Integer,
+        db.ForeignKey("patients.p_id"),
+        primary_key=True,
+        nullable=False,
+    )
+
+    def __init__(self, item_test_ref_id, test_patient_id) -> None:
+        super().__init__()
+        self.item_test_ref_id = item_test_ref_id
+        self.test_patient_id = test_patient_id
+
+    def __str__(self) -> str:
+        return f"#{self.serial_number} @ {self.item_test_ref_id} by {self.test_patient_id}"

@@ -41,3 +41,15 @@
     background-color: #198754;
     color: #f0f1f2;
 }
+
+.pop {
+    /* All transition take 0.3s */
+    transition: all 0.3s;
+}
+
+.pop:hover {
+    /* Make 15% bigger */
+    transform: scale(1.15);
+    z-index: 1;
+
+}

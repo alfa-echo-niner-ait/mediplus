@@ -253,6 +253,8 @@ def tests():
     if current_user.is_authenticated and current_user.role == "Patient":
         session["pending_items"] = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
     page_num = request.args.get("page", 1, int)
+    title = "Medical Tests"
+    search = "no"
     
     form = SearchTestForm()
     tests = Medical_Tests.query.order_by(Medical_Tests.test_name.asc()).paginate(
@@ -260,10 +262,12 @@ def tests():
     )
     
     if form.validate_on_submit():
+        if page_num > 1:
+            page_num = 1
         tests = Medical_Tests.query.filter(
-            Medical_Tests.test_name.like(f"%{form.keyword.data}%")
-            ).paginate(page=page_num, per_page=10)
-        
-        return render_template("public/tests.html", search="yes", form=form, tests=tests, title=f"Search Result: {form.keyword.data}")
+            Medical_Tests.test_name.icontains(form.keyword.data) | Medical_Tests.test_desc.icontains(form.keyword.data)
+            ).paginate(page=page_num, per_page=15)
+        title=f"Search Result: {form.keyword.data}"
+        search = "yes"
     
-    return render_template("public/tests.html", form=form, tests=tests, title="Medical Tests")
+    return render_template("public/tests.html", form=form, tests=tests, search=search, title=title)

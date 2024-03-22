@@ -22,6 +22,7 @@ from src.patient.models import (
     Invoice_Items,
     Payments,
     Pending_Items,
+    Medical_Test_Book,
 )
 from src.patient.forms import (
     ChangePasswordForm,
@@ -69,10 +70,11 @@ def dashboard():
 @patient.route("/add_to_cart", methods=["POST"])
 @login_required
 def add_item_to_cart():
+    test_id = request.form.get("test_id")
     item_name = request.form.get("item_name")
     item_price = float(request.form.get("item_price"))
     
-    item = Pending_Items(current_user.id, item_name, item_price)
+    item = Pending_Items(test_id, current_user.id, item_name, item_price)
     db.session.add(item)
     date, time = get_datetime()
     new_log = User_Logs(current_user.id, "Add Item to Cart", date, time)
@@ -82,6 +84,8 @@ def add_item_to_cart():
     db.session.commit()
     return "success"
 
+
+# Show Pending Items to Create Invoice
 @patient.route("/items", methods=["GET", "POST"])
 @login_required
 def pending_items():
@@ -140,8 +144,10 @@ def create_invoice():
     db.session.add(new_log)
 
     for item in items:
-        new_invoice_item = Invoice_Items(new_invoice.invoice_id, item.item_desc, item.item_price)
+        new_invoice_item = Invoice_Items(new_invoice.invoice_id, item.item_test_id, item.item_desc, item.item_price)
         db.session.add(new_invoice_item)
+        new_test_book_item = Medical_Test_Book(item.item_test_id, current_user.id)
+        db.session.add(new_test_book_item)
         db.session.delete(item)
 
     # Commit to the database
@@ -254,7 +260,6 @@ def medical_records():
 
     # Information form handler
     if request.method == "POST":
-        print(f"\nForm received: {form.blood_group.data}\n")
         records.blood_group = form.blood_group.data
         records.height_cm = form.height_cm.data
         records.weight_kg = form.weight_kg.data
@@ -425,3 +430,22 @@ def invoices():
     return render_template(
         "patient/invoices.html", title="Invoices", invoices=invoices
     )
+
+@patient.route("/dashboard/patient/tests")
+@login_required
+def tests():
+    page_num = request.args.get("page", 1, int)
+
+    items = (
+        Medical_Test_Book.query.join(Medical_Test_Book, Invoice_Items.test_id_ref == Medical_Test_Book.item_test_ref_id)
+        .filter(Medical_Test_Book.test_patient_id == current_user.id)
+        .add_columns(
+            Medical_Test_Book.serial_number,
+            Medical_Test_Book.item_test_ref_id,
+            Invoice_Items.invoice_id,
+            Invoice_Items.item_desc,
+            Invoice_Items.item_price,
+        )
+        .paginate(page=page_num, per_page=12)
+    )
+    return render_template("patient/tests.html", items=items, title="My Medical Tests")

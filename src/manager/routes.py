@@ -58,6 +58,8 @@ def tests():
 def test_catalog():
     new_test_form = NewMedicalTestForm()
     search_form = SearchTestForm()
+    title = "Medical Tests"
+    search = "no"
 
     page_num = request.args.get("page", 1, int)
     tests = Medical_Tests.query.order_by(Medical_Tests.test_name.asc()).paginate(
@@ -65,21 +67,25 @@ def test_catalog():
     )
 
     if search_form.validate_on_submit():
+        if page_num > 1:
+            page_num = 1
         tests = Medical_Tests.query.filter(
-            Medical_Tests.test_name.like(f"%{search_form.keyword.data}%")
+            Medical_Tests.test_name.icontains(search_form.keyword.data)
+            | Medical_Tests.test_desc.icontains(search_form.keyword.data)
         ).paginate(page=page_num, per_page=15)
-        return render_template(
-            "manager/test_catalog.html",
-            search="yes",
-            new_test_form=new_test_form,
-            search_form=search_form,
-            tests=tests,
-            title=f"Search Result: {search_form.keyword.data}",
-        )
+
+        title = f"Search Result: {search_form.keyword.data}"
+        search = "yes"
 
     return render_template(
-        "manager/test_catalog.html", new_test_form=new_test_form, search_form=search_form, tests=tests, title="Test Catalog"
+        "manager/test_catalog.html",
+        new_test_form=new_test_form,
+        search_form=search_form,
+        tests=tests,
+        search=search,
+        title=title,
     )
+
 
 @manager.route("/dashboard/manager/tests/add", methods=["POST"])
 @login_required
@@ -195,17 +201,17 @@ def invoices():
 def invoice_update(id):
     if current_user.role != "Manager":
         abort(403)
-        
+
     form = UpdateInvoiceForm()
     invoice: Invoices = Invoices.query.filter_by(invoice_id=id).first_or_404()
     items: Invoice_Items = Invoice_Items.query.filter_by(invoice_id=id).all()
     patient: Patients = Patients.query.filter_by(
         p_id=invoice.invoice_patient_id
     ).first()
-    
+
     if request.method == "GET":
         form.payment_amount.data = invoice.total_amount
-        
+
     return render_template(
         "manager/invoice_update.html",
         invoice=invoice,
@@ -214,6 +220,7 @@ def invoice_update(id):
         form=form,
         title=f"Invoice #{invoice.invoice_id}",
     )
+
 
 @manager.route("/dashboard/manager/invoices/delete/<id>")
 @login_required
@@ -225,10 +232,14 @@ def invoice_delete(id):
     db.session.delete(invoice)
 
     date, time = get_datetime()
-    new_log_manager: User_Logs = User_Logs(current_user.id, "Delete Invoice", date, time)
+    new_log_manager: User_Logs = User_Logs(
+        current_user.id, "Delete Invoice", date, time
+    )
     new_log_manager.log_desc = f"Invoice #{invoice.invoice_id}, Total Amount: {invoice.total_amount} ({invoice.status})"
     db.session.add(new_log_manager)
-    new_log_patient: User_Logs = User_Logs(invoice.invoice_patient_id, "*Invoice Deleted", date, time)
+    new_log_patient: User_Logs = User_Logs(
+        invoice.invoice_patient_id, "*Invoice Deleted", date, time
+    )
     new_log_patient.log_desc = f"Invoice #{invoice.invoice_id} Deleted by Manager, Total Amount: {invoice.total_amount} ({invoice.status})"
     db.session.add(new_log_patient)
     # Commit to the database
@@ -249,7 +260,9 @@ def invoice_payment_update(invoice_id):
     invoice: Invoices = Invoices.query.filter_by(invoice_id=invoice_id).first_or_404()
     date, time = get_datetime()
 
-    payment = Payments(invoice.invoice_id, current_user.id, form.payment_amount.data, date, time)
+    payment = Payments(
+        invoice.invoice_id, current_user.id, form.payment_amount.data, date, time
+    )
     payment.payment_method = form.payment_method.data
     payment.payment_note = form.payment_note.data
     db.session.add(payment)
