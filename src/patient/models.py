@@ -38,7 +38,13 @@ class Patient_Record_Files(db.Model):
     upload_time = db.Column(db.Time, nullable=False)
 
     def __init__(
-        self, record_patient_id, file_name, file_path_name, file_size_kb, upload_date, upload_time
+        self,
+        record_patient_id,
+        file_name,
+        file_path_name,
+        file_size_kb,
+        upload_date,
+        upload_time,
     ):
         super().__init__()
         self.record_patient_id = record_patient_id
@@ -70,9 +76,7 @@ class Invoices(db.Model):
     invoice_date = db.Column(db.Date, nullable=False)
     invoice_time = db.Column(db.Time, nullable=False)
 
-    def __init__(
-        self, invoice_patient_id, status, invoice_date, invoice_time
-    ) -> None:
+    def __init__(self, invoice_patient_id, status, invoice_date, invoice_time) -> None:
         super().__init__()
         self.invoice_patient_id = invoice_patient_id
         self.status = status
@@ -150,6 +154,7 @@ class Payments(db.Model):
         - Online
         - Other
     """
+
     __tablename__ = "payments"
 
     payment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -200,7 +205,9 @@ class Medical_Tests(db.Model):
     add_time = db.Column(db.Time, nullable=True)
     test_desc = db.Column(db.TEXT, nullable=True)
 
-    def __init__(self, test_name, test_price, add_date, add_time, test_desc=None) -> None:
+    def __init__(
+        self, test_name, test_price, add_date, add_time, test_desc=None
+    ) -> None:
         super().__init__()
         self.test_name = test_name
         self.test_price = test_price
@@ -216,9 +223,9 @@ class Medical_Test_Book(db.Model):
     __tablename__ = "medical_test_book"
 
     serial_number = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    item_test_ref_id = db.Column(
+    invoice_item_id = db.Column(
         db.Integer,
-        db.ForeignKey("medical_tests.test_id"),
+        db.ForeignKey("invoice_items.item_id"),
         primary_key=True,
         nullable=False,
     )
@@ -229,10 +236,54 @@ class Medical_Test_Book(db.Model):
         nullable=False,
     )
 
-    def __init__(self, item_test_ref_id, test_patient_id) -> None:
+    def __init__(self, invoice_item_id, test_patient_id) -> None:
         super().__init__()
-        self.item_test_ref_id = item_test_ref_id
+        self.invoice_item_id = invoice_item_id
         self.test_patient_id = test_patient_id
 
     def __str__(self) -> str:
-        return f"#{self.serial_number} @ {self.item_test_ref_id} by {self.test_patient_id}"
+        return (
+            f"#{self.serial_number} @ {self.item_test_ref_id} by {self.test_patient_id}"
+        )
+
+
+class Medical_Report_Files(db.Model):
+    __tablename__ = "medical_report_files"
+
+    file_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    test_book_serial = db.Column(
+        db.Integer, db.ForeignKey("medical_test_book.serial_number"), primary_key=True, nullable=False
+    )
+    file_name = db.Column(db.String(100), nullable=False)
+    file_path_name = db.Column(db.String(100), nullable=False)
+    file_size_kb = db.Column(db.Float, nullable=False)
+    upload_manager_id = db.Column(
+        db.Integer,
+        db.ForeignKey("managers.m_id"),
+        primary_key=True,
+        nullable=False,
+    )
+    upload_date = db.Column(db.Date, nullable=False)
+    upload_time = db.Column(db.Time, nullable=False)
+
+    def __init__(
+        self,
+        test_book_serial,
+        file_name,
+        file_path_name,
+        file_size_kb,
+        upload_manager_id,
+        upload_date,
+        upload_time,
+    ):
+        super().__init__()
+        self.test_book_serial = test_book_serial
+        self.file_name = file_name
+        self.file_path_name = file_path_name
+        self.file_size_kb = file_size_kb
+        self.upload_manager_id = upload_manager_id
+        self.upload_date = upload_date
+        self.upload_time = upload_time
+
+    def __str__(self) -> str:
+        return f"Report File: #{self.file_id} {self.file_name} ({self.file_size_kb} KB) on {self.upload_date}, {self.upload_time}"

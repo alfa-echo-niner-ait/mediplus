@@ -23,6 +23,7 @@ from src.patient.models import (
     Payments,
     Pending_Items,
     Medical_Test_Book,
+    Medical_Report_Files,
 )
 from src.patient.forms import (
     ChangePasswordForm,
@@ -73,7 +74,7 @@ def add_item_to_cart():
     test_id = request.form.get("test_id")
     item_name = request.form.get("item_name")
     item_price = float(request.form.get("item_price"))
-    
+
     item = Pending_Items(test_id, current_user.id, item_name, item_price)
     db.session.add(item)
     date, time = get_datetime()
@@ -93,16 +94,19 @@ def pending_items():
         return redirect(url_for("public.dashboard"))
     items = Pending_Items.query.filter_by(item_user_id=current_user.id).all()
     price_sum = sum(item.item_price for item in items)
-    
 
     return render_template(
-        "patient/pending_items.html", items=items, price_sum=price_sum, title="Create Invoice")
+        "patient/pending_items.html",
+        items=items,
+        price_sum=price_sum,
+        title="Create Invoice",
+    )
 
 
 @patient.route("/items/delete/<item_id>")
 @login_required
 def delete_pending_item(item_id):
-    item:Pending_Items = Pending_Items.query.filter_by(item_id=item_id).first_or_404()
+    item: Pending_Items = Pending_Items.query.filter_by(item_id=item_id).first_or_404()
     if item.item_user_id != current_user.id:
         abort(403)
 
@@ -119,7 +123,7 @@ def delete_pending_item(item_id):
     session["pending_items"] = total_items
     if total_items == 0:
         flash("Invoice Closed, No Items Left!", category="info")
-        return redirect(url_for('public.dashboard'))
+        return redirect(url_for("public.dashboard"))
     else:
         flash("Item Removed Successfully!", category="warning")
         return redirect(url_for("patient.pending_items"))
@@ -133,7 +137,9 @@ def create_invoice():
         return redirect(url_for("public.dashboard"))
 
     date, time = get_datetime()
-    items:Pending_Items = Pending_Items.query.filter_by(item_user_id=current_user.id).all()
+    items: Pending_Items = Pending_Items.query.filter_by(
+        item_user_id=current_user.id
+    ).all()
 
     new_invoice = Invoices(current_user.id, "Unpaid", date, time)
     db.session.add(new_invoice)
@@ -144,9 +150,15 @@ def create_invoice():
     db.session.add(new_log)
 
     for item in items:
-        new_invoice_item = Invoice_Items(new_invoice.invoice_id, item.item_test_id, item.item_desc, item.item_price)
+        new_invoice_item = Invoice_Items(
+            new_invoice.invoice_id, item.item_test_id, item.item_desc, item.item_price
+        )
         db.session.add(new_invoice_item)
-        new_test_book_item = Medical_Test_Book(item.item_test_id, current_user.id)
+        db.session.commit()
+
+        new_test_book_item = Medical_Test_Book(
+            new_invoice_item.item_id, current_user.id
+        )
         db.session.add(new_test_book_item)
         db.session.delete(item)
 
@@ -319,9 +331,7 @@ def upload_record():
             current_user.id, file_name, file_path_name, file_size_kb, date, time
         )
         new_log = User_Logs(current_user.id, "Upload Medical Record", date, time)
-        new_log.log_desc = (
-            f"{file_name} ({file_size_kb} KB), file: {file_path_name}"
-        )
+        new_log.log_desc = f"{file_name} ({file_size_kb} KB), file: {file_path_name}"
 
         db.session.add(new_file)
         db.session.add(new_log)
@@ -427,9 +437,8 @@ def invoices():
         .paginate(page=page_num, per_page=12)
     )
 
-    return render_template(
-        "patient/invoices.html", title="Invoices", invoices=invoices
-    )
+    return render_template("patient/invoices.html", title="Invoices", invoices=invoices)
+
 
 @patient.route("/dashboard/patient/tests")
 @login_required
@@ -437,15 +446,49 @@ def tests():
     page_num = request.args.get("page", 1, int)
 
     items = (
-        Medical_Test_Book.query.join(Medical_Test_Book, Invoice_Items.test_id_ref == Medical_Test_Book.item_test_ref_id)
-        .filter(Medical_Test_Book.test_patient_id == current_user.id)
+        Medical_Test_Book.query.filter(
+            Medical_Test_Book.test_patient_id == current_user.id
+        )
+        .join(
+            Invoice_Items,
+            Invoice_Items.item_id == Medical_Test_Book.invoice_item_id,
+        )
+        .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
         .add_columns(
             Medical_Test_Book.serial_number,
-            Medical_Test_Book.item_test_ref_id,
+            Medical_Test_Book.invoice_item_id,
             Invoice_Items.invoice_id,
             Invoice_Items.item_desc,
             Invoice_Items.item_price,
+            Invoices.status,
         )
         .paginate(page=page_num, per_page=12)
     )
     return render_template("patient/tests.html", items=items, title="My Medical Tests")
+
+
+@patient.route("/dashboard/patient/tests/<serial>")
+@login_required
+def test_report(serial):
+    item = (
+        Medical_Test_Book.query.filter(Medical_Test_Book.serial_number == serial)
+        .join(Invoice_Items, Medical_Test_Book.invoice_item_id == Invoice_Items.item_id)
+        .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
+        .add_columns(
+            Medical_Test_Book.serial_number,
+            Invoice_Items.invoice_id,
+            Invoice_Items.item_desc,
+            Invoice_Items.item_price,
+            Invoices.status,
+            Invoices.invoice_date,
+            Invoices.invoice_time,
+            Invoices.invoice_patient_id,
+        ).first_or_404()
+    )
+    
+    if item.invoice_patient_id != current_user.id:
+        abort(403)
+    
+    files = Medical_Report_Files.query.filter(Medical_Report_Files.test_book_serial == serial).all()
+
+    return render_template("patient/test_report.html", item=item, files=files, title=f"Report: {item.item_desc}")
