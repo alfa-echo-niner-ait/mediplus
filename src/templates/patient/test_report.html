@@ -9,6 +9,11 @@
     <div class="fs-5 fw-bold mt-2">{{ item.item_price }} RMB</div>
     <div class="fs-5">Serial Number: #{{ item.serial_number }}</div>
     <div class="fs-5 text-secondary">{{ item.invoice_date }}, {{ item.invoice_time }}</div>
+    <div class="fs-6 text-break mt-3">
+        {%for line in item.test_desc %}{%if line=='\n'%}
+        <br>
+        {% else %}{{line}}{%endif%}{%endfor%}
+    </div>
     <hr>
 </div>
 

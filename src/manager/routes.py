@@ -10,7 +10,14 @@ from flask import (
 )
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
-from src.patient.models import Invoices, Invoice_Items, Payments, Medical_Tests
+from src.patient.models import (
+    Invoices,
+    Invoice_Items,
+    Payments,
+    Medical_Tests,
+    Medical_Test_Book,
+    Medical_Report_Files,
+)
 from .forms import (
     LogSortForm,
     ChangePasswordForm,
@@ -46,10 +53,33 @@ def appointemnts():
 @manager.route("/dashboard/tests", methods=["GET", "POST"])
 @login_required
 def tests():
+    page_num = request.args.get("page", 1, int)
     new_test_form = NewMedicalTestForm()
 
+    items = (
+        Medical_Test_Book.query.join(
+            Invoice_Items,
+            Invoice_Items.item_id == Medical_Test_Book.invoice_item_id,
+        )
+        .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
+        .add_columns(
+            Medical_Test_Book.serial_number,
+            Medical_Test_Book.invoice_item_id,
+            Invoice_Items.invoice_id,
+            Invoice_Items.item_desc,
+            Invoice_Items.item_price,
+            Invoices.status,
+            Invoices.invoice_date,
+            Invoices.invoice_time,
+        )
+        .paginate(page=page_num, per_page=15)
+    )
+
     return render_template(
-        "manager/tests.html", new_test_form=new_test_form, title="Tests Management"
+        "manager/tests.html",
+        new_test_form=new_test_form,
+        items=items,
+        title="Tests Management",
     )
 
 

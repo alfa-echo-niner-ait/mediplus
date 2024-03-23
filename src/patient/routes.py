@@ -22,6 +22,7 @@ from src.patient.models import (
     Invoice_Items,
     Payments,
     Pending_Items,
+    Medical_Tests,
     Medical_Test_Book,
     Medical_Report_Files,
 )
@@ -474,6 +475,7 @@ def test_report(serial):
         Medical_Test_Book.query.filter(Medical_Test_Book.serial_number == serial)
         .join(Invoice_Items, Medical_Test_Book.invoice_item_id == Invoice_Items.item_id)
         .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
+        .join(Medical_Tests, Invoice_Items.test_id_ref == Medical_Tests.test_id)
         .add_columns(
             Medical_Test_Book.serial_number,
             Invoice_Items.invoice_id,
@@ -483,6 +485,7 @@ def test_report(serial):
             Invoices.invoice_date,
             Invoices.invoice_time,
             Invoices.invoice_patient_id,
+            Medical_Tests.test_desc,
         ).first_or_404()
     )
     
