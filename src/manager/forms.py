@@ -107,3 +107,17 @@ class UpdateInvoiceForm(FlaskForm):
     )
     payment_note = StringField("Payment Note")
     submit = SubmitField("Update")
+
+
+class Test_Result_Upload_Form(FlaskForm):
+    file_name = StringField("File Name", validators=[DataRequired()])
+    file = FileField(
+        "Pick a Record File",
+        validators=[
+            DataRequired(),
+            FileAllowed(
+                ["jpg", "jpeg", "png", "svg", "pdf"], "Please pick allowed format!"
+            ),
+        ],
+    )
+    submit = SubmitField("Upload New Record")

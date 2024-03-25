@@ -70,17 +70,21 @@
                 <td>{{ item.item_desc }}</td>
                 <td class="text-end">{{ item.invoice_date}}</td>
                 <td class="text-end">{{ item.invoice_time }}</td>
-                {% if item.status == "Unpaid" %}
                 <td class="text-end">
+                {% if item.status == "Unpaid" %}
                     <span class="badge bg-danger">{{ item.status }}</span>
-                </td>
-                {% else %}
-                <span class="badge bg-success">{{ item.status }}</span>
+                    {% else %}
+                    <span class="badge bg-success">{{ item.status }}</span>
                 {% endif %}
+                </td>
                 <td class="text-end">{{ item.item_price }} RMB</td>
                 <td class="text-end">
-                    <a href="{{ url_for('patient.test_report', serial=item.serial_number)}}"
+                    <a href="{{ url_for('manager.invoice_update', id=item.invoice_id)}}"
                         class="btn btn-sm btn-info text-white pop">
+                        Invoice
+                    </a>
+                    <a href="{{ url_for('manager.test_details', serial_number=item.serial_number)}}"
+                        class="btn btn-sm btn-warning text-white pop">
                         Update
                     </a>
                 </td>

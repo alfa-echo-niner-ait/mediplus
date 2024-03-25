@@ -1,3 +1,5 @@
+import os
+import secrets
 from flask import (
     Blueprint,
     render_template,
@@ -7,6 +9,7 @@ from flask import (
     request,
     session,
     abort,
+    current_app,
 )
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
@@ -25,6 +28,7 @@ from .forms import (
     NewMedicalTestForm,
     UpdateMedicalTestForm,
     UpdateInvoiceForm,
+    Test_Result_Upload_Form,
 )
 from src.public.forms import SearchTestForm
 from src import db, hash_manager
@@ -50,7 +54,7 @@ def appointemnts():
     return render_template("manager/appointments.html", title="Appointments Management")
 
 
-@manager.route("/dashboard/tests", methods=["GET", "POST"])
+@manager.route("/dashboard/manager/tests", methods=["GET", "POST"])
 @login_required
 def tests():
     page_num = request.args.get("page", 1, int)
@@ -81,6 +85,89 @@ def tests():
         items=items,
         title="Tests Management",
     )
+
+
+@manager.route("/dashboard/manager/tests/<serial_number>", methods=["GET", "POST"])
+@login_required
+def test_details(serial_number):
+    upload_form = Test_Result_Upload_Form()
+
+    item = (
+        Medical_Test_Book.query.filter(Medical_Test_Book.serial_number == serial_number)
+        .join(Invoice_Items, Medical_Test_Book.invoice_item_id == Invoice_Items.item_id)
+        .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
+        .join(Medical_Tests, Invoice_Items.test_id_ref == Medical_Tests.test_id)
+        .add_columns(
+            Medical_Test_Book.serial_number,
+            Invoice_Items.invoice_id,
+            Invoice_Items.item_desc,
+            Invoice_Items.item_price,
+            Invoices.status,
+            Invoices.invoice_date,
+            Invoices.invoice_time,
+            Invoices.invoice_patient_id,
+            Medical_Tests.test_desc,
+        )
+        .first_or_404()
+    )
+
+    files = Medical_Report_Files.query.filter(
+        Medical_Report_Files.test_book_serial == serial_number
+    ).all()
+
+    return render_template(
+        "manager/test_details.html",
+        item=item,
+        files=files,
+        upload_form=upload_form,
+        title=f"Test: {item.test_desc}",
+    )
+
+
+# Record file upload handler
+@manager.route("/dashboard/manager/tests/<serial_number>/upload", methods=["POST"])
+@login_required
+def upload_test_report(serial_number):
+    upload_form = Test_Result_Upload_Form()
+
+    # File upload form handler
+    if upload_form.validate_on_submit() and request.method == "POST":
+        file_name = upload_form.file_name.data
+        file = upload_form.file.data
+
+        date, time = get_datetime()
+        _, file_extension = os.path.splitext(file.filename)
+        random_hex = secrets.token_hex(20)
+        file_path_name = random_hex + file_extension
+
+        file_path = os.path.join(
+            current_app.root_path, "static/upload/manager/test_results/", file_path_name
+        )
+        file.save(file_path)
+        file_size_kb = float(format(os.path.getsize(file_path) / 1024, ".2f"))
+
+        # Add information to database
+        new_file = Medical_Report_Files(
+            serial_number,
+            file_name,
+            file_path_name,
+            file_size_kb,
+            current_user.id,
+            date,
+            time,
+        )
+        new_log = User_Logs(current_user.id, "Upload Test Result", date, time)
+        new_log.log_desc = f"Test Book Serial #{serial_number}, {file_name} ({file_size_kb} KB), file: {file_path_name}"
+
+        db.session.add(new_file)
+        db.session.add(new_log)
+        db.session.commit()
+
+        flash("File Uploaded Successfully!", category="success")
+        return redirect(url_for('manager.test_details', serial_number=serial_number))
+    else:
+        flash("Please select correct file format!", category="danger")
+        return redirect(url_for('manager.test_details', serial_number=serial_number))
 
 
 @manager.route("/dashboard/manager/tests/catalog", methods=["GET", "POST"])

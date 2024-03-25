@@ -43,13 +43,13 @@
             <tr>
                 <th scope="row">{{ item.serial_number }}</th>
                 <td>{{ item.item_desc }}</td>
-                {% if item.status == "Unpaid" %}
                 <td class="text-end">
+                {% if item.status == "Unpaid" %}
                     <span class="badge bg-danger">{{ item.status }}</span>
+                    {% else %}
+                    <span class="badge bg-success">{{ item.status }}</span>
+                    {% endif %}
                 </td>
-                {% else %}
-                <span class="badge bg-success">{{ item.status }}</span>
-                {% endif %}
                 <td class="text-end">{{ item.item_price }} RMB</td>
                 <td class="text-end">
                     <a href="{{ url_for('patient.test_report', serial=item.serial_number)}}" class="btn btn-sm btn-mint">
