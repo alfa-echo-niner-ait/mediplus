@@ -2,7 +2,7 @@
 
 
 {% block content %}
-<div class="container">
+<div class="container-fluid">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
             <li class="breadcrumb-item">
@@ -26,27 +26,71 @@
     </nav>
 </div>
 
-<div class="container">
-    <div class="display-5 text-center">
-        {{ session['avatar'] }}
+<div class="container-fluid">
+    <div class="row gy-3">
+        <div class="col-md-2 mb-2 pop">
+            <div class="card h-100 bg-danger-subtle text-danger">
+                <div class="card-body text-center">
+                    <h5 class="card-title fs-3 fw-bold">1430</h5>
+                    <p class="card-text">
+                        Registered Patients
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-2 pop">
+            <div class="card h-100 bg-success-subtle text-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title fs-3 fw-bold">33</h5>
+                    <p class="card-text">
+                        Registered Doctors
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-2 pop">
+            <div class="card h-100 bg-info-subtle text-info">
+                <div class="card-body text-center">
+                    <h5 class="card-title fs-3 fw-bold">12</h5>
+                    <p class="card-text">
+                        Working Managers
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-2 pop">
+            <div class="card h-100 bg-primary-subtle text-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title fs-3 fw-bold">3223</h5>
+                    <p class="card-text">
+                        Medical Tests Done
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-2 pop">
+            <div class="card h-100 bg-warning-subtle text-warning">
+                <div class="card-body text-center">
+                    <h5 class="card-title fs-3 fw-bold">2618</h5>
+                    <p class="card-text">
+                        Doctor Meetup
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-2 pop">
+            <div class="card h-100 bg-dark-subtle text-dark">
+                <div class="card-body text-center">
+                    <h5 class="card-title fs-3 fw-bold">1526</h5>
+                    <p class="card-text">
+                        Completed Invoices
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="bg-success p-2 text-white">This is default success background</div>
-    <div class="bg-success p-2 text-white bg-opacity-75">This is 75% opacity success background</div>
-    <div class="bg-success p-2 text-dark bg-opacity-50">This is 50% opacity success background</div>
-    <div class="bg-success p-2 text-dark bg-opacity-25">This is 25% opacity success background</div>
-    <div class="bg-success p-2 text-dark bg-opacity-10">This is 10% opacity success background</div>
-
 </div>
-<p id="txt" class="mt-3"></p>
 
-<script>
-    var txt = document.getElementById('txt')
-    var bdy = ""
-    for (let index = 0; index <= 100; index++) {
-        bdy += "Hello <br>"
-    }
-    txt.innerHTML = bdy;
-</script>
 
 <script>
     $(document).ready(function () {

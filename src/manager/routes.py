@@ -69,9 +69,9 @@ def tests():
         .add_columns(
             Medical_Test_Book.serial_number,
             Medical_Test_Book.invoice_item_id,
+            Medical_Test_Book.test_status,
             Invoice_Items.invoice_id,
             Invoice_Items.item_desc,
-            Invoice_Items.item_price,
             Invoices.status,
             Invoices.invoice_date,
             Invoices.invoice_time,
@@ -99,6 +99,7 @@ def test_details(serial_number):
         .join(Medical_Tests, Invoice_Items.test_id_ref == Medical_Tests.test_id)
         .add_columns(
             Medical_Test_Book.serial_number,
+            Medical_Test_Book.test_status,
             Invoice_Items.invoice_id,
             Invoice_Items.item_desc,
             Invoice_Items.item_price,
@@ -111,9 +112,23 @@ def test_details(serial_number):
         .first_or_404()
     )
 
-    files = Medical_Report_Files.query.filter(
-        Medical_Report_Files.test_book_serial == serial_number
-    ).all()
+    files = (
+        Medical_Report_Files.query.filter(
+            Medical_Report_Files.test_book_serial == serial_number
+        )
+        .join(Managers, Medical_Report_Files.upload_manager_id == Managers.m_id)
+        .add_columns(
+            Medical_Report_Files.file_id,
+            Medical_Report_Files.file_name,
+            Medical_Report_Files.file_size_kb,
+            Medical_Report_Files.upload_date,
+            Medical_Report_Files.upload_time,
+            Managers.m_id,
+            Managers.first_name,
+            Managers.last_name,
+        )
+        .all()
+    )
 
     return render_template(
         "manager/test_details.html",
@@ -122,6 +137,29 @@ def test_details(serial_number):
         upload_form=upload_form,
         title=f"Test: {item.test_desc}",
     )
+
+
+# Mark test as completed
+@manager.route("/dashboard/manager/tests/<serial_number>/done")
+@login_required
+def test_mark_as_done(serial_number):
+    if current_user.role != "Manager":
+        abort(403)
+
+    item: Medical_Test_Book = Medical_Test_Book.query.filter(
+        Medical_Test_Book.serial_number == serial_number
+    ).first_or_404()
+    item.test_status = "Done"
+
+    date, time = get_datetime()
+    new_log = User_Logs(current_user.id, "Mark Test Done", date, time)
+    new_log.log_desc = f"Test Book Serial #{serial_number}, Invoice Item #{item.invoice_item_id}, Patient #{item.test_patient_id}"
+
+    db.session.add(new_log)
+    db.session.commit()
+
+    flash("Test Status Changed Successfully!", category="success")
+    return redirect(url_for("manager.test_details", serial_number=serial_number))
 
 
 # Record file upload handler
@@ -164,10 +202,10 @@ def upload_test_report(serial_number):
         db.session.commit()
 
         flash("File Uploaded Successfully!", category="success")
-        return redirect(url_for('manager.test_details', serial_number=serial_number))
+        return redirect(url_for("manager.test_details", serial_number=serial_number))
     else:
         flash("Please select correct file format!", category="danger")
-        return redirect(url_for('manager.test_details', serial_number=serial_number))
+        return redirect(url_for("manager.test_details", serial_number=serial_number))
 
 
 @manager.route("/dashboard/manager/tests/catalog", methods=["GET", "POST"])

@@ -78,11 +78,6 @@ def add_item_to_cart():
 
     item = Pending_Items(test_id, current_user.id, item_name, item_price)
     db.session.add(item)
-    date, time = get_datetime()
-    new_log = User_Logs(current_user.id, "Add Item to Cart", date, time)
-    new_log.log_desc = f"{item_name} ({item_price} RMB)"
-    db.session.add(new_log)
-    # Commit to the database
     db.session.commit()
     return "success"
 
@@ -112,12 +107,6 @@ def delete_pending_item(item_id):
         abort(403)
 
     db.session.delete(item)
-
-    date, time = get_datetime()
-    new_log = User_Logs(current_user.id, "Remove Item from Cart", date, time)
-    new_log.log_desc = f"{item.item_desc} ({item.item_price} RMB)"
-    db.session.add(new_log)
-    # Commit to the database
     db.session.commit()
 
     total_items = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
@@ -347,7 +336,7 @@ def upload_record():
 
 @patient.route("/dashboard/patient/delete_record/<id>", methods=["GET"])
 @login_required
-def delete_record(id):
+def delete_record_file(id):
     file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
         file_id=int(id)
     ).first_or_404()
@@ -380,20 +369,20 @@ def delete_record(id):
 
 @patient.route("/dashboard/patient/file/<id>")
 @login_required
-def view_file(id):
+def view_record_file(id):
     file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
         file_id=int(id)
     ).first_or_404()
 
     if file.record_patient_id == current_user.id:
         return render_template(
-            "patient/file_view.html", title=file.file_name, file=file
+            "patient/record_file_view.html", title=file.file_name, file=file
         )
 
 
-@patient.route("/download/file/<file_id>")
+@patient.route("/download/file/record/<file_id>")
 @login_required
-def download_file(file_id):
+def download_record_file(file_id):
     file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
         file_id=int(file_id)
     ).first_or_404()
@@ -458,6 +447,7 @@ def tests():
         .add_columns(
             Medical_Test_Book.serial_number,
             Medical_Test_Book.invoice_item_id,
+            Medical_Test_Book.test_status,
             Invoice_Items.invoice_id,
             Invoice_Items.item_desc,
             Invoice_Items.item_price,
@@ -478,6 +468,7 @@ def test_report(serial):
         .join(Medical_Tests, Invoice_Items.test_id_ref == Medical_Tests.test_id)
         .add_columns(
             Medical_Test_Book.serial_number,
+            Medical_Test_Book.test_status,
             Invoice_Items.invoice_id,
             Invoice_Items.item_desc,
             Invoice_Items.item_price,
@@ -486,12 +477,66 @@ def test_report(serial):
             Invoices.invoice_time,
             Invoices.invoice_patient_id,
             Medical_Tests.test_desc,
-        ).first_or_404()
+        )
+        .first_or_404()
     )
-    
+
     if item.invoice_patient_id != current_user.id:
         abort(403)
-    
-    files = Medical_Report_Files.query.filter(Medical_Report_Files.test_book_serial == serial).all()
 
-    return render_template("patient/test_report.html", item=item, files=files, title=f"Report: {item.item_desc}")
+    files = Medical_Report_Files.query.filter(
+        Medical_Report_Files.test_book_serial == serial
+    ).all()
+
+    return render_template(
+        "patient/test_report.html",
+        item=item,
+        files=files,
+        title=f"Report: {item.item_desc}",
+    )
+
+
+@patient.route("/dashboard/patient/tests/file/<id>")
+@login_required
+def view_report_file(id):
+    file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
+        file_id=int(id)
+    ).first_or_404()
+
+    if file.record_patient_id == current_user.id:
+        return render_template(
+            "patient/record_file_view.html", title=file.file_name, file=file
+        )
+
+
+@patient.route("/download/file/report/<file_id>")
+@login_required
+def download_report_file(file_id):
+    file = (
+        Medical_Report_Files.query.filter(Medical_Report_Files.file_id == int(file_id))
+        .join(
+            Medical_Test_Book,
+            Medical_Report_Files.test_book_serial == Medical_Test_Book.serial_number,
+        )
+        .add_columns(
+            Medical_Test_Book.test_patient_id,
+            Medical_Report_Files.file_name,
+            Medical_Report_Files.file_path_name,
+        )
+        .first_or_404()
+    )
+
+    if file.test_patient_id == current_user.id:
+        file_name = f"{file.file_name}_{file.file_path_name}"
+        return send_file(
+            os.path.join(
+                current_app.root_path,
+                "static/upload/manager/test_results/",
+                file.file_path_name,
+            ),
+            download_name=file_name,
+            as_attachment=True,
+        )
+    else:
+        flash("Download failed! Access denied.", category="danger")
+        return redirect(url_for("patient.medical_records"))

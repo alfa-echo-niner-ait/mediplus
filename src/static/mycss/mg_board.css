@@ -48,8 +48,8 @@
 }
 
 .pop:hover {
-    /* Make 15% bigger */
-    transform: scale(1.15);
+    /* Make 10% bigger */
+    transform: scale(1.10);
     z-index: 1;
 
 }

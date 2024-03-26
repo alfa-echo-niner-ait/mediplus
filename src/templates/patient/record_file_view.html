@@ -19,10 +19,10 @@
             </div>
         </div>
         <div class="col-md-6 text-end mt-3">
-            <a href="{{ url_for('patient.download_file', file_id=file.file_id) }}" class="btn btn-primary">
+            <a href="{{ url_for('patient.download_record_file', file_id=file.file_id) }}" class="btn btn-primary">
                 Download
             </a>
-            <a href="{{ url_for('patient.delete_record', id=file.file_id)}}" class="btn btn-danger"
+            <a href="{{ url_for('patient.delete_record_file', id=file.file_id)}}" class="btn btn-danger"
                 onclick="return confirm('Delete file: {{ file.file_name }}?')">
                 Delete
             </a>

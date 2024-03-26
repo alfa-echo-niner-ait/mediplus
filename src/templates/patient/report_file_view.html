@@ -1,0 +1,54 @@
+{% extends 'layout/layout_public.html' %}
+
+
+{% block content %}
+<div class="container">
+    <div class="row border p-3 m-3 rounded">
+        <div class="col-md-6 text-break">
+            <div class="fs-5">
+                {{ file.file_name }}
+            </div>
+            <div class="fs-6 text-secondary">
+                Size: {{ file.file_size_kb }} KB
+            </div>
+            <div class="fs-6 text-secondary">
+                File: {{ file.file_path_name }}
+            </div>
+            <div class="fs-6 text-secondary">
+                Uploaded on: {{ file.upload_date }}, {{ file.upload_time }}
+            </div>
+        </div>
+        <div class="col-md-6 text-end mt-3">
+            <a href="{{ url_for('patient.download_record_file', file_id=file.file_id) }}" class="btn btn-primary">
+                Download
+            </a>
+            <a href="{{ url_for('patient.delete_record_file', id=file.file_id)}}" class="btn btn-danger"
+                onclick="return confirm('Delete file: {{ file.file_name }}?')">
+                Delete
+            </a>
+            <button class="btn btn-secondary" onclick="goBack()">
+                Back
+            </button>
+        </div>
+    </div>
+    <div class="embed-responsive embed-responsive-16by9">
+        <object data="{{ url_for('static', filename='upload/patient/records/'~file.file_path_name) }}"
+            type="application/pdf" style="width: 100%; min-height: 600px;" />
+        <div class="alert alert-danger" role="alert">
+            Sorry, your browser not supported. Try using desktop browser.
+        </div>
+        </object>
+    </div>
+</div>
+
+<!-- JS -->
+<script>
+    function goBack() {
+        window.history.back();
+    }
+    $(document).ready(function () {
+        $("#side_logs").addClass("text-success-emphasis bg-success-subtle");
+    });
+</script>
+
+{% endblock content %}

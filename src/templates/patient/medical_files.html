@@ -38,14 +38,16 @@
             <td class="text-center fw-light">{{ file.file_size_kb }} KB</td>
             <td class="text-center fw-light">{{ file.upload_date }}</td>
             <td class="text-end">
-                <a href="{{ url_for('patient.view_file', id=file.file_id) }}" class="btn btn-sm btn-secondary fw-light">
+                <!-- View -->
+                <a href="{{ url_for('patient.view_record_file', id=file.file_id)}}" class="btn btn-sm btn-secondary fw-light">
                     <svg width="16" height="16" fill="currentColor" class="bi"
                         viewBox="0 0 16 16">
                         <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
                         <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
                     </svg>
                 </a>
-                <a href="{{ url_for('patient.download_file', file_id=file.file_id) }}"
+                <!-- Download -->
+                <a href="{{ url_for('patient.download_record_file', file_id=file.file_id) }}"
                     class="btn btn-sm btn-success fw-light">
                     <svg width="16" height="16" fill="currentColor" class="bi"
                         viewBox="0 0 16 16">
@@ -55,7 +57,8 @@
                             d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
                     </svg>
                 </a>
-                <a href="{{ url_for('patient.delete_record', id=file.file_id)}}" class="btn btn-sm btn-danger fw-light"
+                <a href="{{ url_for('patient.delete_record_file', id=file.file_id)}}"
+                    class="btn btn-sm btn-danger fw-light"
                     onclick="return confirm('Delete file: {{ file.file_name }}?')">
                     <svg width="16" height="16" fill="currentColor" class="bi"
                         viewBox="0 0 16 16">

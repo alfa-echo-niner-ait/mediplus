@@ -220,6 +220,12 @@ class Medical_Tests(db.Model):
 
 
 class Medical_Test_Book(db.Model):
+    """
+    #### test_status
+        - Pending (Default)
+        - Done
+    """
+    
     __tablename__ = "medical_test_book"
 
     serial_number = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -235,15 +241,17 @@ class Medical_Test_Book(db.Model):
         primary_key=True,
         nullable=False,
     )
+    test_status = db.Column(db.String(15), nullable=True)
 
     def __init__(self, invoice_item_id, test_patient_id) -> None:
         super().__init__()
         self.invoice_item_id = invoice_item_id
         self.test_patient_id = test_patient_id
+        self.test_status = "Pending"
 
     def __str__(self) -> str:
         return (
-            f"#{self.serial_number} @ {self.item_test_ref_id} by {self.test_patient_id}"
+            f"#{self.serial_number} @ {self.item_test_ref_id} by {self.test_patient_id} ({self.test_status})"
         )
 
 
@@ -252,7 +260,10 @@ class Medical_Report_Files(db.Model):
 
     file_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     test_book_serial = db.Column(
-        db.Integer, db.ForeignKey("medical_test_book.serial_number"), primary_key=True, nullable=False
+        db.Integer,
+        db.ForeignKey("medical_test_book.serial_number"),
+        primary_key=True,
+        nullable=False,
     )
     file_name = db.Column(db.String(100), nullable=False)
     file_path_name = db.Column(db.String(100), nullable=False)

@@ -5,10 +5,31 @@
 <div class="container mt-3">
     <div class="display-6">
         {{ item.item_desc }}
+        {% if item.test_status == "Pending" %}
+        <button class="btn btn-danger" type="button" disabled>
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            <span class="visually-hidden" role="status">Pending...</span>
+        </button>
+        {% else %}
+        <button class="btn btn-success" type="button" disabled>
+            <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+            </svg>
+        </button>
+        {% endif %}
     </div>
     <div class="fs-5 fw-bold mt-2">{{ item.item_price }} RMB</div>
     <div class="fs-5">Serial Number: #{{ item.serial_number }}</div>
     <div class="fs-5 text-secondary">{{ item.invoice_date }}, {{ item.invoice_time }}</div>
+    <div class="fs-5 text-secondary">
+        Invoice Status:
+        {% if item.status == "Unpaid" %}
+        <span class="badge bg-danger small">{{ item.status }}</span>
+        {% else %}
+        <span class="badge bg-success small">{{ item.status }}</span>
+        {% endif %}
+    </div>
     <a href="{{ url_for('public.invoice', id=item.invoice_id)}}"
         target="_blank" class="btn btn-outline-info btn-sm mt-2 pop">
         View Invoice
@@ -31,34 +52,37 @@
         </div>
     {% else %}
         {% if files %}
-                <table class="table table-striped border">
+                <table class="table table-striped border table-sm">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-start">#</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Size</th>
+                            <th scope="col">Upload Date</th>
+                            <th scope="col" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
                     {% for file in files %}
                     <tr>
+                        <td class="fw-light text-start">{{ loop.index }}</td>
                         <td class="fw-light">{{ file.file_name }}</td>
-                        <td class="text-center fw-light">{{ file.file_size_kb }} KB</td>
-                        <td class="text-center fw-light">{{ file.upload_date }}</td>
+                        <td class="fw-light">{{ file.file_size_kb }} KB</td>
+                        <td class="fw-light">{{ file.upload_date }}</td>
                         <td class="text-end">
-                            <a href="{{ url_for('patient.view_file', id=file.file_id) }}" class="btn btn-sm btn-secondary fw-light">
+                            <a href="" class="btn btn-sm btn-secondary fw-light">
                                 <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
                                     <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
                                     <path
                                         d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
                                 </svg>
                             </a>
-                            <a href="{{ url_for('patient.download_file', file_id=file.file_id) }}"
-                                class="btn btn-sm btn-success fw-light">
+                            <a href="{{ url_for('patient.download_report_file', file_id=file.file_id) }}"
+                                class="btn btn-sm btn-info fw-light">
                                 <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
                                     <path
                                         d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
                                     <path
                                         d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
-                                </svg>
-                            </a>
-                            <a href="{{ url_for('patient.delete_record', id=file.file_id)}}" class="btn btn-sm btn-danger fw-light"
-                                onclick="return confirm('Delete file: {{ file.file_name }}?')">
-                                <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
-                                    <path
-                                        d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
                                 </svg>
                             </a>
                         </td>
