@@ -2,7 +2,7 @@
 
 
 {% block content %}
-<div class="container">
+<div class="container-fluid">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
             <li class="breadcrumb-item">
@@ -161,4 +161,10 @@
 </div>
 {% include '/manager/upload_result_modal.html' %}
 
+<!-- JS -->
+<script>
+    $(document).ready(function () {
+        $("#side_tests").addClass("text-success-emphasis bg-success-subtle");
+    });
+</script>
 {% endblock content %}
