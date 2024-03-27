@@ -9,7 +9,6 @@ from flask import (
     request,
     current_app,
     send_file,
-    send_from_directory,
     abort,
     session,
 )

@@ -10,6 +10,7 @@ from flask import (
     session,
     abort,
     current_app,
+    send_file,
 )
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
@@ -131,7 +132,7 @@ def test_details(serial_number):
     )
 
     return render_template(
-        "manager/test_details.html",
+        "manager/test_report_details.html",
         item=item,
         files=files,
         upload_form=upload_form,
@@ -206,6 +207,56 @@ def upload_test_report(serial_number):
     else:
         flash("Please select correct file format!", category="danger")
         return redirect(url_for("manager.test_details", serial_number=serial_number))
+
+
+@manager.route("/dashboard/manager/download/test_report/<file_id>")
+@login_required
+def download_test_report(file_id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    file = Medical_Report_Files.query.filter(Medical_Report_Files.file_id == int(file_id)).first_or_404()
+
+    file_name = f"{file.file_name}_{file.file_path_name}"
+    return send_file(
+        os.path.join(
+            current_app.root_path,
+            "static/upload/manager/test_results/",
+            file.file_path_name,
+        ),
+        download_name=file_name,
+        as_attachment=True,
+    )
+
+@manager.route("/dashboard/manager/tests/<serial_number>/delete/<file_id>")
+@login_required
+def delete_test_report(serial_number, file_id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    file: Medical_Report_Files = Medical_Report_Files.query.filter(
+        Medical_Report_Files.file_id == int(file_id)
+    ).first_or_404()
+
+    date, time = get_datetime()
+    new_log = User_Logs(current_user.id, "Delete Test Report", date, time)
+    new_log.log_desc = f"Test #{file.test_book_serial}, Upload Manager #{file.upload_manager_id}: {file.file_name}({file.file_size_kb} KB), {file.file_path_name}"
+
+    # Remove from storage
+    os.remove(
+        os.path.join(
+            current_app.root_path,
+            "static/upload/manager/test_results/",
+            file.file_path_name,
+        )
+    )
+    # Remove record from database
+    db.session.delete(file)
+    db.session.add(new_log)
+    db.session.commit()
+
+    flash("File deleted successfully!", category="info")
+    return redirect(url_for("manager.test_details", serial_number=serial_number))
 
 
 @manager.route("/dashboard/manager/tests/catalog", methods=["GET", "POST"])
