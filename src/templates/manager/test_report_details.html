@@ -33,7 +33,7 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-6 col-lg-8 mt-3">
+        <div class="col-md-6 col-lg-8">
             <div class="fs-4 fw-bold">
                 {{ item.item_desc }}
                 {% if item.test_status == "Pending" %}
@@ -51,7 +51,8 @@
                 {% endif %}
             </div>
             {% if item.test_status == "Pending" %}
-            <a href="{{ url_for('manager.test_mark_as_done', serial_number=item.serial_number)}}" class="btn btn-primary btn-sm mt-2 pop fw-semibold">
+            <a href="{{ url_for('manager.test_mark_as_done', serial_number=item.serial_number)}}"
+                class="btn btn-primary btn-sm mt-2 pop fw-semibold">
                 <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
                     <path
                         d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
@@ -68,7 +69,7 @@
                 {% else %}{{line}}{%endif%}{%endfor%}
             </div>
         </div>
-        <div class="col-md-6 col-lg-4 mt-3">
+        <div class="col-md-6 col-lg-4">
             <div class="fs-6 fw-bold">
                 Invoice Status:
                 {% if item.status == "Unpaid" %}
@@ -76,6 +77,16 @@
                 {% else %}
                 <span class="badge bg-success fw-bold">Paid</span>
                 {% endif %}
+            </div>
+            <div class="fs-6">
+                <strong>Patient: </strong>
+                <a href="" class="text-decoration-none fs-6">
+                    {{ item.last_name }} {{ item.first_name }}
+                </a>
+            </div>
+            <div class="fs-6">
+                <strong>Phone: </strong>
+                {{ item.phone }}
             </div>
             <a href="{{ url_for('manager.invoice_update', id=item.invoice_id)}}" target="_blank"
                 class="btn btn-outline-info btn-sm pop mt-2">
@@ -95,73 +106,78 @@
 </div>
 
 <div class="container mt-3">
-    <div class="fs-4 fw-light mb-3">
+    <div class="fs-4 fw-semibold mb-3">
+        <svg width="19" height="19" fill="currentColor" class="bi" viewBox="0 0 16 16">
+            <path
+                d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1M4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1z" />
+        </svg>
         Report Files
     </div>
 
     {% if files %}
-        <table class="table table-striped border">
-            <thead>
-                <tr>
-                    <th scope="col" class="text-start">#</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Size</th>
-                    <th scope="col">Uploaded By</th>
-                    <th scope="col">Upload Date</th>
-                    <th scope="col">Upload Time</th>
-                    <th scope="col" class="text-end">Actions</th>
-                </tr>
-            </thead>
-            {% for file in files %}
+    <table class="table table-striped border">
+        <thead>
             <tr>
-                <td class="fw-light text-start">{{ loop.index }}</td>
-                <td class="fw-light">{{ file.file_name }}</td>
-                <td class="fw-light">{{ file.file_size_kb }} KB</td>
-                <td class="fw-light">
-                    <a href="" class="text-decoration-none">
-                        {{ file.last_name }} {{ file.first_name }}
-                    </a>
-                </td>
-                <td class="fw-light">{{ file.upload_date }}</td>
-                <td class="fw-light">{{ file.upload_time }}</td>
-                <!-- View -->
-                <td class="text-end">
-                    <a href="" class="btn btn-sm btn-secondary fw-light">
-                        <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
-                            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
-                            <path
-                                d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
-                        </svg>
-                    </a>
-                    <!-- Download -->
-                    <a href="{{ url_for('manager.download_test_report', file_id=file.file_id) }}"
-                        class="btn btn-sm btn-info fw-light">
-                        <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
-                            <path
-                                d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-                            <path
-                                d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
-                        </svg>
-                    </a>
-                    <!-- Delete -->
-                    <a href="{{ url_for('manager.delete_test_report', serial_number=item.serial_number, file_id=file.file_id) }}"
-                        class="btn btn-sm btn-danger fw-light"
-                        onclick="return confirm('Delete file: {{ file.file_name }}?')">
-                        <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
-                            <path
-                                d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
-                        </svg>
-                    </a>
-                </td>
+                <th scope="col" class="text-start">#</th>
+                <th scope="col">Description</th>
+                <th scope="col">Size</th>
+                <th scope="col">Uploaded By</th>
+                <th scope="col">Upload Date</th>
+                <th scope="col">Upload Time</th>
+                <th scope="col" class="text-end">Actions</th>
             </tr>
-            {% endfor %}
-        </table>
+        </thead>
+        {% for file in files %}
+        <tr>
+            <td class="fw-light text-start">{{ loop.index }}</td>
+            <td class="fw-light">{{ file.file_name }}</td>
+            <td class="fw-light">{{ file.file_size_kb }} KB</td>
+            <td class="fw-light">
+                <a href="" class="text-decoration-none">
+                    {{ file.last_name }} {{ file.first_name }}
+                </a>
+            </td>
+            <td class="fw-light">{{ file.upload_date }}</td>
+            <td class="fw-light">{{ file.upload_time }}</td>
+            <!-- View -->
+            <td class="text-end">
+                <a href="{{ url_for('manager.view_test_report', serial_number=item.serial_number, file_id=file.file_id) }}"
+                    class="btn btn-sm btn-secondary fw-light">
+                    <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+                        <path
+                            d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
+                    </svg>
+                </a>
+                <!-- Download -->
+                <a href="{{ url_for('manager.download_test_report', file_id=file.file_id) }}"
+                    class="btn btn-sm btn-info fw-light">
+                    <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path
+                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                        <path
+                            d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
+                    </svg>
+                </a>
+                <!-- Delete -->
+                <a href="{{ url_for('manager.delete_test_report', serial_number=item.serial_number, file_id=file.file_id) }}"
+                    class="btn btn-sm btn-danger fw-light"
+                    onclick="return confirm('Delete file: {{ file.file_name }}?')">
+                    <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path
+                            d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                    </svg>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
     {% else %}
-        <div class="text-danger">
-            No report file found for this test!
-        </div>
+    <div class="text-danger">
+        No report file found for this test!
+    </div>
     {% endif %}
-    
+
 </div>
 {% include '/manager/upload_result_modal.html' %}
 

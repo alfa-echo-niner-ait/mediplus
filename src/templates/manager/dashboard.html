@@ -59,14 +59,16 @@
             </div>
         </div>
         <div class="col-md-2 mb-2 pop">
-            <div class="card h-100 bg-primary-subtle text-primary">
-                <div class="card-body text-center">
-                    <h5 class="card-title fs-3 fw-bold">3223</h5>
-                    <p class="card-text">
-                        Medical Tests Done
-                    </p>
+            <a href="{{ url_for('manager.tests') }}" class="text-decoration-none">
+                <div class="card h-100 bg-primary-subtle text-primary">
+                    <div class="card-body text-center">
+                        <h5 class="card-title fs-3 fw-bold">3223</h5>
+                        <p class="card-text">
+                            Medical Tests Done
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-2 mb-2 pop">
             <div class="card h-100 bg-warning-subtle text-warning">
@@ -79,14 +81,16 @@
             </div>
         </div>
         <div class="col-md-2 mb-2 pop">
-            <div class="card h-100 bg-dark-subtle text-dark">
-                <div class="card-body text-center">
-                    <h5 class="card-title fs-3 fw-bold">1526</h5>
-                    <p class="card-text">
-                        Completed Invoices
-                    </p>
+            <a href="{{ url_for('manager.invoices') }}" class="text-decoration-none">
+                <div class="card h-100 bg-dark-subtle text-dark">
+                    <div class="card-body text-center">
+                        <h5 class="card-title fs-3 fw-bold">1526</h5>
+                        <p class="card-text">
+                            Completed Invoices
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 </div>

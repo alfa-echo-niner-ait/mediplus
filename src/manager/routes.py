@@ -98,6 +98,7 @@ def test_details(serial_number):
         .join(Invoice_Items, Medical_Test_Book.invoice_item_id == Invoice_Items.item_id)
         .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
         .join(Medical_Tests, Invoice_Items.test_id_ref == Medical_Tests.test_id)
+        .join(Patients, Medical_Test_Book.test_patient_id == Patients.p_id)
         .add_columns(
             Medical_Test_Book.serial_number,
             Medical_Test_Book.test_status,
@@ -109,6 +110,10 @@ def test_details(serial_number):
             Invoices.invoice_time,
             Invoices.invoice_patient_id,
             Medical_Tests.test_desc,
+            Patients.p_id,
+            Patients.first_name,
+            Patients.last_name,
+            Patients.phone,
         )
         .first_or_404()
     )
@@ -215,7 +220,9 @@ def download_test_report(file_id):
     if current_user.role != "Manager":
         abort(403)
 
-    file = Medical_Report_Files.query.filter(Medical_Report_Files.file_id == int(file_id)).first_or_404()
+    file = Medical_Report_Files.query.filter(
+        Medical_Report_Files.file_id == int(file_id)
+    ).first_or_404()
 
     file_name = f"{file.file_name}_{file.file_path_name}"
     return send_file(
@@ -227,6 +234,44 @@ def download_test_report(file_id):
         download_name=file_name,
         as_attachment=True,
     )
+
+
+@manager.route("/dashboard/manager/tests/<serial_number>/report/<file_id>")
+@login_required
+def view_test_report(serial_number, file_id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    file = (
+        Medical_Report_Files.query.filter(Medical_Report_Files.file_id == int(file_id))
+        .join(
+            Medical_Test_Book,
+            Medical_Test_Book.serial_number == Medical_Report_Files.test_book_serial,
+        )
+        .join(Invoice_Items, Medical_Test_Book.invoice_item_id == Invoice_Items.item_id)
+        .join(Managers, Managers.m_id == Medical_Report_Files.upload_manager_id)
+        .add_columns(
+            Medical_Report_Files.file_id,
+            Medical_Report_Files.file_name,
+            Medical_Report_Files.file_path_name,
+            Medical_Report_Files.file_size_kb,
+            Medical_Report_Files.upload_date,
+            Medical_Report_Files.upload_time,
+            Medical_Report_Files.test_book_serial,
+            Invoice_Items.item_desc,
+            Medical_Test_Book.serial_number,
+            Managers.m_id,
+            Managers.first_name,
+            Managers.last_name,
+            Managers.phone,
+        )
+        .first_or_404()
+    )
+
+    return render_template(
+        "manager/report_file_view.html", title=file.file_name, file=file
+    )
+
 
 @manager.route("/dashboard/manager/tests/<serial_number>/delete/<file_id>")
 @login_required

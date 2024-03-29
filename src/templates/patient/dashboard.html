@@ -9,8 +9,8 @@
                 style="max-width: 235px; max-height: 220px;"
                 alt="{{ user.username }}" title="{{ user.username }}">
             <div class="mt-2">
-                <a href="{{ url_for('patient.update_profile') }}" class="btn btn-primary btn-sm mb-2">Update Profile</a>
-                <a href="{{ url_for('patient.change_password') }}" class="btn btn-secondary btn-sm mb-2">Change Password</a>
+                <a href="{{ url_for('patient.update_profile') }}" class="btn btn-primary btn-sm mb-2 pop">Update Profile</a>
+                <a href="{{ url_for('patient.change_password') }}" class="btn btn-secondary btn-sm mb-2 pop">Change Password</a>
             </div>
         </div>
         <div class="col-md-4 mb-2 text-start">
@@ -95,14 +95,43 @@
 </div>
 
 <div class="container mt-3">
-    <a href="{{ url_for('patient.logs') }}" class="btn btn-info fw-bold text-white">
-        Activity Logs
-    </a>
-    <a href="{{ url_for('patient.invoices') }}" class="btn btn-primary fw-bold text-white">
-        Invoices
-    </a>
-    <a href="{{ url_for('patient.tests') }}" class="btn btn-warning fw-bold text-white">
-        My Medical Tests
-    </a>
+    <div class="row">
+        <div class="col-md-4 mb-2 pop">
+            <a href="{{ url_for('patient.logs') }}" class="text-decoration-none">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary fs-4 fw-semibold">Activity Logs</h5>
+                        <p class="card-text">
+                            View your account activity history.
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-2 pop">
+            <a href="{{ url_for('patient.invoices') }}" class="text-decoration-none">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary fs-4 fw-semibold">Invoices</h5>
+                        <p class="card-text">
+                            View all invoices and details.
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-2 pop">
+            <a href="{{ url_for('patient.tests') }}" class="text-decoration-none">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary fs-4 fw-semibold">Medical Tests</h5>
+                        <p class="card-text">
+                            View all appointed tests details and reports.
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock content %}
