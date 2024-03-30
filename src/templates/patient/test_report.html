@@ -2,7 +2,32 @@
 
 
 {% block content %}
-<div class="container mt-3">
+<div class="container mt-2">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('patient.tests') }}">
+                    Medical Tests
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Test #{{ item.serial_number }}
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container">
     <div class="display-6">
         {{ item.item_desc }}
         {% if item.test_status == "Pending" %}

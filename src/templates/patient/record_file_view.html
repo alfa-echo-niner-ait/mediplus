@@ -2,8 +2,33 @@
 
 
 {% block content %}
+<div class="container mt-2">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('patient.medical_records') }}">
+                    Medical Records
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ file.file_name }}
+            </li>
+        </ol>
+    </nav>
+</div>
+
 <div class="container">
-    <div class="row border p-3 m-3 rounded">
+    <div class="row border p-3 m-3 mt-0 rounded">
         <div class="col-md-6 text-break">
             <div class="fs-5">
                 {{ file.file_name }}

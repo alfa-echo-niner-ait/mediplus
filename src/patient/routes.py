@@ -512,6 +512,7 @@ def view_report_file(serial_number, id):
             Medical_Report_Files.file_size_kb,
             Medical_Report_Files.upload_date,
             Medical_Report_Files.upload_time,
+            Medical_Report_Files.test_book_serial,
             Medical_Test_Book.test_patient_id,
             Managers.first_name,
             Managers.last_name,

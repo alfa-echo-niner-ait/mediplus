@@ -2,9 +2,29 @@
 
 
 {% block content %}
+<div class="container mt-2">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Update Profile
+            </li>
+        </ol>
+    </nav>
+</div>
+
 <form action="" method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
-    <div class="container mt-3">
+    <div class="container">
         <div class="row mb-3">
             <div class="col-md-2 mb-2">
                 <img src="{{ url_for('static', filename='avatars/patient/'~avatar) }}" class="img-thumbnail me-2"
@@ -31,7 +51,9 @@
             </div>
             <div class="col-md-6 mb-2 ms-auto">
                 <div class="ms-auto float-end">
-                    <a class="btn btn-secondary" href="{{ url_for('public.dashboard') }}">Back to Dashboard</a>
+                    <a class="btn btn-dark" href="{{ url_for('patient.change_password') }}">
+                        Change Password?
+                    </a>
                 </div>
             </div>
         </div>
