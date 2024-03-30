@@ -13,7 +13,7 @@ from flask import (
     session,
 )
 from flask_login import login_required, current_user
-from src.users.models import Users, Patients, User_Logs
+from src.users.models import Users, Patients, Managers, User_Logs
 from src.patient.models import (
     Medical_Info,
     Patient_Record_Files,
@@ -495,17 +495,36 @@ def test_report(serial):
     )
 
 
-@patient.route("/dashboard/patient/tests/file/<id>")
+@patient.route("/dashboard/patient/tests/<serial_number>/report/<id>")
 @login_required
-def view_report_file(id):
-    file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
-        file_id=int(id)
-    ).first_or_404()
-
-    if file.record_patient_id == current_user.id:
-        return render_template(
-            "patient/record_file_view.html", title=file.file_name, file=file
+def view_report_file(serial_number, id):
+    file = (
+        Medical_Report_Files.query.filter(Medical_Report_Files.file_id == int(id))
+        .join(
+            Medical_Test_Book,
+            Medical_Report_Files.test_book_serial == Medical_Test_Book.serial_number,
         )
+        .join(Managers, Medical_Report_Files.upload_manager_id == Managers.m_id)
+        .add_columns(
+            Medical_Report_Files.file_id,
+            Medical_Report_Files.file_name,
+            Medical_Report_Files.file_path_name,
+            Medical_Report_Files.file_size_kb,
+            Medical_Report_Files.upload_date,
+            Medical_Report_Files.upload_time,
+            Medical_Test_Book.test_patient_id,
+            Managers.first_name,
+            Managers.last_name,
+        )
+        .first_or_404()
+    )
+
+    if file.test_patient_id != current_user.id:
+        abort(403)
+
+    return render_template(
+        "patient/report_file_view.html", title=file.file_name, file=file
+    )
 
 
 @patient.route("/download/file/report/<file_id>")

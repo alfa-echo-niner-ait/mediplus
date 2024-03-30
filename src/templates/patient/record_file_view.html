@@ -12,9 +12,6 @@
                 Size: {{ file.file_size_kb }} KB
             </div>
             <div class="fs-6 text-secondary">
-                File: {{ file.file_path_name }}
-            </div>
-            <div class="fs-6 text-secondary">
                 Uploaded on: {{ file.upload_date }}, {{ file.upload_time }}
             </div>
         </div>
@@ -46,9 +43,6 @@
     function goBack() {
         window.history.back();
     }
-    $(document).ready(function () {
-        $("#side_logs").addClass("text-success-emphasis bg-success-subtle");
-    });
 </script>
 
 {% endblock content %}

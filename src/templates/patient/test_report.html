@@ -69,7 +69,8 @@
                         <td class="fw-light">{{ file.file_size_kb }} KB</td>
                         <td class="fw-light">{{ file.upload_date }}</td>
                         <td class="text-end">
-                            <a href="" class="btn btn-sm btn-secondary fw-light">
+                            <a href="{{ url_for('patient.view_report_file', serial_number=file.test_book_serial, id=file.file_id) }}"
+                                class="btn btn-sm btn-secondary fw-light">
                                 <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
                                     <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
                                     <path
