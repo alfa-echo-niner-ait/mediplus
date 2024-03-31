@@ -174,6 +174,7 @@ def reset_request():
 def reset_password(username, token):
     form = ResetPasswordForm()
     user = Users.query.filter_by(username=username).first()
+    
     if request.method == "GET":
         if user and user.validate_token(token):
             return render_template(
@@ -183,27 +184,31 @@ def reset_password(username, token):
             flash("Reset link error or timedout! Please try again!", category="danger")
             return redirect(url_for("public.reset_request"))
 
-    if request.method == "POST":
-        if form.validate_on_submit():
-            password = form.password.data
-            password_hash = hash_manager.generate_password_hash(password).decode(
-                "utf-8"
+    if form.validate_on_submit():
+        password = form.password.data
+        password_hash = hash_manager.generate_password_hash(password).decode(
+            "utf-8"
+        )
+
+        user.password_hash = password_hash
+        user.token = ""
+
+        date, time = get_datetime()
+        new_log = User_Logs(user.id, "Change Password", date, time)
+        new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
+
+        db.session.add(new_log)
+        db.session.commit()
+
+        flash(
+            "Password changed successfully! Login to continue.", category="success"
+        )
+        return redirect(url_for("public.login"))
+    else:
+        flash("Sorry, password didn't match!", category="danger")
+        return render_template(
+                "public/reset_password.html", form=form, title="Change Password"
             )
-
-            user.password_hash = password_hash
-            user.token = ""
-
-            date, time = get_datetime()
-            new_log = User_Logs(user.id, "Change Password", date, time)
-            new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
-
-            db.session.add(new_log)
-            db.session.commit()
-
-            flash(
-                "Password changed successfully! Login to continue.", category="success"
-            )
-            return redirect(url_for("public.login"))
 
 
 @public.route("/dashboard")
