@@ -9,7 +9,7 @@ from wtforms import (
     DecimalField,
     TextAreaField,
 )
-from wtforms.validators import DataRequired, EqualTo
+from wtforms.validators import DataRequired, EqualTo, Length
 from datetime import date
 
 
@@ -121,3 +121,26 @@ class Test_Result_Upload_Form(FlaskForm):
         ],
     )
     submit = SubmitField("Upload New Record")
+
+
+class RegisterDoctorForm(FlaskForm):
+    username = StringField(
+        "Username", validators=[DataRequired(), Length(min=2, max=50)]
+    )
+    password = PasswordField(
+        "Password", validators=[DataRequired(), EqualTo("confirm_password", "Password Didn't Match!")]
+    )
+    confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
+    email = StringField("Email Address", validators=[DataRequired()])
+    gender = SelectField(
+        "Gender",
+        validators=[DataRequired()],
+        choices=[("Male", "Male"), ("Female", "Female")],
+    )
+    first_name = StringField("First Name", validators=[DataRequired()])
+    last_name = StringField("Last Name", validators=[DataRequired()])
+    title = StringField("Title", validators=[DataRequired()])
+    phone = StringField("Phone", validators=[DataRequired()])
+    birthdate = DateField("Birth Date", validators=[DataRequired()], default=date.today)
+
+    submit = SubmitField("Register")

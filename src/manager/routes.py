@@ -30,6 +30,7 @@ from .forms import (
     UpdateMedicalTestForm,
     UpdateInvoiceForm,
     Test_Result_Upload_Form,
+    RegisterDoctorForm,
 )
 from src.public.forms import SearchTestForm
 from src import db, hash_manager
@@ -579,10 +580,53 @@ def doctors():
     return render_template("manager/doctors.html", title="Doctors")
 
 
-@manager.route("/dashboard/manager/doctors/register")
+@manager.route("/dashboard/manager/doctors/register", methods=["GET", "POST"])
 @login_required
 def register_doctor():
-    return render_template("manager/register_doctor.html", title="Register New Doctors")
+    form = RegisterDoctorForm()
+
+    if form.validate_on_submit():
+        # Account Info
+        username = form.username.data
+        password = form.password.data
+        email = form.email.data
+        phone = form.phone.data
+
+        password_hash = hash_manager.generate_password_hash(password).decode("utf-8")
+        # Doctor Info
+        title = form.title.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        gender = form.gender.data
+        birthday = form.birthdate.data
+        avatar = ""
+
+        if gender == "Male":
+            avatar = "doc_male.svg"
+        else:
+            avatar = "doc_female.svg"
+
+        # Create New User
+        new_user = Users(username, password_hash, email, gender, "Doctor")
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Create New Doctor
+        new_doctor = Doctors(new_user.id, first_name, last_name, phone, birthday, title, avatar)
+        db.session.add(new_doctor)
+        db.session.commit()
+        
+        # Create Log
+        date, time = get_datetime()
+        new_log = User_Logs(new_doctor.d_id, "New Doctor Registration", date, time)
+        new_log.log_desc = f"Registered New Doctor #{new_doctor.d_id} by Manager #{current_user.id}"
+        
+        flash("New Doctor Registered Successfully!", category="success")
+        return redirect(url_for('manager.doctors'))
+
+    return render_template(
+        "manager/register_doctor.html", form=form, title="Register New Doctors"
+    )
 
 
 # Patients
