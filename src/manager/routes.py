@@ -59,7 +59,6 @@ def appointemnts():
 @login_required
 def tests():
     page_num = request.args.get("page", 1, int)
-    new_test_form = NewMedicalTestForm()
 
     items = (
         Medical_Test_Book.query.join(
@@ -82,7 +81,6 @@ def tests():
 
     return render_template(
         "manager/tests.html",
-        new_test_form=new_test_form,
         items=items,
         title="Tests Management",
     )
@@ -579,6 +577,12 @@ def managers():
 @login_required
 def doctors():
     return render_template("manager/doctors.html", title="Doctors")
+
+
+@manager.route("/dashboard/manager/doctors/register")
+@login_required
+def register_doctor():
+    return render_template("manager/register_doctor.html", title="Register New Doctors")
 
 
 # Patients
