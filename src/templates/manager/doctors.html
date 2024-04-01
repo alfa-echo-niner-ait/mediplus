@@ -41,6 +41,63 @@
     </div>
 </div>
 
+<!-- Doctor List -->
+<div class="container mt-3">
+    <table class="table table-bordered table-hover shadow">
+        <thead class="table-success">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Username</th>
+                <th scope="col">Title</th>
+                <th scope="col">Firstname</th>
+                <th scope="col">Lastname</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+            </tr>
+        </thead>
+        <tbody id="manager_data">
+            {% for doc in doctors %}
+            <tr>
+                <td>{{ doc.d_id }}</td>
+                <td>{{ doc.username }}</td>
+                <td>{{ doc.title }}</td>
+                <td>{{ doc.first_name }}</td>
+                <td>{{ doc.last_name }}</td>
+                <td>{{ doc.gender }}</td>
+                <td>{{ doc.email }}</td>
+                <td>{{ doc.phone }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="container mt-3 mb-3" id="manager_pagination">
+    <div class="d-flex justify-content-center border rounded">
+        {% for page_num in doctors.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+        {% if page_num %}
+        {% if doctors.page == page_num %}
+        <a class="btn btn-success m-2" href="{{ url_for('manager.doctors', page=page_num) }}"
+            id="pg_link{{ page_num }}">
+            {{ page_num }}
+        </a>
+        {% else %}
+        <a class="btn btn-outline-success m-2" href="{{ url_for('manager.doctors', page=page_num) }}"
+            id="pg_link{{ page_num }}">
+            {{ page_num }}
+        </a>
+        {% endif %}
+        {% else %}
+        <button class="btn btn-outline-secondary m-2" disabled>
+            ...
+        </button>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
 <script>
     $(document).ready(function () {
         $("#side_doctor").addClass("text-success-emphasis bg-success-subtle");
