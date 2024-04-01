@@ -115,8 +115,8 @@ class Patients(db.Model):
 class Doctors(db.Model):
     """
     #### avatar
-        - doc_male.svg
-        - doc_female.svg
+        - doctor_male.png
+        - doctor_female.png
 
         path: /static/avatars/doctor
     """

@@ -63,3 +63,7 @@ class ResetPasswordForm(FlaskForm):
 class SearchTestForm(FlaskForm):
     keyword = StringField("Test Name", validators=[DataRequired()])
     submit = SubmitField("Search")
+
+class SearchDoctorForm(FlaskForm):
+    keyword = StringField("Doctor Name/Speciality", validators=[DataRequired()])
+    submit = SubmitField("Search")

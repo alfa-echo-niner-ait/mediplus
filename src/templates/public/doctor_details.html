@@ -1,0 +1,24 @@
+{% extends 'layout/layout_public.html' %}
+
+
+{% block content %}
+<div class="container mt-2">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.doctors') }}">
+                    Doctors
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Dr. {{ doctor.last_name}} {{ doctor.first_name }}
+            </li>
+        </ol>
+    </nav>
+</div>
+{% endblock content %}

@@ -621,9 +621,9 @@ def register_doctor():
         avatar = ""
 
         if gender == "Male":
-            avatar = "doc_male.svg"
+            avatar = "doctor_male.png"
         else:
-            avatar = "doc_female.svg"
+            avatar = "doctor_female.png"
 
         # Create New User
         new_user = Users(username, password_hash, email, gender, "Doctor")
@@ -641,7 +641,7 @@ def register_doctor():
         date, time = get_datetime()
         new_log = User_Logs(new_doctor.d_id, "New Doctor Registration", date, time)
         new_log.log_desc = (
-            f"Registered New Doctor #{new_doctor.d_id} by Manager #{current_user.id}"
+            f"Registered New Doctor #{new_doctor.d_id} ({username}) by Manager #{current_user.id}"
         )
         db.session.add(new_log)
         db.session.commit()

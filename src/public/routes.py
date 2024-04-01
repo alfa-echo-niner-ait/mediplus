@@ -9,7 +9,7 @@ from flask import (
     session,
 )
 from flask_login import current_user, login_user, login_required, logout_user
-from .forms import LoginForm, RegisterForm, ResetRequestForm, ResetPasswordForm, SearchTestForm
+from .forms import LoginForm, RegisterForm, ResetRequestForm, ResetPasswordForm, SearchTestForm, SearchDoctorForm
 from .utils import get_datetime
 from src.users.models import Users, Patients, User_Logs, Managers, Doctors
 from src.patient.models import Medical_Info, Invoices, Invoice_Items, Payments, Medical_Tests, Pending_Items
@@ -272,7 +272,52 @@ def tests():
         tests = Medical_Tests.query.filter(
             Medical_Tests.test_name.icontains(form.keyword.data) | Medical_Tests.test_desc.icontains(form.keyword.data)
             ).paginate(page=page_num, per_page=15)
-        title=f"Search Result: {form.keyword.data}"
+        title = f"Search Result: {form.keyword.data}"
         search = "yes"
     
     return render_template("public/tests.html", form=form, tests=tests, search=search, title=title)
+
+
+@public.route('/doctors', methods=["GET", "POST"])
+def doctors():
+    page_num = request.args.get("page", 1, int)
+    title = "Doctors List"
+    search = "no"
+    form = SearchDoctorForm()
+
+    doctors = Doctors.query.join(
+        Users, Doctors.d_id == Users.id
+        ).add_columns(
+            Users.gender,
+            Doctors.d_id,
+            Doctors.first_name,
+            Doctors.last_name,
+            Doctors.title, Doctors.avatar
+            ).paginate(page=page_num, per_page=12)
+        
+    if form.validate_on_submit():
+        if page_num > 1:
+            page_num = 1
+        search = "yes"
+        title=f"Search Result: {form.keyword.data}"
+        
+        doctors = Doctors.query.filter(
+            Doctors.title.icontains(form.keyword.data) | Doctors.last_name.icontains(form.keyword.data) | Doctors.first_name.icontains(form.keyword.data)
+            ).join(Users, Doctors.d_id == Users.id
+                ).add_columns(
+                Users.gender,
+                Doctors.d_id,
+                Doctors.first_name,
+                Doctors.last_name,
+                Doctors.title, Doctors.avatar
+                ).paginate(page=page_num, per_page=12)
+
+    return render_template('public/doctors.html', doctors=doctors, form=form, search=search, title=title)
+
+@public.route('/doctors/<id>')
+@login_required
+def view_doctor(id):
+    doctor = Doctors.query.filter(Doctors.d_id == int(id)).first_or_404()
+    
+    return render_template('public/doctor_details.html', doctor=doctor, title=f"Dr. {doctor.last_name} {doctor.first_name}")
+    
