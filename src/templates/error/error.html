@@ -2,6 +2,21 @@
 
 
 {% block content %}
+<div class="container mt-2">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Error {{ code }}
+            </li>
+        </ol>
+    </nav>
+</div>
+
 <div class="container mx-auto p-5">
     <div class="m-3 p-3 text-center text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3">
         <div class="display-3 mb-3">
