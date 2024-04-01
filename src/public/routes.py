@@ -23,18 +23,21 @@ public = Blueprint("public", __name__)
 def index():
     if current_user.is_authenticated:
         if current_user.role == "Patient":
-            session["pending_items"] = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
+            session["pending_items"] = Pending_Items.query.filter_by(
+                item_user_id=current_user.id).count()
         if "avatar" not in session:
             if current_user.role == "Patient":
-                patient = Patients.query.filter_by(p_id=current_user.id).first()
+                patient = Patients.query.filter_by(
+                    p_id=current_user.id).first()
                 session["avatar"] = patient.avatar
             elif current_user.role == "Manager":
-                manager = Managers.query.filter_by(m_id=current_user.id).first()
+                manager = Managers.query.filter_by(
+                    m_id=current_user.id).first()
                 session["avatar"] = manager.avatar
             elif current_user.role == "Doctor":
                 doctor = Doctors.query.filter_by(d_id=current_user.id).first()
                 session["avatar"] = doctor.avatar
-        
+
     return render_template("public/index.html")
 
 
@@ -60,7 +63,8 @@ def login():
             if user.role == "Patient":
                 patient = Patients.query.filter_by(p_id=user.id).first()
                 session["avatar"] = patient.avatar
-                session["pending_items"] = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
+                session["pending_items"] = Pending_Items.query.filter_by(
+                    item_user_id=current_user.id).count()
             elif user.role == "Manager":
                 manager = Managers.query.filter_by(m_id=user.id).first()
                 session["avatar"] = manager.avatar
@@ -71,7 +75,8 @@ def login():
             date, time = get_datetime()
 
             new_log = User_Logs(current_user.id, "Login", date, time)
-            new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
+            new_log.log_desc = f"IP: {request.remote_addr}, Device: {
+                request.headers.get("User-Agent")}"
 
             db.session.add(new_log)
             db.session.commit()
@@ -85,7 +90,8 @@ def login():
 def logout():
     date, time = get_datetime()
     new_log = User_Logs(current_user.id, "Logout", date, time)
-    new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
+    new_log.log_desc = f"IP: {request.remote_addr}, Device: {
+        request.headers.get("User-Agent")}"
 
     db.session.add(new_log)
     db.session.commit()
@@ -112,7 +118,8 @@ def register():
         birthdate = form.birthdate.data
 
         avatar = "user_male.svg" if gender == "Male" else "user_female.svg"
-        password_hash = hash_manager.generate_password_hash(password).decode("utf-8")
+        password_hash = hash_manager.generate_password_hash(
+            password).decode("utf-8")
         date, time = get_datetime()
 
         new_user = Users(username, password_hash, email, gender, "Patient")
@@ -120,10 +127,12 @@ def register():
         db.session.commit()
 
         user = Users.query.filter_by(username=username).first()
-        new_patient = Patients(user.id, first_name, last_name, birthdate, avatar)
+        new_patient = Patients(user.id, first_name,
+                               last_name, birthdate, avatar)
         new_log = User_Logs(user.id, "Registration", date, time)
-        new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
-        
+        new_log.log_desc = f"IP: {request.remote_addr}, Device: {
+            request.headers.get("User-Agent")}"
+
         db.session.add(new_patient)
         db.session.add(new_log)
         db.session.commit()
@@ -145,21 +154,22 @@ def reset_request():
     if form.validate_on_submit():
         email = form.email.data
         user = Users.query.filter_by(email=email).first()
-        
+
         if user:
             token = token_manager.sign(f"{user.role}{user.email}{user.id}").decode(
                 "utf-8"
             )
             user.token = token
             reset_mail_sender(user)
-            
+
             date, time = get_datetime()
             new_log = User_Logs(user.id, "Password Reset Request", date, time)
-            new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
+            new_log.log_desc = f"IP: {request.remote_addr}, Device: {
+                request.headers.get("User-Agent")}"
 
             db.session.add(new_log)
             db.session.commit()
-            
+
             flash("Password reset link sent to your email!", category="success")
         else:
             flash("Sorry, no user found with this email!", category="warning")
@@ -174,14 +184,15 @@ def reset_request():
 def reset_password(username, token):
     form = ResetPasswordForm()
     user = Users.query.filter_by(username=username).first()
-    
+
     if request.method == "GET":
         if user and user.validate_token(token):
             return render_template(
                 "public/reset_password.html", form=form, title="Change Password"
             )
         else:
-            flash("Reset link error or timedout! Please try again!", category="danger")
+            flash("Reset link error or timedout! Please try again!",
+                  category="danger")
             return redirect(url_for("public.reset_request"))
 
     if form.validate_on_submit():
@@ -195,7 +206,8 @@ def reset_password(username, token):
 
         date, time = get_datetime()
         new_log = User_Logs(user.id, "Change Password", date, time)
-        new_log.log_desc = f"IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"
+        new_log.log_desc = f"IP: {request.remote_addr}, Device: {
+            request.headers.get("User-Agent")}"
 
         db.session.add(new_log)
         db.session.commit()
@@ -207,15 +219,16 @@ def reset_password(username, token):
     else:
         flash("Sorry, password didn't match!", category="danger")
         return render_template(
-                "public/reset_password.html", form=form, title="Change Password"
-            )
+            "public/reset_password.html", form=form, title="Change Password"
+        )
 
 
 @public.route("/dashboard")
 @login_required
 def dashboard():
     if current_user.role == "Patient":
-        session["pending_items"] = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
+        session["pending_items"] = Pending_Items.query.filter_by(
+            item_user_id=current_user.id).count()
     if "avatar" not in session:
         if current_user.role == "Patient":
             patient = Patients.query.filter_by(p_id=current_user.id).first()
@@ -239,10 +252,11 @@ def dashboard():
 def invoice(id):
     # if current_user.role == "Manager":
     #     return redirect(url_for('manager.invoice_update', id=id))
-        
-    invoice:Invoices = Invoices.query.filter_by(invoice_id=id).first_or_404()
-    patient:Patients = Patients.query.filter_by(p_id=invoice.invoice_patient_id).first()
-    items:Invoice_Items = Invoice_Items.query.filter_by(invoice_id=id).all()
+
+    invoice: Invoices = Invoices.query.filter_by(invoice_id=id).first_or_404()
+    patient: Patients = Patients.query.filter_by(
+        p_id=invoice.invoice_patient_id).first()
+    items: Invoice_Items = Invoice_Items.query.filter_by(invoice_id=id).all()
 
     url = url_for(
         "public.invoice",
@@ -256,25 +270,27 @@ def invoice(id):
 @public.route("/tests", methods=["GET", "POST"])
 def tests():
     if current_user.is_authenticated and current_user.role == "Patient":
-        session["pending_items"] = Pending_Items.query.filter_by(item_user_id=current_user.id).count()
+        session["pending_items"] = Pending_Items.query.filter_by(
+            item_user_id=current_user.id).count()
     page_num = request.args.get("page", 1, int)
     title = "Medical Tests"
     search = "no"
-    
+
     form = SearchTestForm()
     tests = Medical_Tests.query.order_by(Medical_Tests.test_name.asc()).paginate(
         page=page_num, per_page=10
     )
-    
+
     if form.validate_on_submit():
         if page_num > 1:
             page_num = 1
         tests = Medical_Tests.query.filter(
-            Medical_Tests.test_name.icontains(form.keyword.data) | Medical_Tests.test_desc.icontains(form.keyword.data)
-            ).paginate(page=page_num, per_page=15)
+            Medical_Tests.test_name.icontains(
+                form.keyword.data) | Medical_Tests.test_desc.icontains(form.keyword.data)
+        ).paginate(page=page_num, per_page=15)
         title = f"Search Result: {form.keyword.data}"
         search = "yes"
-    
+
     return render_template("public/tests.html", form=form, tests=tests, search=search, title=title)
 
 
@@ -287,37 +303,47 @@ def doctors():
 
     doctors = Doctors.query.join(
         Users, Doctors.d_id == Users.id
-        ).add_columns(
-            Users.gender,
-            Doctors.d_id,
-            Doctors.first_name,
-            Doctors.last_name,
-            Doctors.title, Doctors.avatar
-            ).paginate(page=page_num, per_page=12)
-        
+    ).add_columns(
+        Users.gender,
+        Doctors.d_id,
+        Doctors.first_name,
+        Doctors.last_name,
+        Doctors.title, Doctors.avatar
+    ).paginate(page=page_num, per_page=12)
+
     if form.validate_on_submit():
         if page_num > 1:
             page_num = 1
         search = "yes"
-        title=f"Search Result: {form.keyword.data}"
-        
+        title = f"Search Result: {form.keyword.data}"
+
         doctors = Doctors.query.filter(
-            Doctors.title.icontains(form.keyword.data) | Doctors.last_name.icontains(form.keyword.data) | Doctors.first_name.icontains(form.keyword.data)
-            ).join(Users, Doctors.d_id == Users.id
-                ).add_columns(
-                Users.gender,
-                Doctors.d_id,
-                Doctors.first_name,
-                Doctors.last_name,
-                Doctors.title, Doctors.avatar
-                ).paginate(page=page_num, per_page=12)
+            Doctors.title.icontains(form.keyword.data) | Doctors.last_name.icontains(
+                form.keyword.data) | Doctors.first_name.icontains(form.keyword.data)
+        ).join(Users, Doctors.d_id == Users.id
+               ).add_columns(
+            Users.gender,
+            Doctors.d_id,
+            Doctors.first_name,
+            Doctors.last_name,
+            Doctors.title,
+            Doctors.avatar,
+        ).paginate(page=page_num, per_page=12)
 
     return render_template('public/doctors.html', doctors=doctors, form=form, search=search, title=title)
+
 
 @public.route('/doctors/<id>')
 @login_required
 def view_doctor(id):
-    doctor = Doctors.query.filter(Doctors.d_id == int(id)).first_or_404()
-    
+    doctor = Doctors.query.filter(Doctors.d_id == int(id)).join(
+        Users, Doctors.d_id == Users.id).add_columns(
+            Users.gender,
+            Doctors.d_id,
+            Doctors.first_name,
+            Doctors.last_name,
+            Doctors.title,
+            Doctors.avatar,
+            ).first_or_404()
+
     return render_template('public/doctor_details.html', doctor=doctor, title=f"Dr. {doctor.last_name} {doctor.first_name}")
-    
