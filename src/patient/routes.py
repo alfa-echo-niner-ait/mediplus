@@ -169,12 +169,15 @@ def update_profile():
     if form.validate_on_submit():
         avatar = ""
         if form.avatar.data:
-            # Remove the old picture from the file system
-            if profile.avatar != "user_male.svg" or profile.avatar != "user_female.svg":
+            if profile.avatar == "user_male.svg" or profile.avatar == "user_female.svg":
+                # Store the new picture in the file system
+                avatar = profile_picture_saver(form.avatar.data, "patient")
+            else:
+                # Remove old picture
                 profile_picture_remover(profile.avatar, "patient")
+                # Store the new picture in the file system
+                avatar = profile_picture_saver(form.avatar.data, "patient")
 
-            # Store the new picture in the file system
-            avatar = profile_picture_saver(form.avatar.data, "patient")
             profile.avatar = avatar
 
         # Add new informaiton to the model

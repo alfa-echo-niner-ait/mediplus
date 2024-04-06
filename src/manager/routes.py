@@ -677,10 +677,10 @@ def update_doctor_profile_handler(id):
     if form.validate_on_submit():
         avatar = ""
         if form.avatar.data:
-            # Remove the old picture from the file system
             if doctor.avatar == "doctor_male.png" or doctor.avatar == "doctor_female.png":
                 avatar = profile_picture_saver(form.avatar.data, "doctor")
             else:
+                # Remove the old picture from the file system
                 profile_picture_remover(doctor.avatar, "doctor")
                 # Store the new picture in the file system
                 avatar = profile_picture_saver(form.avatar.data, "doctor")
@@ -955,11 +955,15 @@ def account():
         avatar = ""
         if form.avatar.data:
             # Remove the old picture from the file system
-            if profile.avatar != "manager.svg":
+            if profile.avatar == "manager.svg":
+                # Store the new picture in the file system
+                avatar = profile_picture_saver(form.avatar.data, "manager")
+            else:
+                # Remove old picture
                 profile_picture_remover(profile.avatar, "manager")
+                # Store the new picture in the file system
+                avatar = profile_picture_saver(form.avatar.data, "manager")
 
-            # Store the new picture in the file system
-            avatar = profile_picture_saver(form.avatar.data, "manager")
             profile.avatar = avatar
             session["avatar"] = avatar
 
