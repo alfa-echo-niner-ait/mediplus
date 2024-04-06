@@ -583,20 +583,72 @@ def doctors():
         Doctors.query.join(Users, Doctors.d_id == Users.id)
         .add_columns(
             Users.username,
-            Users.email,
             Users.gender,
             Doctors.d_id,
             Doctors.title,
             Doctors.first_name,
             Doctors.last_name,
             Doctors.phone,
-            Doctors.birthdate,
-            Doctors.avatar,
         )
         .paginate(page=page_num, per_page=12)
     )
 
     return render_template("manager/doctors.html", doctors=doctors, title="Doctors")
+
+
+@manager.route("/dashboard/manager/doctors/<id>")
+@login_required
+def view_doctor(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    doctor = (
+        Doctors.query.filter(Doctors.d_id == int(id))
+        .join(Users, Doctors.d_id == Users.id)
+        .add_columns(
+            Users.gender,
+            Doctors.d_id,
+            Doctors.first_name,
+            Doctors.last_name,
+            Doctors.title,
+            Doctors.phone,
+            Doctors.avatar,
+        )
+        .first_or_404()
+    )
+
+    return render_template(
+        "manager/doctor_view.html",
+        doctor=doctor,
+        title=f"Dr. {doctor.last_name} {doctor.first_name}",
+    )
+
+@manager.route("/dashboard/manager/doctors/<id>/update")
+@login_required
+def update_doctor_profile(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    doctor = (
+        Doctors.query.filter(Doctors.d_id == int(id))
+        .join(Users, Doctors.d_id == Users.id)
+        .add_columns(
+            Users.gender,
+            Doctors.d_id,
+            Doctors.first_name,
+            Doctors.last_name,
+            Doctors.title,
+            Doctors.phone,
+            Doctors.avatar,
+        )
+        .first_or_404()
+    )
+
+    return render_template(
+        "manager/doctor_update_profile.html",
+        doctor=doctor,
+        title=f"Update Dr. {doctor.last_name} {doctor.first_name}",
+    )
 
 
 @manager.route("/dashboard/manager/doctors/register", methods=["GET", "POST"])
@@ -640,9 +692,7 @@ def register_doctor():
         # Create Log
         date, time = get_datetime()
         new_log = User_Logs(new_doctor.d_id, "New Doctor Registration", date, time)
-        new_log.log_desc = (
-            f"Registered New Doctor #{new_doctor.d_id} ({username}) by Manager #{current_user.id}"
-        )
+        new_log.log_desc = f"Registered New Doctor #{new_doctor.d_id} ({username}) by Manager #{current_user.id}"
         db.session.add(new_log)
         db.session.commit()
 

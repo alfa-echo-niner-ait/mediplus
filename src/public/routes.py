@@ -330,7 +330,9 @@ def doctors():
             Doctors.avatar,
         ).paginate(page=page_num, per_page=12)
 
-    return render_template('public/doctors.html', doctors=doctors, form=form, search=search, title=title)
+    return render_template('public/doctors.html',
+                           doctors=doctors, form=form,
+                           search=search, title=title)
 
 
 @public.route('/doctors/<id>')
@@ -344,6 +346,6 @@ def view_doctor(id):
             Doctors.last_name,
             Doctors.title,
             Doctors.avatar,
-            ).first_or_404()
+    ).first_or_404()
 
     return render_template('public/doctor_details.html', doctor=doctor, title=f"Dr. {doctor.last_name} {doctor.first_name}")

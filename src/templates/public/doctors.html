@@ -53,15 +53,15 @@
 <div class="container">
     <div class="row">
     {% for doc in doctors %}
-        <div class="col-md-3 mb-3">
+        <div class="col-md-4 col-lg-3 mb-3">
             <div class="card h-100">
                 <div class="card-img-top text-center mt-1">
                     <img class="rounded-circle border"
                         height="120px" width="120px"
                         src="{{ url_for('static', filename='avatars/doctor/'~doc.avatar) }}" />
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title fw-light text-center">
+                <div class="card-body text-center">
+                    <div class="fs-5 fw-light">
                         Dr. {{ doc.last_name }} {{ doc.first_name }}
                         {% if doc.gender == "Male" %}
                         <span class="badge rounded-pill text-bg-info">
@@ -78,15 +78,17 @@
                             </svg>
                         </span>
                         {% endif %}
-                    </h5>
-                    <h6 class="text-secondary text-center">
-                        {{ doc.title }}
-                    </h6>
-                    <p class="card-text text-center text-success">Mon-Fri, 9.00-5.00</p>
-                    <div class="text-center">
-                        <a href="{{ url_for('public.view_doctor', id=doc.d_id) }}"
-                            class="btn btn-mint flex-end pop">View Details</a>
                     </div>
+                    <div class="fs-6 text-secondary">
+                        {{ doc.title }}
+                    </div>
+                    <div class="card-text text-success mt-2 mb-2">
+                        Mon-Fri, 9.00-5.00
+                    </div>
+                    <a href="{{ url_for('public.view_doctor', id=doc.d_id) }}"
+                        class="btn btn-mint flex-end pop">
+                        View Details
+                    </a>
                 </div>
             </div>
         </div>

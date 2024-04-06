@@ -1,0 +1,82 @@
+{% extends 'layout/layout_manager.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('manager.doctors') }}">
+                    Doctors
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                Dr. {{ doctor.last_name }} {{ doctor.first_name }}
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 text-start">
+            <img class="float-start rounded-circle border shadow me-3" height="140px" width="140px"
+                src="{{ url_for('static', filename='avatars/doctor/'~doctor.avatar) }}" />
+            <div class="fs-6 fw-bold mt-3">
+                Dr. {{ doctor.last_name }} {{ doctor.first_name }}
+                {% if doctor.gender == "Male" %}
+                <span class="badge rounded-pill text-bg-info">
+                    <svg width="14" height="14" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8" />
+                    </svg>
+                </span>
+                {% else %}
+                <span class="badge rounded-pill text-bg-warning">
+                    <svg width="14" height="14" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5" />
+                    </svg>
+                </span>
+                {% endif %}
+            </div>
+            <div class="fs-6 text-secondary">
+                {{ doctor.title }}
+            </div>
+            <div class="fs-6">
+                {{ doctor.phone }}
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="" class="btn btn-primary btn-sm">
+                Change Password
+            </a>
+            <br>
+            <a href="{{ url_for('manager.update_doctor_profile', id=doctor.d_id) }}"
+                class="btn btn-info mt-2 btn-sm">
+                Update Profile
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#side_doctor").addClass("text-success-emphasis bg-success-subtle");
+    });
+</script>
+{% endblock content %}
+    

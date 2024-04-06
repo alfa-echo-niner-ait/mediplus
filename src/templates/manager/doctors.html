@@ -29,7 +29,7 @@
 <div class="container mt-3">
     <div class="text-end">
         <a href="{{ url_for('manager.register_doctor') }}"
-            class="btn btn-info text-white fw-bold">
+            class="btn btn-info text-white fw-bold pop">
             <svg width="18" height="18" fill="currentColor" class="bi"
                 viewBox="0 0 16 16">
                 <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
@@ -52,8 +52,8 @@
                 <th scope="col">Firstname</th>
                 <th scope="col">Lastname</th>
                 <th scope="col">Gender</th>
-                <th scope="col">Email</th>
                 <th scope="col">Phone</th>
+                <th scope="col" class="text-center">Actions</th>
             </tr>
         </thead>
         <tbody id="manager_data">
@@ -65,8 +65,18 @@
                 <td>{{ doc.first_name }}</td>
                 <td>{{ doc.last_name }}</td>
                 <td>{{ doc.gender }}</td>
-                <td>{{ doc.email }}</td>
                 <td>{{ doc.phone }}</td>
+                <td class="text-center">
+                    <a href="{{ url_for('manager.view_doctor', id=doc.d_id) }}"
+                        class="btn btn-sm btn-secondary pop">
+                        View
+                    </a>
+                    <a href=""
+                        class="btn btn-sm btn-danger pop"
+                        onclick="return confirm('Delete Dr. {{ doc.last_name }} {{ doc.first_name }}?')">
+                        Delete
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
