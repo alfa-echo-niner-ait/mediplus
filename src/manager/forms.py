@@ -144,3 +144,25 @@ class RegisterDoctorForm(FlaskForm):
     birthdate = DateField("Birth Date", validators=[DataRequired()], default=date.today)
 
     submit = SubmitField("Register")
+
+
+class UpdateDoctorForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    first_name = StringField("First Name", validators=[DataRequired()])
+    last_name = StringField("Last Name", validators=[DataRequired()])
+    gender = SelectField(
+        "Gender",
+        validators=[DataRequired()],
+        choices=[("Male", "Male"), ("Female", "Female")],
+    )
+    birthdate = DateField("Birth Date", validators=[DataRequired()], default=date.today)
+    phone = StringField("Phone", validators=[DataRequired()])
+    email = StringField("Email Address", validators=[DataRequired()])
+    avatar = FileField(
+        "Change Avatar",
+        validators=[
+            FileAllowed(["jpg", "jpeg", "png", "svg"], "Please pick correct format!")
+        ],
+    )
+
+    submit = SubmitField("Update Doctor")

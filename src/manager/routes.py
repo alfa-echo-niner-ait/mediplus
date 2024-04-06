@@ -31,6 +31,7 @@ from .forms import (
     UpdateInvoiceForm,
     Test_Result_Upload_Form,
     RegisterDoctorForm,
+    UpdateDoctorForm,
 )
 from src.public.forms import SearchTestForm
 from src import db, hash_manager
@@ -623,7 +624,7 @@ def view_doctor(id):
         title=f"Dr. {doctor.last_name} {doctor.first_name}",
     )
 
-@manager.route("/dashboard/manager/doctors/<id>/update")
+@manager.route("/dashboard/manager/doctors/<id>/update", methods=["GET"])
 @login_required
 def update_doctor_profile(id):
     if current_user.role != "Manager":
@@ -634,21 +635,77 @@ def update_doctor_profile(id):
         .join(Users, Doctors.d_id == Users.id)
         .add_columns(
             Users.gender,
+            Users.email,
             Doctors.d_id,
             Doctors.first_name,
             Doctors.last_name,
             Doctors.title,
             Doctors.phone,
+            Doctors.birthdate,
             Doctors.avatar,
         )
         .first_or_404()
     )
+    
+    form = UpdateDoctorForm()
+    if request.method == "GET":
+        form.title.data = doctor.title
+        form.first_name.data = doctor.first_name
+        form.last_name.data = doctor.last_name
+        form.gender.data = doctor.gender
+        form.birthdate.data = doctor.birthdate
+        form.phone.data = doctor.phone
+        form.email.data = doctor.email
 
     return render_template(
         "manager/doctor_update_profile.html",
         doctor=doctor,
+        form=form,
         title=f"Update Dr. {doctor.last_name} {doctor.first_name}",
     )
+
+@manager.route("/dashboard/manager/doctors/<id>/update/profile", methods=["POST"])
+@login_required
+def update_doctor_profile_handler(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    user: Users = Users.query.filter(Users.id == id).first_or_404()
+    doctor:Doctors = Doctors.query.filter(Doctors.d_id == id).first_or_404()
+
+    form = UpdateDoctorForm()
+    if form.validate_on_submit():
+        avatar = ""
+        if form.avatar.data:
+            # Remove the old picture from the file system
+            if doctor.avatar == "doctor_male.png" or doctor.avatar == "doctor_female.png":
+                avatar = profile_picture_saver(form.avatar.data, "doctor")
+            else:
+                profile_picture_remover(doctor.avatar, "doctor")
+                # Store the new picture in the file system
+                avatar = profile_picture_saver(form.avatar.data, "doctor")
+
+            doctor.avatar = avatar
+
+        user.email = form.email.data
+        user.gender = form.gender.data
+        doctor.title = form.title.data
+        doctor.first_name = form.first_name.data
+        doctor.last_name = form.last_name.data
+        doctor.birthdate = form.birthdate.data
+        doctor.phone = form.phone.data
+
+        date, time = get_datetime()
+        new_log = User_Logs(current_user.id, "Update Doctor Profile", date, time)
+        new_log.log_desc = f"Doctor #{id}: Dr. {doctor.last_name} {doctor.first_name}"
+        db.session.add(new_log)
+        db.session.commit()
+
+        flash("Profile Updated Successfully!", category="success")
+        return redirect(url_for("manager.update_doctor_profile", id=id))
+    else:
+        flash("Profile Update Failed!", category="danger")
+        return redirect(url_for("manager.update_doctor_profile", id=id))
 
 
 @manager.route("/dashboard/manager/doctors/register", methods=["GET", "POST"])
@@ -691,9 +748,15 @@ def register_doctor():
 
         # Create Log
         date, time = get_datetime()
+        # Doctor Log
+        new_log = User_Logs(new_doctor.d_id, "Account Registration", date, time)
+        new_log.log_desc = f"Registered New Doctor #{new_doctor.d_id} ({username}) by Manager #{current_user.id}"
+        db.session.add(new_log)
+        # Manager Log
         new_log = User_Logs(new_doctor.d_id, "New Doctor Registration", date, time)
         new_log.log_desc = f"Registered New Doctor #{new_doctor.d_id} ({username}) by Manager #{current_user.id}"
         db.session.add(new_log)
+        
         db.session.commit()
 
         flash("New Doctor Registered Successfully!", category="success")
@@ -887,7 +950,7 @@ def account():
         .order_by(User_Logs.log_id.desc())
         .paginate(page=page_num, per_page=10)
     )
-
+    
     if form.validate_on_submit():
         avatar = ""
         if form.avatar.data:
