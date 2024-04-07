@@ -31,9 +31,11 @@ class RegisterForm(FlaskForm):
     username = StringField(
         "Username", validators=[DataRequired(), Length(min=2, max=50)]
     )
-    password = PasswordField("Password", validators=[DataRequired()])
+    password = PasswordField(
+        "Password", validators=[DataRequired(), EqualTo("re_password", "Password didn't match!")]
+    )
     re_password = PasswordField(
-        "Confirm Password", validators=[DataRequired(), EqualTo("password")]
+        "Confirm Password", validators=[DataRequired()]
     )
     email = StringField("Email Address", validators=[DataRequired()])
     gender = SelectField(
@@ -54,9 +56,11 @@ class ResetRequestForm(FlaskForm):
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField("New Password", validators=[DataRequired()])
+    password = PasswordField(
+        "New Password", validators=[DataRequired(), EqualTo("re_password", "Password didn't match!")]
+    )
     re_password = PasswordField(
-        "Confirm Password", validators=[DataRequired(), EqualTo("password")]
+        "Confirm Password", validators=[DataRequired()]
     )
     submit = SubmitField("Change Password")
 

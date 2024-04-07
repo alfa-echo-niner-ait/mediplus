@@ -71,7 +71,7 @@
                         class="btn btn-sm btn-secondary pop">
                         View
                     </a>
-                    <a href=""
+                    <a href="{{ url_for('manager.delete_doctor', id=doc.d_id)}}"
                         class="btn btn-sm btn-danger pop"
                         onclick="return confirm('Delete Dr. {{ doc.last_name }} {{ doc.first_name }}?')">
                         Delete

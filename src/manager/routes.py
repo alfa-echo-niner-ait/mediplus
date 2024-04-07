@@ -32,6 +32,7 @@ from .forms import (
     Test_Result_Upload_Form,
     RegisterDoctorForm,
     UpdateDoctorForm,
+    DoctorPasswordForm,
 )
 from src.public.forms import SearchTestForm
 from src import db, hash_manager
@@ -602,7 +603,8 @@ def doctors():
 def view_doctor(id):
     if current_user.role != "Manager":
         abort(403)
-
+        
+    password_form = DoctorPasswordForm()
     doctor = (
         Doctors.query.filter(Doctors.d_id == int(id))
         .join(Users, Doctors.d_id == Users.id)
@@ -621,6 +623,7 @@ def view_doctor(id):
     return render_template(
         "manager/doctor_view.html",
         doctor=doctor,
+        password_form=password_form,
         title=f"Dr. {doctor.last_name} {doctor.first_name}",
     )
 
@@ -753,7 +756,7 @@ def register_doctor():
         new_log.log_desc = f"Registered New Doctor #{new_doctor.d_id} ({username}) by Manager #{current_user.id}"
         db.session.add(new_log)
         # Manager Log
-        new_log = User_Logs(new_doctor.d_id, "New Doctor Registration", date, time)
+        new_log = User_Logs(current_user.id, "New Doctor Registration", date, time)
         new_log.log_desc = f"Registered New Doctor #{new_doctor.d_id} ({username}) by Manager #{current_user.id}"
         db.session.add(new_log)
         
@@ -765,6 +768,27 @@ def register_doctor():
     return render_template(
         "manager/register_doctor.html", form=form, title="Register New Doctors"
     )
+
+@manager.route("/dashboard/manager/doctors/<id>/delete")
+@login_required
+def delete_doctor(id):
+    if current_user.role != "Manager":
+        abort(403)
+    
+    user = Users.query.filter(Users.id == int(id)).first_or_404()
+    doctor = Doctors.query.filter(Doctors.d_id == int(id)).first_or_404()
+    db.session.delete(user)
+
+    date, time = get_datetime()
+    # Manager Log
+    new_log = User_Logs(current_user.id, "Delete Doctor Account", date, time)
+    new_log.log_desc = f"Doctor #{id}, Dr. {doctor.last_name} {doctor.first_name}"
+    db.session.add(new_log)
+    db.session.commit()
+
+    flash("Doctor Account Deleted Successfully!", category="warning")
+    return redirect(url_for('manager.doctors'))
+
 
 
 # Patients

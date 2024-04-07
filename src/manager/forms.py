@@ -166,3 +166,10 @@ class UpdateDoctorForm(FlaskForm):
     )
 
     submit = SubmitField("Update Doctor")
+
+class DoctorPasswordForm(FlaskForm):
+    new_password = PasswordField(
+        "New Password", validators=[DataRequired(), EqualTo("confirm_password", "Password didn't match!")]
+    )
+    confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
+    submit = SubmitField("Change Password")
