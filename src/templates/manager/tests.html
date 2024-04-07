@@ -82,7 +82,9 @@
                     <span class="badge bg-success">{{ item.status }}</span>
                     {% endif %}
                 </td>
-                <td>10</td>
+                <td>
+                    {{ item.invoice_patient_id }}
+                </td>
                 <td>{{ item.invoice_date}}</td>
                 <td>{{ item.invoice_time }}</td>
                 <td class="text-end">

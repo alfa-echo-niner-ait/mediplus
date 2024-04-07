@@ -74,6 +74,7 @@ def tests():
             Medical_Test_Book.invoice_item_id,
             Medical_Test_Book.test_status,
             Invoice_Items.invoice_id,
+            Invoices.invoice_patient_id,
             Invoice_Items.item_desc,
             Invoices.status,
             Invoices.invoice_date,
