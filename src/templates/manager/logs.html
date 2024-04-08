@@ -92,13 +92,13 @@
                 </td>
                 <td>{{ log.username }}</td>
                 {% if log.role == 'Manager' %}
-                <td class="table-warning">{{ log.role }}</td>
+                <td class="table-danger">{{ log.role }}</td>
                 {% endif %}
                 {% if log.role == 'Patient' %}
-                <td class="table-info">{{ log.role }}</td>
+                <td class="table-warning">{{ log.role }}</td>
                 {% endif %}
                 {% if log.role == 'Doctor' %}
-                <td class="table-success">{{ log.role }}</td>
+                <td class="table-info">{{ log.role }}</td>
                 {% endif %}
                 <td>{{ log.log_date }}</td>
                 <td>{{ log.log_time }}</td>
