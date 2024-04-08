@@ -61,17 +61,20 @@
             </div>
         </div>
         <div class="col-md-6 text-end">
-            <a href="" class="btn btn-primary btn-sm">
+            <button data-bs-toggle="modal" data-bs-target="#doctorPasswordModal"
+                class="btn btn-primary btn-sm pop">
                 Change Password
-            </a>
+            </button>
             <br>
             <a href="{{ url_for('manager.update_doctor_profile', id=doctor.d_id) }}"
-                class="btn btn-info mt-2 btn-sm">
+                class="btn btn-info mt-2 btn-sm pop">
                 Update Profile
             </a>
         </div>
     </div>
 </div>
+
+{% include '/manager/modals/doctor_password_modal.html' %}
 
 <script>
     $(document).ready(function () {

@@ -604,7 +604,7 @@ def doctors():
 def view_doctor(id):
     if current_user.role != "Manager":
         abort(403)
-        
+
     password_form = DoctorPasswordForm()
     doctor = (
         Doctors.query.filter(Doctors.d_id == int(id))
@@ -628,6 +628,7 @@ def view_doctor(id):
         title=f"Dr. {doctor.last_name} {doctor.first_name}",
     )
 
+
 @manager.route("/dashboard/manager/doctors/<id>/update", methods=["GET"])
 @login_required
 def update_doctor_profile(id):
@@ -650,7 +651,7 @@ def update_doctor_profile(id):
         )
         .first_or_404()
     )
-    
+
     form = UpdateDoctorForm()
     if request.method == "GET":
         form.title.data = doctor.title
@@ -668,6 +669,7 @@ def update_doctor_profile(id):
         title=f"Update Dr. {doctor.last_name} {doctor.first_name}",
     )
 
+
 @manager.route("/dashboard/manager/doctors/<id>/update/profile", methods=["POST"])
 @login_required
 def update_doctor_profile_handler(id):
@@ -675,13 +677,16 @@ def update_doctor_profile_handler(id):
         abort(403)
 
     user: Users = Users.query.filter(Users.id == id).first_or_404()
-    doctor:Doctors = Doctors.query.filter(Doctors.d_id == id).first_or_404()
+    doctor: Doctors = Doctors.query.filter(Doctors.d_id == id).first_or_404()
 
     form = UpdateDoctorForm()
     if form.validate_on_submit():
         avatar = ""
         if form.avatar.data:
-            if doctor.avatar == "doctor_male.png" or doctor.avatar == "doctor_female.png":
+            if (
+                doctor.avatar == "doctor_male.png"
+                or doctor.avatar == "doctor_female.png"
+            ):
                 avatar = profile_picture_saver(form.avatar.data, "doctor")
             else:
                 # Remove the old picture from the file system
@@ -710,6 +715,39 @@ def update_doctor_profile_handler(id):
     else:
         flash("Profile Update Failed!", category="danger")
         return redirect(url_for("manager.update_doctor_profile", id=id))
+
+
+@manager.route("/dashboard/manager/doctors/<id>/update/password", methods=["POST"])
+@login_required
+def update_doctor_password_handler(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    password_form = DoctorPasswordForm()
+    if password_form.validate_on_submit():
+        user:Users = Users.query.filter(Users.id == int(id)).first_or_404()
+        if user.role != "Doctor":
+            abort(403)
+
+        password_hash = hash_manager.generate_password_hash(
+            password_form.new_password.data
+        ).decode("utf-8")
+
+        user.password_hash = password_hash
+
+        date, time = get_datetime()
+        new_log = User_Logs(current_user.id, "Update Doctor Password", date, time)
+        new_log.log_desc = f"Doctor #{id} @ {user.username}"
+        db.session.add(new_log)
+        
+        db.session.commit()
+        flash("Password Changed Successfully!", category="success")
+        return redirect(url_for("manager.view_doctor", id=id))
+    
+    else:
+        flash("Password Change Failed!", category="danger")
+        return redirect(url_for("manager.view_doctor", id=id))
+
 
 
 @manager.route("/dashboard/manager/doctors/register", methods=["GET", "POST"])
@@ -760,7 +798,7 @@ def register_doctor():
         new_log = User_Logs(current_user.id, "New Doctor Registration", date, time)
         new_log.log_desc = f"Registered New Doctor #{new_doctor.d_id} ({username}) by Manager #{current_user.id}"
         db.session.add(new_log)
-        
+
         db.session.commit()
 
         flash("New Doctor Registered Successfully!", category="success")
@@ -770,12 +808,13 @@ def register_doctor():
         "manager/register_doctor.html", form=form, title="Register New Doctors"
     )
 
+
 @manager.route("/dashboard/manager/doctors/<id>/delete")
 @login_required
 def delete_doctor(id):
     if current_user.role != "Manager":
         abort(403)
-    
+
     user = Users.query.filter(Users.id == int(id)).first_or_404()
     doctor = Doctors.query.filter(Doctors.d_id == int(id)).first_or_404()
     db.session.delete(user)
@@ -788,8 +827,7 @@ def delete_doctor(id):
     db.session.commit()
 
     flash("Doctor Account Deleted Successfully!", category="warning")
-    return redirect(url_for('manager.doctors'))
-
+    return redirect(url_for("manager.doctors"))
 
 
 # Patients
@@ -975,7 +1013,7 @@ def account():
         .order_by(User_Logs.log_id.desc())
         .paginate(page=page_num, per_page=10)
     )
-    
+
     if form.validate_on_submit():
         avatar = ""
         if form.avatar.data:
