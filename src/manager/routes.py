@@ -68,6 +68,7 @@ def tests():
             Invoice_Items,
             Invoice_Items.item_id == Medical_Test_Book.invoice_item_id,
         )
+        .order_by(Medical_Test_Book.serial_number.desc())
         .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
         .add_columns(
             Medical_Test_Book.serial_number,
@@ -747,7 +748,6 @@ def update_doctor_password_handler(id):
     else:
         flash("Password Change Failed!", category="danger")
         return redirect(url_for("manager.view_doctor", id=id))
-
 
 
 @manager.route("/dashboard/manager/doctors/register", methods=["GET", "POST"])
