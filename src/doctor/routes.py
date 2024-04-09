@@ -149,4 +149,11 @@ def logs():
     if current_user.role != "Doctor":
         abort(403)
 
-    return render_template("doctor/logs.html")
+    page_num = request.args.get("page", 1, int)
+    logs = (
+        User_Logs.query.filter_by(user_id=current_user.id)
+        .order_by(User_Logs.log_id.desc())
+        .paginate(page=page_num, per_page=12)
+    )
+    return render_template("doctor/logs.html", logs=logs, title="Activity Logs")
+
