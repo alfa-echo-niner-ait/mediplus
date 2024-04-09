@@ -20,15 +20,147 @@
                 </a>
             </li>
             <li class="breadcrumb-item active">
-                Profile
+                Edit Profile
             </li>
         </ol>
     </nav>
 </div>
 
+<form action="{{ url_for('doctor.update_profile_handler') }}" method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col-lg-2">
+                <img src="{{ url_for('static', filename='avatars/doctor/'~doctor.avatar) }}" class="img-thumbnail me-2"
+                    style="max-width: 200px;" alt="{{ doctor.last_name }}" />
+            </div>
+            <div class="col-lg-4 mt-auto">
+                {{ form.avatar.label(class='form-label fw-bold') }}
+                {{ form.avatar(class='form-control') }}
+                {% if form.avatar.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.avatar.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-6">
+                <div class="text-end mt-3">
+                    <a class="btn btn-warning fw-semibold" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                        Change Password?
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 col-md-8 col-lg-6">
+                <div class="h4 mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi"
+                        viewBox="0 0 16 16">
+                        <path
+                            d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
+                    </svg>
+                    Account Information
+                </div>
+                <hr>
+                <!-- Title -->
+                <div class="input-group mb-3">
+                    {{ form.title.label(class='input-group-text fw-bold') }}
+                    {{ form.title(class='form-control', placeholder='Enter Doctor Title') }}
+                    {% if form.first_name.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.title.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- First Name -->
+                <div class="input-group mb-3">
+                    {{ form.first_name.label(class='input-group-text fw-bold') }}
+                    {{ form.first_name(class='form-control', placeholder='Enter First Name') }}
+                    {% if form.first_name.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.first_name.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Last Name -->
+                <div class="input-group mb-3">
+                    {{ form.last_name.label(class='input-group-text fw-bold') }}
+                    {{ form.last_name(class='form-control', placeholder='Enter Last Name') }}
+                    {% if form.last_name.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.last_name.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Gender -->
+                <div class="input-group mb-3">
+                    {{ form.gender.label(class='input-group-text fw-bold') }}
+                    {{ form.gender(class='form-select') }}
+                    {% if form.gender.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.gender.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Birthdate -->
+                <div class="input-group mb-3">
+                    {{ form.birthdate.label(class='input-group-text fw-bold') }}
+                    {{ form.birthdate(class='form-control') }}
+                    {% if form.birthdate.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.birthdate.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Email -->
+                <div class="input-group mb-3">
+                    {{ form.email.label(class='input-group-text fw-bold') }}
+                    {{ form.email(class='form-control', placeholder='Enter Email Address') }}
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Phone -->
+                <div class="input-group mb-3">
+                    {{ form.phone.label(class='input-group-text fw-bold') }}
+                    {{ form.phone(class='form-control', placeholder='Enter Phone Number') }}
+                    {% if form.phone.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.phone.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Submit -->
+                {{ form.submit(class='btn btn-info w-100 mt-2 mb-5 py-2') }}
+            </div>
+        </div>
+    </div>
+</form>
+
+{% include '/doctor/modals/password_modal.html' %}
 <script>
     $(document).ready(function () {
-        $("#navProfile").removeClass("text-info");
+        $("#navAccount").removeClass("text-info");
+        $("#navAccount").addClass("active");
         $("#navProfile").addClass("active");
     });
 </script>
