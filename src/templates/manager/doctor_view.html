@@ -32,7 +32,7 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-6 text-start">
+        <div class="col-md-6 text-start mb-2">
             <img class="float-start rounded-circle border shadow me-3" height="140px" width="140px"
                 src="{{ url_for('static', filename='avatars/doctor/'~doctor.avatar) }}" />
             <div class="fs-6 fw-bold mt-3">
@@ -61,15 +61,18 @@
             </div>
         </div>
         <div class="col-md-6 text-end">
-            <button data-bs-toggle="modal" data-bs-target="#doctorPasswordModal"
-                class="btn btn-primary btn-sm pop">
-                Change Password
-            </button>
-            <br>
+            <a href="{{ url_for('manager.update_doctor_schedule', id=doctor.d_id) }}"
+                class="btn btn-dark btn-sm pop mb-2">
+                Update Schedule
+            </a>
             <a href="{{ url_for('manager.update_doctor_profile', id=doctor.d_id) }}"
-                class="btn btn-info mt-2 btn-sm pop">
+                class="btn btn-info btn-sm text-white pop mb-2">
                 Update Profile
             </a>
+            <button data-bs-toggle="modal" data-bs-target="#doctorPasswordModal"
+                class="btn btn-primary btn-sm pop mb-2">
+                Change Password
+            </button>
         </div>
     </div>
 </div>
@@ -82,4 +85,3 @@
     });
 </script>
 {% endblock content %}
-    

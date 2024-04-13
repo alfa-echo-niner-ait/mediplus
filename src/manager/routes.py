@@ -630,6 +630,36 @@ def view_doctor(id):
     )
 
 
+@manager.route("/dashboard/manager/doctors/<id>/update/schedule", methods=["GET"])
+@login_required
+def update_doctor_schedule(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    doctor = (
+        Doctors.query.filter(Doctors.d_id == int(id))
+        .join(Users, Doctors.d_id == Users.id)
+        .add_columns(
+            Users.gender,
+            Users.email,
+            Doctors.d_id,
+            Doctors.first_name,
+            Doctors.last_name,
+            Doctors.title,
+            Doctors.phone,
+            Doctors.birthdate,
+            Doctors.avatar,
+        )
+        .first_or_404()
+    )
+
+    return render_template(
+        "manager/doctor_update_schedule.html",
+        doctor=doctor,
+        title=f"Update Schedule of Dr. {doctor.last_name} {doctor.first_name}",
+    )
+
+
 @manager.route("/dashboard/manager/doctors/<id>/update", methods=["GET"])
 @login_required
 def update_doctor_profile(id):
