@@ -193,6 +193,13 @@ class Appointments(db.Model):
 
 
 class Appointment_Details(db.Model):
+    """
+    #### appt_status
+        - Booked
+        - Cancelled
+        - Done
+    """
+    
     __tablename__ = "appointment_details"
 
     appt_detail_id = db.Column(db.Integer, primary_key=True)
