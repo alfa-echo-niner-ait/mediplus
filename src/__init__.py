@@ -23,7 +23,6 @@ def create_app(config_class=Config):
     # Initiate app
     app = Flask(__name__)
     app.config.from_object(config_class)
-    app.secret_key = os.environ.get("MEDIPLUS_SECRET_KEY")
 
     CORS(app)
     QRcode(app)

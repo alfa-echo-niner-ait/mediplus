@@ -2,6 +2,7 @@ import os
 
 
 class Config:
+    SECRET_KEY = os.environ.get("MEDIPLUS_SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = os.environ.get("MYSQL_DATABASE_URI")
     SQLALCHEMY_CHARSET = "utf8mb4"
     SQLALCHEMY_COLLATION = "utf8mb4_0900_ai_ci"
