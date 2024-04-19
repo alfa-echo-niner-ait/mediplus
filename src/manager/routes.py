@@ -14,6 +14,7 @@ from flask import (
 )
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
+from src.doctor.models import Doctor_Time
 from src.patient.models import (
     Invoices,
     Invoice_Items,
@@ -22,6 +23,7 @@ from src.patient.models import (
     Medical_Test_Book,
     Medical_Report_Files,
 )
+from src.doctor.form import UpdateScheduleForm
 from .forms import (
     LogSortForm,
     ChangePasswordForm,
@@ -630,7 +632,9 @@ def view_doctor(id):
     )
 
 
-@manager.route("/dashboard/manager/doctors/<id>/update/schedule", methods=["GET"])
+@manager.route(
+    "/dashboard/manager/doctors/<id>/update/schedule", methods=["GET", "POST"]
+)
 @login_required
 def update_doctor_schedule(id):
     if current_user.role != "Manager":
@@ -652,10 +656,48 @@ def update_doctor_schedule(id):
         )
         .first_or_404()
     )
+    doctor_time: Doctor_Time = Doctor_Time.query.filter(
+        Doctor_Time.doctor_id == int(id)
+    ).first()
+    day_time_slot = doctor_time.day_time_slot
+
+    form = UpdateScheduleForm()
+    
+    if request.method == "GET" and day_time_slot:
+        # Convert string to int and set to form
+        form.days.data = [int(day) for day in day_time_slot.get("days", [])]
+        form.times.data = [int(time) for time in day_time_slot.get("times", [])]
+
+    elif form.validate_on_submit() and request.method == "POST":
+        if day_time_slot:
+            copy = dict(day_time_slot)
+            copy["days"] = form.days.data
+            copy["times"] = form.times.data
+
+            doctor_time.day_time_slot = copy
+            db.session.commit()
+        else:
+            days = form.days.data
+            times = form.times.data
+
+            new_day_time_slot = dict()
+            new_day_time_slot["days"] = days
+            new_day_time_slot["times"] = times
+
+            doctor_time.day_time_slot = new_day_time_slot
+            db.session.commit()
+
+        flash("Schedule Updated Successfully!", category="success")
+        return redirect(url_for("manager.update_doctor_schedule", id=doctor.d_id))
+
+    elif request.method == "POST":
+        flash("Empty field can't be accepted!", category="warning")
+        return redirect(url_for("manager.update_doctor_schedule", id=doctor.d_id))
 
     return render_template(
         "manager/doctor_update_schedule.html",
         doctor=doctor,
+        form=form,
         title=f"Update Schedule of Dr. {doctor.last_name} {doctor.first_name}",
     )
 
@@ -756,7 +798,7 @@ def update_doctor_password_handler(id):
 
     password_form = DoctorPasswordForm()
     if password_form.validate_on_submit():
-        user:Users = Users.query.filter(Users.id == int(id)).first_or_404()
+        user: Users = Users.query.filter(Users.id == int(id)).first_or_404()
         if user.role != "Doctor":
             abort(403)
 
@@ -770,11 +812,11 @@ def update_doctor_password_handler(id):
         new_log = User_Logs(current_user.id, "Update Doctor Password", date, time)
         new_log.log_desc = f"Doctor #{id} @ {user.username}"
         db.session.add(new_log)
-        
+
         db.session.commit()
         flash("Password Changed Successfully!", category="success")
         return redirect(url_for("manager.view_doctor", id=id))
-    
+
     else:
         flash("Password Change Failed!", category="danger")
         return redirect(url_for("manager.view_doctor", id=id))
@@ -816,6 +858,11 @@ def register_doctor():
             new_user.id, first_name, last_name, phone, birthday, title, avatar
         )
         db.session.add(new_doctor)
+        db.session.commit()
+
+        # Init new doctor time
+        doctor_time = Doctor_Time(new_doctor.d_id)
+        db.session.add(doctor_time)
         db.session.commit()
 
         # Create Log

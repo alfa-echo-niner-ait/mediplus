@@ -36,10 +36,51 @@
     </nav>
 </div>
 
-
-<script>
-    $(document).ready(function () {
-        $("#side_doctor").addClass("text-success-emphasis bg-success-subtle");
-    });
-</script>
+<div class="container">
+    <div class="border rounded p-3 mb-3">
+        <form action="{{ url_for('manager.update_doctor_schedule', id=doctor.d_id )}}" method="post">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.days.label(class='fs-5 fw-bold mb-3') }}
+                <div class="d-flex flex-wrap">
+                    {% for subfield in form.days %}
+                    <input type="checkbox" class="btn-check" id="{{ subfield.id }}"
+                        name="days" value="{{ subfield.data }}"
+                        {% if form.days.data and subfield.data in form.days.data %} checked {% endif %}>
+                    <label class="btn btn-outline-info me-3 mb-2" for="{{ subfield.id }}">{{ subfield.label }}</label>
+                    {% endfor %}
+                    {% if form.days.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.days.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mb-3">
+                {{ form.times.label(class='fs-5 fw-bold mb-3') }}
+                <div class="d-flex flex-wrap">
+                    {% for subfield in form.times %}
+                    <input type="checkbox" class="btn-check" id="{{ subfield.id }}"
+                        name="times" value="{{ subfield.data }}"
+                        {% if form.times.data and subfield.data in form.times.data %} checked {% endif %}>
+                    <label class="btn btn-outline-info me-3 mb-2" for="{{ subfield.id }}">{{ subfield.label }}</label>
+                    {% endfor %}
+                    {% if form.times.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.times.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Submit -->
+            <div class="text-center">
+                {{ form.submit(class='btn btn-success w-50 mt-2 mb-5 py-2') }}
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock content %}

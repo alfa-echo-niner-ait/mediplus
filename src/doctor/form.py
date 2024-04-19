@@ -8,6 +8,7 @@ from wtforms import (
     StringField,
     DecimalField,
     TextAreaField,
+    SelectMultipleField,
 )
 from wtforms.validators import DataRequired, EqualTo, Length
 from datetime import date
@@ -45,5 +46,52 @@ class ChangePasswordForm(FlaskForm):
         ],
     )
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
-    
+
     submit = SubmitField("Change Password")
+
+
+class UpdateScheduleForm(FlaskForm):
+    days = SelectMultipleField(
+        "Select Available Days",
+        validators=[DataRequired()],
+        choices=[
+            (6, "Saturday"),
+            (0, "Sunday"),
+            (1, "Monday"),
+            (2, "Tuesday"),
+            (3, "Wednesday"),
+            (4, "Thursday"),
+            (5, "Friday"),
+        ],
+    )
+    times = SelectMultipleField(
+        "Select Available Time Slot",
+        validators=[DataRequired()],
+        choices=[
+            (0, "00-01"),
+            (1, "01-02"),
+            (2, "02-03"),
+            (3, "03-04"),
+            (4, "04-05"),
+            (5, "05-06"),
+            (6, "06-07"),
+            (7, "07-08"),
+            (8, "08-09"),
+            (9, "09-10"),
+            (10, "10-11"),
+            (11, "11-12"),
+            (12, "12-13"),
+            (13, "13-14"),
+            (14, "14-15"),
+            (15, "15-16"),
+            (16, "16-17"),
+            (17, "17-18"),
+            (18, "18-19"),
+            (19, "19-20"),
+            (20, "20-21"),
+            (21, "21-22"),
+            (22, "22-23"),
+            (23, "23-00"),
+        ],
+    )
+    submit = SubmitField("Update Schedule")
