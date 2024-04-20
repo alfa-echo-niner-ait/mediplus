@@ -3,7 +3,8 @@ from src.public.utils import get_datetime, profile_picture_remover, profile_pict
 from flask import Blueprint, render_template, redirect, url_for, flash, abort, request
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Doctors
-from src.doctor.form import UpdateProfileForm, ChangePasswordForm
+from src.doctor.models import Doctor_Time
+from src.doctor.form import UpdateProfileForm, ChangePasswordForm, UpdateScheduleForm
 
 
 doctor = Blueprint("doctor", __name__)
@@ -109,6 +110,61 @@ def update_profile_handler():
         return redirect(url_for("doctor.profile"))
 
 
+@doctor.route("/dashboard/doctor/schedule", methods=["GET", "POST"])
+@login_required
+def update_schedule():
+    if current_user.role != "Doctor":
+        abort(403)
+        
+    doctor_time: Doctor_Time = Doctor_Time.query.filter(
+        Doctor_Time.doctor_id == current_user.id
+    ).first()
+    
+    day_time_slot = doctor_time.day_time_slot
+
+    form = UpdateScheduleForm()
+    
+    if request.method == "GET" and day_time_slot:
+        # Convert string to int and set to form
+        form.days.data = [int(day) for day in day_time_slot.get("days", [])]
+        form.times.data = [int(time) for time in day_time_slot.get("times", [])]
+
+    elif form.validate_on_submit() and request.method == "POST":
+        if day_time_slot:
+            copy = dict(day_time_slot)
+            copy["days"] = form.days.data
+            copy["times"] = form.times.data
+
+            doctor_time.day_time_slot = copy
+        else:
+            days = form.days.data
+            times = form.times.data
+
+            new_day_time_slot = dict()
+            new_day_time_slot["days"] = days
+            new_day_time_slot["times"] = times
+
+            doctor_time.day_time_slot = new_day_time_slot
+            
+        date, time = get_datetime()
+        new_log = User_Logs(current_user.id, "Update Schedule", date, time)
+        db.session.add(new_log)
+        db.session.commit()
+
+        flash("Schedule Updated Successfully!", category="success")
+        return redirect(url_for("doctor.update_schedule"))
+
+    elif request.method == "POST":
+        flash("Empty field can't be accepted!", category="warning")
+        return redirect(url_for("doctor.update_schedule"))
+        
+    return render_template(
+        "doctor/update_schedule.html",
+        form=form,
+        title="Update Schedule",
+    )
+        
+        
 @doctor.route("/dashboard/doctor/profile/update/password", methods=["POST"])
 @login_required
 def change_password_handler():

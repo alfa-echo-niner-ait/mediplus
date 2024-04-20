@@ -639,30 +639,15 @@ def view_doctor(id):
 def update_doctor_schedule(id):
     if current_user.role != "Manager":
         abort(403)
-
-    doctor = (
-        Doctors.query.filter(Doctors.d_id == int(id))
-        .join(Users, Doctors.d_id == Users.id)
-        .add_columns(
-            Users.gender,
-            Users.email,
-            Doctors.d_id,
-            Doctors.first_name,
-            Doctors.last_name,
-            Doctors.title,
-            Doctors.phone,
-            Doctors.birthdate,
-            Doctors.avatar,
-        )
-        .first_or_404()
-    )
+        
+    doctor: Doctors = Doctors.query.filter(Doctors.d_id == int(id)).first()
     doctor_time: Doctor_Time = Doctor_Time.query.filter(
         Doctor_Time.doctor_id == int(id)
     ).first()
     day_time_slot = doctor_time.day_time_slot
 
     form = UpdateScheduleForm()
-    
+
     if request.method == "GET" and day_time_slot:
         # Convert string to int and set to form
         form.days.data = [int(day) for day in day_time_slot.get("days", [])]
@@ -675,7 +660,6 @@ def update_doctor_schedule(id):
             copy["times"] = form.times.data
 
             doctor_time.day_time_slot = copy
-            db.session.commit()
         else:
             days = form.days.data
             times = form.times.data
@@ -685,20 +669,25 @@ def update_doctor_schedule(id):
             new_day_time_slot["times"] = times
 
             doctor_time.day_time_slot = new_day_time_slot
-            db.session.commit()
+
+        date, time = get_datetime()
+        new_log = User_Logs(current_user.id, "Update Doctor Schedule", date, time)
+        new_log.log_desc = f"Doctor #{id}: Dr. {doctor.last_name} {doctor.first_name}"
+        db.session.add(new_log)
+        db.session.commit()
 
         flash("Schedule Updated Successfully!", category="success")
-        return redirect(url_for("manager.update_doctor_schedule", id=doctor.d_id))
+        return redirect(url_for("manager.update_doctor_schedule", id=id))
 
     elif request.method == "POST":
         flash("Empty field can't be accepted!", category="warning")
-        return redirect(url_for("manager.update_doctor_schedule", id=doctor.d_id))
+        return redirect(url_for("manager.update_doctor_schedule", id=id))
 
     return render_template(
         "manager/doctor_update_schedule.html",
-        doctor=doctor,
         form=form,
-        title=f"Update Schedule of Dr. {doctor.last_name} {doctor.first_name}",
+        doctor=doctor,
+        title=f"Update Schedule Dr. {doctor.last_name} {doctor.first_name}",
     )
 
 

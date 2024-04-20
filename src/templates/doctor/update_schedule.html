@@ -1,0 +1,83 @@
+{% extends 'layout/layout_doctor.html' %}
+
+
+{% block content %}
+<div class="container mt-2">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                Update Schedule
+            </li>
+        </ol>
+    </nav>
+</div>
+<div class="container">
+    <div class="border rounded p-3 mb-3">
+        <form action="{{ url_for('doctor.update_schedule')}}" method="post">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.days.label(class='fs-5 fw-bold mb-3') }}
+                <div class="d-flex flex-wrap">
+                    {% for subfield in form.days %}
+                    <input type="checkbox" class="btn-check" id="{{ subfield.id }}" name="days"
+                        value="{{ subfield.data }}" {% if form.days.data and subfield.data in form.days.data %} checked
+                        {% endif %}>
+                    <label class="btn btn-outline-info me-3 mb-2" for="{{ subfield.id }}">{{ subfield.label }}</label>
+                    {% endfor %}
+                    {% if form.days.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.days.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mb-3">
+                {{ form.times.label(class='fs-5 fw-bold mb-3') }}
+                <div class="d-flex flex-wrap">
+                    {% for subfield in form.times %}
+                    <input type="checkbox" class="btn-check" id="{{ subfield.id }}" name="times"
+                        value="{{ subfield.data }}" {% if form.times.data and subfield.data in form.times.data %}
+                        checked {% endif %}>
+                    <label class="btn btn-outline-info me-3 mb-2" for="{{ subfield.id }}">{{ subfield.label }}</label>
+                    {% endfor %}
+                    {% if form.times.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.times.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Submit -->
+            <div class="text-center">
+                {{ form.submit(class='btn btn-secondary w-50 mt-2 py-2') }}
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#navAccount").removeClass("text-info");
+        $("#navAccount").addClass("active");
+        $("#navSchedule").addClass("active");
+    });
+</script>
+{% endblock content %}
