@@ -612,6 +612,7 @@ def view_doctor(id):
     doctor = (
         Doctors.query.filter(Doctors.d_id == int(id))
         .join(Users, Doctors.d_id == Users.id)
+        .join(Doctor_Time, Doctors.d_id == Doctor_Time.doctor_id)
         .add_columns(
             Users.gender,
             Doctors.d_id,
@@ -620,6 +621,7 @@ def view_doctor(id):
             Doctors.title,
             Doctors.phone,
             Doctors.avatar,
+            Doctor_Time.appt_status,
         )
         .first_or_404()
     )
@@ -631,6 +633,27 @@ def view_doctor(id):
         title=f"Dr. {doctor.last_name} {doctor.first_name}",
     )
 
+@manager.route("/dashboard/manager/doctors/<id>/change_status")
+@login_required
+def change_appt_status(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    doctor_time: Doctor_Time = Doctor_Time.query.filter(Doctor_Time.doctor_id == int(id)).first_or_404()
+    if doctor_time.appt_status == "Available":
+        doctor_time.appt_status = "Unavailable"
+    else:
+        doctor_time.appt_status = "Available"
+
+    date, time = get_datetime()
+    new_log = User_Logs(current_user.id, "Change Doctor Status", date, time)
+    new_log.log_desc = f"Doctor #{id}"
+    db.session.add(new_log)
+    db.session.commit()
+
+    flash("Status Changed Successfully!", category="success")
+    return redirect(url_for("manager.view_doctor", id=id))
+
 
 @manager.route(
     "/dashboard/manager/doctors/<id>/update/schedule", methods=["GET", "POST"]
@@ -639,7 +662,7 @@ def view_doctor(id):
 def update_doctor_schedule(id):
     if current_user.role != "Manager":
         abort(403)
-        
+
     doctor: Doctors = Doctors.query.filter(Doctors.d_id == int(id)).first()
     doctor_time: Doctor_Time = Doctor_Time.query.filter(
         Doctor_Time.doctor_id == int(id)
@@ -651,7 +674,7 @@ def update_doctor_schedule(id):
     if request.method == "GET" and day_time_slot:
         # Convert string to int and set to form
         form.days.data = [int(day) for day in day_time_slot.get("days", [])]
-        form.times.data = [int(time) for time in day_time_slot.get("times", [])]
+        form.times.data = day_time_slot["times"]
 
     elif form.validate_on_submit() and request.method == "POST":
         if day_time_slot:

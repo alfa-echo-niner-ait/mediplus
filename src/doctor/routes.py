@@ -127,7 +127,7 @@ def update_schedule():
     if request.method == "GET" and day_time_slot:
         # Convert string to int and set to form
         form.days.data = [int(day) for day in day_time_slot.get("days", [])]
-        form.times.data = [int(time) for time in day_time_slot.get("times", [])]
+        form.times.data = day_time_slot["times"]
 
     elif form.validate_on_submit() and request.method == "POST":
         if day_time_slot:

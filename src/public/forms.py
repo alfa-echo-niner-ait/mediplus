@@ -7,8 +7,9 @@ from wtforms import (
     BooleanField,
     SubmitField,
     DateField,
+    SelectMultipleField,
 )
-from wtforms.validators import DataRequired, Length, ValidationError, EqualTo
+from wtforms.validators import DataRequired, Length, ValidationError, ReadOnly, EqualTo
 from datetime import date
 
 
@@ -68,6 +69,41 @@ class SearchTestForm(FlaskForm):
     keyword = StringField("Test Name", validators=[DataRequired()])
     submit = SubmitField("Search")
 
+
 class SearchDoctorForm(FlaskForm):
     keyword = StringField("Doctor Name/Speciality", validators=[DataRequired()])
     submit = SubmitField("Search")
+
+
+class AppointmentForm(FlaskForm):
+    appt_date = DateField("Appointment Date", validators=[ReadOnly()])
+    times = SelectMultipleField(
+        "Select Time Slot",
+        choices=[
+            ("00-01", "00-01"),
+            ("01-02", "01-02"),
+            ("02-03", "02-03"),
+            ("03-04", "03-04"),
+            ("04-05", "04-05"),
+            ("05-06", "05-06"),
+            ("06-07", "06-07"),
+            ("07-08", "07-08"),
+            ("08-09", "08-09"),
+            ("09-10", "09-10"),
+            ("10-11", "10-11"),
+            ("11-12", "11-12"),
+            ("12-13", "12-13"),
+            ("13-14", "13-14"),
+            ("14-15", "14-15"),
+            ("15-16", "15-16"),
+            ("16-17", "16-17"),
+            ("17-18", "17-18"),
+            ("18-19", "18-19"),
+            ("19-20", "19-20"),
+            ("20-21", "20-21"),
+            ("21-22", "21-22"),
+            ("22-23", "22-23"),
+            ("23-00", "23-00"),
+        ],
+    )
+    submit = SubmitField("Book Appointment")

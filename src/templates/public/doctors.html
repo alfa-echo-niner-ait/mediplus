@@ -82,8 +82,12 @@
                     <div class="fs-6 text-secondary">
                         {{ doc.title }}
                     </div>
-                    <div class="card-text text-success mt-2 mb-2">
-                        Mon-Fri, 9.00-5.00
+                    <div class="card-text mt-2 mb-2">
+                        {% if doc.appt_status == "Available" %}
+                        <span class="badge rounded-pill text-bg-success">{{ doc.appt_status }}</span>
+                        {% else %}
+                        <span class="badge rounded-pill text-bg-danger">{{ doc.appt_status }}</span>
+                        {% endif %}
                     </div>
                     <a href="{{ url_for('public.view_doctor', id=doc.d_id) }}"
                         class="btn btn-mint flex-end pop">

@@ -56,6 +56,12 @@
             <div class="fs-6 text-secondary">
                 {{ doctor.title }}
             </div>
+            {% if doctor.appt_status == "Available" %}
+            <span class="badge rounded-pill text-bg-success">{{ doctor.appt_status }}</span>
+            {% else %}
+            <span class="badge rounded-pill text-bg-danger">{{ doctor.appt_status }}</span>
+            {% endif %}
+            <a href="{{ url_for('manager.change_appt_status', id=doctor.d_id) }}" class="text-decoration-none">(Change)</a>
             <div class="fs-6">
                 {{ doctor.phone }}
             </div>

@@ -1,7 +1,10 @@
 {% extends 'layout/layout_public.html' %}
 
-
 {% block content %}
+<!-- CSS -->
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/jquery-ui.min.css')}}">
+<!-- JS -->
+<script type="text/javascript" src="{{url_for('static', filename='js/jquery-ui.min.js') }}"></script>
 <div class="container mt-2">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
@@ -47,6 +50,82 @@
         <div class="fs-5 fw-light text-secondary">
             {{ doctor.title }}
         </div>
+        {% if doctor.appt_status == "Available" %}
+        <span class="badge rounded-pill text-bg-success">{{ doctor.appt_status }}</span>
+        {% else %}
+        <span class="badge rounded-pill text-bg-danger">{{ doctor.appt_status }}</span>
+        {% endif %}
     </div>
 </div>
+
+<div class="container mt-3 mb-3">
+    <div class="border rounded p-3 mb-3">
+        <form action="{{ url_for('public.book_appointment', doctor_id=doctor.d_id)}}" method="post">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.appt_date.label(class='fs-5 fw-bold mb-3') }}
+                {{ form.appt_date(class="form-control date") }}
+                {% if form.appt_date.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.appt_date.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                {{ form.times.label(class='fs-5 fw-bold mb-3') }}
+                <div class="d-flex flex-wrap">
+                    {% for subfield in form.times %}
+                        {% if form.times.data and subfield.data in form.times.data %}
+                        <input type="radio" class="btn-check" id="{{ subfield.id }}" name="times"
+                            value="{{ subfield.data }}">
+                        <label class="btn btn-outline-info me-3 mb-2" for="{{ subfield.id }}">{{ subfield.label }}</label>
+                        {% endif %}
+                    {% endfor %}
+                    {% if form.times.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.times.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Submit -->
+            <div class="text-center">
+                {{ form.submit(class='btn btn-secondary w-50 mt-2 py-2') }}
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(function () {
+            // Array of allowed days (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+            var allowedDays = "{{days}}";
+            function isAllowedDay(date) {
+                var dayOfWeek = date.getDay();
+                return allowedDays.indexOf(dayOfWeek) !== -1;
+            }
+            $("#appt_date").datepicker({
+                beforeShowDay: function (date) {
+                    var day = date.getDay();
+                    return [allowedDays.indexOf(day) !== -1, ''];
+                },
+                minDate: 0, // Disallow past dates
+                dateFormat: 'yy-mm-dd',
+                autoclose: true,
+                onSelect: function (dateText, inst) {
+                    var selectedDate = $(this).datepicker('getDate');
+                    if (!isAllowedDay(selectedDate)) {
+                        alert('Please select a valid day');
+                        $(this).val(''); // Clear the input field
+                    }
+                }
+            });
+        });
+    });
+</script>
 {% endblock content %}

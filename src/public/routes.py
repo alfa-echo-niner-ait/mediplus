@@ -3,16 +3,33 @@ from flask import (
     render_template,
     redirect,
     url_for,
-    current_app,
     flash,
     request,
     session,
 )
 from flask_login import current_user, login_user, login_required, logout_user
-from .forms import LoginForm, RegisterForm, ResetRequestForm, ResetPasswordForm, SearchTestForm, SearchDoctorForm
-from .utils import get_datetime
+from src.public.forms import (
+    LoginForm,
+    RegisterForm,
+    ResetRequestForm,
+    ResetPasswordForm,
+    SearchTestForm,
+    SearchDoctorForm,
+    AppointmentForm,
+)
+from src.public.utils import get_datetime
 from src.users.models import Users, Patients, User_Logs, Managers, Doctors
-from src.patient.models import Medical_Info, Invoices, Invoice_Items, Payments, Medical_Tests, Pending_Items
+from src.doctor.models import Doctor_Time
+from src.patient.models import (
+    Medical_Info,
+    Invoices,
+    Invoice_Items,
+    Payments,
+    Medical_Tests,
+    Pending_Items,
+    Appointments,
+    Appointment_Details,
+)
 from src.users.utils import reset_mail_sender
 from src import db, token_manager, hash_manager
 
@@ -303,12 +320,15 @@ def doctors():
 
     doctors = Doctors.query.join(
         Users, Doctors.d_id == Users.id
-    ).add_columns(
+    ).join(
+        Doctor_Time, Doctors.d_id == Doctor_Time.doctor_id
+        ).add_columns(
         Users.gender,
         Doctors.d_id,
         Doctors.first_name,
         Doctors.last_name,
-        Doctors.title, Doctors.avatar
+        Doctors.title, Doctors.avatar,
+        Doctor_Time.appt_status,
     ).paginate(page=page_num, per_page=12)
 
     if form.validate_on_submit():
@@ -339,13 +359,53 @@ def doctors():
 @login_required
 def view_doctor(id):
     doctor = Doctors.query.filter(Doctors.d_id == int(id)).join(
-        Users, Doctors.d_id == Users.id).add_columns(
+        Users, Doctors.d_id == Users.id).join(Doctor_Time, Doctors.d_id == Doctor_Time.doctor_id).add_columns(
             Users.gender,
             Doctors.d_id,
             Doctors.first_name,
             Doctors.last_name,
             Doctors.title,
             Doctors.avatar,
+            Doctor_Time.appt_status,
+            Doctor_Time.day_time_slot,
     ).first_or_404()
+    
+    days = [int(time) for time in doctor.day_time_slot.get("days", [])]
+    form = AppointmentForm()
+    if request.method == "GET" and doctor.day_time_slot:
+        form.times.data = doctor.day_time_slot["times"]
 
-    return render_template('public/doctor_details.html', doctor=doctor, title=f"Dr. {doctor.last_name} {doctor.first_name}")
+    return render_template(
+        'public/doctor_details.html',
+        doctor=doctor,
+        form=form,
+        days=days,
+        title=f"Dr. {doctor.last_name} {doctor.first_name}"
+        )
+    
+@public.route('/doctors/<doctor_id>/book_appt', methods=["POST"])
+@login_required
+def book_appointment(doctor_id):
+    form = AppointmentForm()
+    if request.method == "POST":
+        if form.appt_date.data and form.times.data:
+            new_appt: Appointments = Appointments(int(doctor_id), current_user.id)
+            db.session.add(new_appt)
+            db.session.commit()
+            
+            new_appt_details: Appointment_Details = Appointment_Details(new_appt.appt_id, "Booked", form.appt_date.data, form.times.data[0])
+            db.session.add(new_appt_details)
+            db.session.commit()
+            
+            date, time = get_datetime()
+            new_log: User_Logs = User_Logs(current_user.id, "New Appointment", date, time)
+            new_log.log_desc = f"Appointment #{new_appt.appt_id}, Detail #{new_appt_details.appt_detail_id}, Doctor #{doctor_id}"
+            db.session.add(new_log)
+            db.session.commit()
+
+            flash("Booking Appointment Successfull!", category="success")
+            return redirect(url_for('public.view_doctor', id=doctor_id))
+
+        else:
+            flash("Booking Appointment Failed!", category="danger")
+            return redirect(url_for('public.view_doctor', id=doctor_id))
