@@ -36,20 +36,12 @@
             <div class="fs-5">
                 {{ user.last_name}} {{ user.first_name}}
                 {% if user.gender == "Male" %}
-                <span class="badge text-bg-info">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi"
-                        viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                            d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8" />
-                    </svg>
+                <span class="badge bg-info-subtle text-info-emphasis rounded-pill">
+                    <i class="bi bi-gender-male"></i>
                 </span>
                 {% else %}
-                <span class="badge text-bg-warning">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi"
-                        viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                            d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5" />
-                    </svg>
+                <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill">
+                    <i class="bi bi-gender-female"></i>
                 </span>
                 {% endif %}
             </div>
@@ -61,10 +53,7 @@
         <div class="col-md-5 mb-2 ms-auto">
             <div class="me-1">
                 <div class="fs-5 fw-bold">
-                    <svg width="20" height="20" fill="currentColor" class="bi" viewBox="0 0 16 16">
-                        <path
-                            d="M3 2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zm6 11a1 1 0 1 0-2 0 1 1 0 0 0 2 0" />
-                    </svg>
+                    <i class="bi bi-phone-fill"></i>
                     Current Device
                 </div>
                 <div class="fs-5">IP: <span class="text-secondary">{{ ip }}</span></div>

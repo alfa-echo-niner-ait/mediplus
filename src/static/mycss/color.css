@@ -37,11 +37,6 @@
     overflow-y: auto;
 }
 
-.bi {
-    vertical-align: -.125em;
-    fill: currentColor;
-}
-
 .feature-icon {
     width: 4rem;
     height: 4rem;

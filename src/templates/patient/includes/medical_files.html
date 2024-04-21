@@ -1,33 +1,18 @@
 <div class="col-sm-12 col-md-12 col-lg-7 border rounded mb-3">
     <div class="h4 mb-3 mt-3">
-        <svg width="22" height="22" fill="currentColor"
-            class="bi" viewBox="0 0 16 16">
-            <path
-                d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1m-3 2v.634l.549-.317a.5.5 0 1 1 .5.866L7 7l.549.317a.5.5 0 1 1-.5.866L6.5 7.866V8.5a.5.5 0 0 1-1 0v-.634l-.549.317a.5.5 0 1 1-.5-.866L5 7l-.549-.317a.5.5 0 0 1 .5-.866l.549.317V5.5a.5.5 0 1 1 1 0m-2 4.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1m0 2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1" />
-        </svg>
-        Medical Record Documents
+        <i class="bi bi-file-earmark-medical-fill"></i> Medical Record Documents
     </div>
     <hr>
     <div class="text-end mt-2">
         <button class="btn btn-info text-white fw-bold" data-bs-toggle="modal" data-bs-target="#uploadModal">
-            <svg width="18" height="18" fill="currentColor" class="bi"
-                viewBox="0 0 16 16">
-                <path
-                    d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m.5 4v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 1 0" />
-            </svg>
-            Upload Record File
+            <i class="bi bi-cloud-plus-fill"></i> Upload Record File
         </button>
     </div>
     
     {% include '/patient/modals/upload_record_modal.html' %}
     
     <div class="fs-4 mb-3">
-        <svg width="18" height="18" fill="currentColor" class="bi"
-            viewBox="0 0 16 16">
-            <path fill-rule="evenodd"
-                d="M8 0a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 4.095 0 5.555 0 7.318 0 9.366 1.708 11 3.781 11H7.5V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11h4.188C14.502 11 16 9.57 16 7.773c0-1.636-1.242-2.969-2.834-3.194C12.923 1.999 10.69 0 8 0m-.5 14.5V11h1v3.5a.5.5 0 0 1-1 0" />
-        </svg>
-        Upload History
+        <i class="bi bi-cloud-upload-fill"></i> Upload History
     </div>
     
     {% if files.total != 0 %}
@@ -40,31 +25,17 @@
             <td class="text-end">
                 <!-- View -->
                 <a href="{{ url_for('patient.view_record_file', id=file.file_id)}}" class="btn btn-sm btn-secondary fw-light">
-                    <svg width="16" height="16" fill="currentColor" class="bi"
-                        viewBox="0 0 16 16">
-                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
-                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
-                    </svg>
+                    <i class="bi bi-eye-fill"></i>
                 </a>
                 <!-- Download -->
                 <a href="{{ url_for('patient.download_record_file', file_id=file.file_id) }}"
                     class="btn btn-sm btn-success fw-light">
-                    <svg width="16" height="16" fill="currentColor" class="bi"
-                        viewBox="0 0 16 16">
-                        <path
-                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-                        <path
-                            d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
-                    </svg>
+                    <i class="bi bi-download"></i>
                 </a>
                 <a href="{{ url_for('patient.delete_record_file', id=file.file_id)}}"
                     class="btn btn-sm btn-danger fw-light"
                     onclick="return confirm('Delete file: {{ file.file_name }}?')">
-                    <svg width="16" height="16" fill="currentColor" class="bi"
-                        viewBox="0 0 16 16">
-                        <path
-                            d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
-                    </svg>
+                    <i class="bi bi-trash3-fill"></i>
                 </a>
             </td>
         </tr>
