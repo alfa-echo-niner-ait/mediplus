@@ -22,9 +22,11 @@ from src.patient.models import (
     Medical_Tests,
     Medical_Test_Book,
     Medical_Report_Files,
+    Appointments,
+    Appointment_Details,
 )
 from src.doctor.form import UpdateScheduleForm
-from .forms import (
+from src.manager.forms import (
     LogSortForm,
     ChangePasswordForm,
     SelfProfileForm,
@@ -56,8 +58,35 @@ def dashboard():
 
 @manager.route("/dashboard/appointments")
 @login_required
-def appointemnts():
-    return render_template("manager/appointments.html", title="Appointments Management")
+def appointments():
+    if current_user.role != "Manager":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    appointments = (
+        Appointments.query.join(
+            Appointment_Details, Appointments.appt_id == Appointment_Details.appt_id
+        )
+        .join(Doctors, Appointments.appt_doctor_id == Doctors.d_id)
+        .join(Patients, Appointments.appt_patient_id == Patients.p_id)
+        .order_by(Appointments.appt_id.desc())
+        .add_columns(
+            Appointments.appt_id,
+            Appointment_Details.appt_status,
+            Appointment_Details.appt_date,
+            Appointment_Details.appt_time,
+            Doctors.last_name,
+            Doctors.first_name,
+            Patients.p_id,
+        ).paginate(page=page_num, per_page=15)
+    )
+
+    return render_template(
+        "manager/appointments.html",
+        appointments=appointments,
+        title="Appointments Management",
+    )
 
 
 @manager.route("/dashboard/manager/tests", methods=["GET", "POST"])
@@ -633,13 +662,16 @@ def view_doctor(id):
         title=f"Dr. {doctor.last_name} {doctor.first_name}",
     )
 
+
 @manager.route("/dashboard/manager/doctors/<id>/change_status")
 @login_required
 def change_appt_status(id):
     if current_user.role != "Manager":
         abort(403)
 
-    doctor_time: Doctor_Time = Doctor_Time.query.filter(Doctor_Time.doctor_id == int(id)).first_or_404()
+    doctor_time: Doctor_Time = Doctor_Time.query.filter(
+        Doctor_Time.doctor_id == int(id)
+    ).first_or_404()
     if doctor_time.appt_status == "Available":
         doctor_time.appt_status = "Unavailable"
     else:

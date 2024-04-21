@@ -1,0 +1,113 @@
+{% extends 'layout/layout_doctor.html' %}
+
+{% block content %}
+<div class="container mt-2">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                Appointments
+            </li>
+        </ol>
+    </nav>
+</div>
+<div class="container">
+    <div class="my-3 p-3 bg-body rounded shadow-sm">
+        <h4 class="border-bottom pb-2 mb-0">Appointments List</h4>
+        {% for appt in appointments %}
+        <div class="d-flex text-muted pt-3">
+            <img src="{{ url_for('static', filename='avatars/patient/'~appt.avatar) }}" alt="{{ appt.last_name }}"
+                width="70" height="70" class="rounded-circle flex-shrink-0 me-2 mt-3">
+            <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                <div class="d-flex justify-content-between">
+                    <strong class="fs-6 mt-2 text-gray-dark">
+                        {{ appt.last_name }} {{ appt.first_name }}
+                        {% if appt.gender == "Male" %}
+                        <span class="badge text-bg-info">
+                            <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8" />
+                            </svg>
+                        </span>
+                        {% else %}
+                        <span class="badge text-bg-warning">
+                            <svg width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5" />
+                            </svg>
+                        </span>
+                        {% endif %}
+                    </strong>
+                    <div class="fw-bold">
+                        <div class="fs-6 mb-1">#{{ appt.appt_id }}</div>
+                        {% if appt.appt_status == "Completed" %}
+                        <span class="badge bg-success">{{ appt.appt_status }}</span>
+                        {% elif appt.appt_status == "Booked" %}
+                        <span class="badge bg-info">{{ appt.appt_status }}</span>
+                        {% elif appt.appt_status == "Cancelled" %}
+                        <span class="badge bg-danger">{{ appt.appt_status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="fs-6">Phone: {{ appt.phone }}</div>
+                <div class="fs-6">Birthdate: {{ appt.birthdate }}</div>
+                <div class="fs-6 d-block mb-3">Date: {{ appt.appt_date }} <b>({{ appt.appt_time }})</b></div>
+
+                <a href="{{ url_for('doctor.appointment_view', appt_id=appt.appt_id) }}"
+                    class="btn btn-sm btn-info rounded me-2">
+                    Details
+                </a>
+                {% if appt.appt_status == "Booked" %}
+                <a href="{{ url_for('doctor.cancel_appointment', appt_id=appt.appt_id) }}"
+                    onclick="return confirm('Cancel Appointment #{{ appt.appt_id }}?')"
+                    class="btn btn-sm btn-danger rounded">
+                    Cancel
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        <!-- Pagination -->
+        <small class="d-block text-end mt-3">
+            {% for page_num in appointments.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+            {% if appointments.page == page_num %}
+            <a class="btn btn-sm btn-primary m-2 pop" href="{{ url_for('doctor.appointments', page=page_num) }}" id="pg_link{{ page_num }}">
+                {{ page_num }}
+            </a>
+            {% else %}
+            <a class="btn btn-sm btn-primary-info m-2 pop" href="{{ url_for('doctor.appointments', page=page_num) }}"
+                id="pg_link{{ page_num }}">
+                {{ page_num }}
+            </a>
+            {% endif %}
+            {% else %}
+            <button class="btn btn-sm btn-outline-secondary m-2" disabled>
+                ...
+            </button>
+            {% endif %}
+            {% endfor %}
+        </small>
+    </div>
+</div>
+<!-- JS -->
+<script>
+    $(document).ready(function () {
+        $("#navAppt").removeClass("text-info");
+        $("#navAppt").addClass("active");
+    });
+</script>
+{% endblock content %}
