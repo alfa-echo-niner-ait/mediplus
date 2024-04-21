@@ -2,65 +2,95 @@
 
 
 {% block content %}
-<div class="container px-4">
-    <h2 class="pb-2 border-bottom">Our Services</h2>
-    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
-
-        <div class="feature col" id="feature_1" style="display: none;">
-            <div
-                class="feature-icon d-inline-flex align-items-center justify-content-center bg-lightmint bg-gradient fs-2 mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
-                    class="bi bi-prescription" viewBox="0 0 16 16">
-                    <path
-                        d="M5.5 6a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 1 0V9h.293l2 2-1.147 1.146a.5.5 0 0 0 .708.708L9 11.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 11l1.147-1.146a.5.5 0 0 0-.708-.708L9 10.293 7.695 8.987A1.5 1.5 0 0 0 7.5 6zM6 7h1.5a.5.5 0 0 1 0 1H6z" />
-                    <path
-                        d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v10.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 14.5V4a1 1 0 0 1-1-1zm2 3v10.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V4zM3 3h10V1H3z" />
-                </svg>
+<div class="container px-3 py-3">
+    <h2 class="pb-2 border-bottom">Welcome to MediPlus!</h2>
+    <div class="row row-cols-1 row-cols-md-2 align-items-md-center g-5 py-3">
+        <div class="col d-flex flex-column align-items-start gap-2">
+            <h2 class="fw-bold text-body-emphasis">
+                One-stop Solution for Digital Hospital
+            </h2>
+            <p class="text-body-secondary">
+                A digital medical web application, convenient for patients, doctors and hospital managers.
+                Enjoy hospital services from anywhere/anytime with your phone or desktop devices.
+            </p>
+            <div class="mt-1">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('public.dashboard') }}" class="btn btn-mint btn-lg pop">
+                    Go to Dashboard
+                </a>
+                {% else %}
+                <a href="{{ url_for('public.login') }}" class="btn btn-secondary btn-lg bg-gradient rounded pop mt-2">
+                    Login to Continue
+                </a>
+                <a href="{{ url_for('public.register') }}" class="btn btn-success btn-lg bg-gradient rounded pop mt-2">
+                    Create New Account
+                </a>
+                {% endif %}
             </div>
-            <h3 class="fs-2 text-body-emphasis">Appointment</h3>
-            <p>Paragraph of text beneath the heading to explain the heading. We'll add onto it with another sentence and
-                probably just keep going until we run out of words.</p>
-            <a href="{{ url_for('public.doctors') }}" class="btn btn-success" id="fbtn">
-                Doctor Lists
-            </a>
         </div>
 
-        <div class="feature col" id="feature_2" style="display: none;">
-            <div
-                class="feature-icon d-inline-flex align-items-center justify-content-center bg-lightmint bg-gradient fs-2 mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" class="bi" viewBox="0 0 16 16">
-                    <path
-                        d="M9.5 0a.5.5 0 0 1 .5.5.5.5 0 0 0 .5.5.5.5 0 0 1 .5.5V2a.5.5 0 0 1-.5.5h-5A.5.5 0 0 1 5 2v-.5a.5.5 0 0 1 .5-.5.5.5 0 0 0 .5-.5.5.5 0 0 1 .5-.5z" />
-                    <path
-                        d="M3 2.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 0 0-1h-.5A1.5 1.5 0 0 0 2 2.5v12A1.5 1.5 0 0 0 3.5 16h9a1.5 1.5 0 0 0 1.5-1.5v-12A1.5 1.5 0 0 0 12.5 1H12a.5.5 0 0 0 0 1h.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5z" />
-                    <path
-                        d="M9.979 5.356a.5.5 0 0 0-.968.04L7.92 10.49l-.94-3.135a.5.5 0 0 0-.926-.08L4.69 10H4.5a.5.5 0 0 0 0 1H5a.5.5 0 0 0 .447-.276l.936-1.873 1.138 3.793a.5.5 0 0 0 .968-.04L9.58 7.51l.94 3.135A.5.5 0 0 0 11 11h.5a.5.5 0 0 0 0-1h-.128z" />
-                </svg>
+        <div class="col">
+            <div class="row row-cols-1 g-2">
+                <div class="col d-flex flex-column gap-2">
+                    <div
+                        class="feature-icon d-inline-flex align-items-center justify-content-center bg-lightmint bg-gradient fs-4 rounded-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor"
+                            class="bi bi-prescription" viewBox="0 0 16 16">
+                            <path
+                                d="M5.5 6a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 1 0V9h.293l2 2-1.147 1.146a.5.5 0 0 0 .708.708L9 11.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 11l1.147-1.146a.5.5 0 0 0-.708-.708L9 10.293 7.695 8.987A1.5 1.5 0 0 0 7.5 6zM6 7h1.5a.5.5 0 0 1 0 1H6z" />
+                            <path
+                                d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v10.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 14.5V4a1 1 0 0 1-1-1zm2 3v10.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V4zM3 3h10V1H3z" />
+                        </svg>
+                    </div>
+                    <h4 class="fw-semibold mb-0 text-body-emphasis">Doctor Appointment</h4>
+                    <p class="text-body-secondary">
+                        Patients have the flexibility to choose from a list of available doctors based on their
+                        specialization, availability and tratment history. They can also view detailed profiles of each
+                        doctor, including qualifications, experience, and patient
+                        reviews, to make informed decisions.
+                        <br>
+                        <a href="{{ url_for('public.doctors') }}" class="icon-link fs-6 fw-bold mt-1 pop">
+                            View Doctors List
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-chevron-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                            </svg>
+                        </a>
+                    </p>
+                </div>
+                <div class="col d-flex flex-column gap-2">
+                    <div
+                        class="feature-icon d-inline-flex align-items-center justify-content-center bg-lightmint bg-gradient fs-4 rounded-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" class="bi"
+                            viewBox="0 0 16 16">
+                            <path
+                                d="M9.5 0a.5.5 0 0 1 .5.5.5.5 0 0 0 .5.5.5.5 0 0 1 .5.5V2a.5.5 0 0 1-.5.5h-5A.5.5 0 0 1 5 2v-.5a.5.5 0 0 1 .5-.5.5.5 0 0 0 .5-.5.5.5 0 0 1 .5-.5z" />
+                            <path
+                                d="M3 2.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 0 0-1h-.5A1.5 1.5 0 0 0 2 2.5v12A1.5 1.5 0 0 0 3.5 16h9a1.5 1.5 0 0 0 1.5-1.5v-12A1.5 1.5 0 0 0 12.5 1H12a.5.5 0 0 0 0 1h.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5z" />
+                            <path
+                                d="M9.979 5.356a.5.5 0 0 0-.968.04L7.92 10.49l-.94-3.135a.5.5 0 0 0-.926-.08L4.69 10H4.5a.5.5 0 0 0 0 1H5a.5.5 0 0 0 .447-.276l.936-1.873 1.138 3.793a.5.5 0 0 0 .968-.04L9.58 7.51l.94 3.135A.5.5 0 0 0 11 11h.5a.5.5 0 0 0 0-1h-.128z" />
+                        </svg>
+                    </div>
+                    <h4 class="fw-semibold mb-0 text-body-emphasis">Medical Health Tests</h4>
+                    <p class="text-body-secondary">
+                        Patients can browse through a comprehensive catalog of medical tests available at the digital
+                        hospital, ranging from routine blood tests to advanced diagnostic procedures. Each test is
+                        accompanied by detailed
+                        descriptions and instructions, empowering users to make informed decisions.
+                        <br>
+                        <a href="{{ url_for('public.tests') }}" class="icon-link fs-6 fw-bold mt-1 pop">
+                            Browse Test Catelog
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right"
+                                viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708" />
+                            </svg>
+                        </a>
+                    </p>
+                </div>
             </div>
-            <h3 class="fs-2 text-body-emphasis">Medical Test</h3>
-            <p>Paragraph of text beneath the heading to explain the heading. We'll add onto it with another sentence and
-                probably just keep going until we run out of words.</p>
-            <a href="{{ url_for('public.tests') }}" class="btn btn-success" id="fbtn">
-                Apply for Test
-            </a>
-        </div>
-
-        <div class="feature col" id="feature_3" style="display: none;">
-            <div
-                class="feature-icon d-inline-flex align-items-center justify-content-center bg-lightmint bg-gradient fs-2 mb-3">
-                <svg class="bi" width="1em" height="1em">
-                    <use xlink:href="#toggles2" />
-                </svg>
-            </div>
-            <h3 class="fs-2 text-body-emphasis">Other</h3>
-            <p>Paragraph of text beneath the heading to explain the heading. We'll add onto it with another sentence and
-                probably just keep going until we run out of words.</p>
-            <a href="#" class="btn btn-success" id="fbtn">
-                Call to action
-            </a>
         </div>
     </div>
 </div>
-
-
 {% endblock content %}
