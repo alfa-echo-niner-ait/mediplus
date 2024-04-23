@@ -19,7 +19,7 @@ from src.public.forms import (
 )
 from src.public.utils import get_datetime
 from src.users.models import Users, Patients, User_Logs, Managers, Doctors
-from src.doctor.models import Doctor_Time, Appointments, Appointment_Details
+from src.doctor.models import Doctor_Time, Appointments, Appointment_Details, Prescriptions
 from src.patient.models import (
     Medical_Info,
     Invoices,
@@ -265,9 +265,6 @@ def dashboard():
 
 @public.route("/invoice/<id>")
 def invoice(id):
-    # if current_user.role == "Manager":
-    #     return redirect(url_for('manager.invoice_update', id=id))
-
     invoice: Invoices = Invoices.query.filter_by(invoice_id=id).first_or_404()
     patient: Patients = Patients.query.filter_by(
         p_id=invoice.invoice_patient_id).first()
@@ -407,3 +404,15 @@ def book_appointment(doctor_id):
         else:
             flash("Booking Appointment Failed!", category="danger")
             return redirect(url_for('public.view_doctor', id=doctor_id))
+
+
+@public.route('/prescription/<pres_id>')
+def prescription(pres_id):
+    prescription: Prescriptions = Prescriptions.query.filter(Prescriptions.prescription_id == int(pres_id)).first_or_404()
+    url = url_for(
+        "public.prescription",
+        pres_id=prescription.prescription_id,
+        _external=True,
+    )
+    return render_template(
+        "public/prescription.html", title=f"Prescription #{pres_id}", url=url)

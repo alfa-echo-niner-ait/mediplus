@@ -8,7 +8,13 @@ from flask import Blueprint, render_template, redirect, url_for, flash, abort, r
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Doctors, Patients
 from src.doctor.models import Doctor_Time
-from src.doctor.models import Appointments, Appointment_Details
+from src.doctor.models import (
+    Appointments,
+    Appointment_Details,
+    Prescriptions,
+    Prescription_Extras,
+    Prescribed_Items,
+)
 from src.doctor.form import UpdateProfileForm, ChangePasswordForm, UpdateScheduleForm
 
 
@@ -31,11 +37,47 @@ def appointments():
     if current_user.role != "Doctor":
         abort(403)
 
+    counts = {
+        "pending": Appointments.query.filter(
+            Appointments.appt_doctor_id == current_user.id
+        )
+        .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
+        .filter(Appointment_Details.appt_status == "Booked")
+        .count(),
+        "accepted": Appointments.query.filter(
+            Appointments.appt_doctor_id == current_user.id
+        )
+        .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
+        .filter(Appointment_Details.appt_status == "Completed")
+        .count(),
+        "cancelled": Appointments.query.filter(
+            Appointments.appt_doctor_id == current_user.id
+        )
+        .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
+        .filter(Appointment_Details.appt_status == "Cancelled")
+        .count(),
+    }
+    print(counts)
+    return render_template(
+        "doctor/appointments.html",
+        counts=counts,
+        appointments=appointments,
+        title="Appointments",
+    )
+
+
+@doctor.route("/dashboard/doctor/appointments/pending")
+@login_required
+def appointment_pending():
+    if current_user.role != "Doctor":
+        abort(403)
+
     page_num = request.args.get("page", 1, int)
 
     appointments = (
         Appointments.query.filter(Appointments.appt_doctor_id == current_user.id)
         .join(Appointment_Details, Appointments.appt_id == Appointment_Details.appt_id)
+        .filter(Appointment_Details.appt_status == "Booked")
         .join(Patients, Appointments.appt_patient_id == Patients.p_id)
         .join(Users, Patients.p_id == Users.id)
         .order_by(Appointment_Details.appt_date.asc())
@@ -56,9 +98,87 @@ def appointments():
     )
 
     return render_template(
-        "doctor/appointments.html",
+        "doctor/appointments_pending.html",
         appointments=appointments,
         title="Pending Appointments",
+    )
+
+
+@doctor.route("/dashboard/doctor/appointments/accepted")
+@login_required
+def appointment_accepted():
+    if current_user.role != "Doctor":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    appointments = (
+        Appointments.query.filter(Appointments.appt_doctor_id == current_user.id)
+        .join(Appointment_Details, Appointments.appt_id == Appointment_Details.appt_id)
+        .filter(Appointment_Details.appt_status == "Completed")
+        .join(Prescriptions, Prescriptions.pres_appt_id == Appointments.appt_id)
+        .join(Patients, Appointments.appt_patient_id == Patients.p_id)
+        .join(Users, Patients.p_id == Users.id)
+        .order_by(Appointment_Details.appt_date.asc())
+        .add_columns(
+            Appointments.appt_id,
+            Appointment_Details.appt_status,
+            Appointment_Details.appt_date,
+            Appointment_Details.appt_time,
+            Prescriptions.prescription_id,
+            Users.gender,
+            Patients.p_id,
+            Patients.last_name,
+            Patients.first_name,
+            Patients.phone,
+            Patients.birthdate,
+            Patients.avatar,
+        )
+        .paginate(page=page_num, per_page=15)
+    )
+
+    return render_template(
+        "doctor/appointments_accepted.html",
+        appointments=appointments,
+        title="Accepted Appointments",
+    )
+
+
+@doctor.route("/dashboard/doctor/appointments/cancelled")
+@login_required
+def appointment_cancelled():
+    if current_user.role != "Doctor":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    appointments = (
+        Appointments.query.filter(Appointments.appt_doctor_id == current_user.id)
+        .join(Appointment_Details, Appointments.appt_id == Appointment_Details.appt_id)
+        .filter(Appointment_Details.appt_status == "Cancelled")
+        .join(Patients, Appointments.appt_patient_id == Patients.p_id)
+        .join(Users, Patients.p_id == Users.id)
+        .order_by(Appointment_Details.appt_date.asc())
+        .add_columns(
+            Appointments.appt_id,
+            Appointment_Details.appt_status,
+            Appointment_Details.appt_date,
+            Appointment_Details.appt_time,
+            Users.gender,
+            Patients.p_id,
+            Patients.last_name,
+            Patients.first_name,
+            Patients.phone,
+            Patients.birthdate,
+            Patients.avatar,
+        )
+        .paginate(page=page_num, per_page=15)
+    )
+
+    return render_template(
+        "doctor/appointments_cancelled.html",
+        appointments=appointments,
+        title="Cacelled Appointments",
     )
 
 
@@ -97,12 +217,13 @@ def appointment_view(appt_id):
     )
 
 
-@doctor.route("/dashboard/doctor/appointments/<appt_id>/accept")
+@doctor.route("/dashboard/doctor/appointments/<appt_id>/accept_patient/<patient_id>")
 @login_required
-def accept_appointment(appt_id):
+def accept_appointment(appt_id, patient_id):
     if current_user.role != "Doctor":
         abort(403)
 
+    # Accept appointment
     appt_details: Appointment_Details = Appointment_Details.query.filter(
         Appointment_Details.appt_id == int(appt_id)
     ).first_or_404()
@@ -110,8 +231,12 @@ def accept_appointment(appt_id):
 
     date, time = get_datetime()
     doctor_log: User_Logs = User_Logs(current_user.id, "Accept Appointment", date, time)
-    doctor_log.desc = f"Appointment #{appt_details.appt_date}, Detail #{appt_details.appt_detail_id}"
+    doctor_log.log_desc = f"Appointment #{appt_details.appt_date}, Detail #{appt_details.appt_detail_id}, Patient #{patient_id}"
     db.session.add(doctor_log)
+
+    # Initialize prescription for the appointment
+    new_prescription = Prescriptions(appt_details.appt_id, date)
+    db.session.add(new_prescription)
     db.session.commit()
 
     flash("Appointment Accepted, Continue to Prescribe.", category="success")
@@ -148,7 +273,7 @@ def cancel_appointment(appt_id):
     db.session.commit()
 
     flash("Appointment has been cancelled!", category="warning")
-    return redirect(url_for("doctor.appointments"))
+    return redirect(url_for("doctor.appointment_pending"))
 
 
 @doctor.route("/dashboard/doctor/profile")

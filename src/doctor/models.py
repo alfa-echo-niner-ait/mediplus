@@ -46,7 +46,7 @@ class Appointment_Details(db.Model):
     #### appt_status
         - Booked
         - Cancelled
-        - Done
+        - Completed
     """
 
     __tablename__ = "appointment_details"
@@ -72,3 +72,69 @@ class Appointment_Details(db.Model):
 
     def __str__(self) -> str:
         return f"#{self.appt_detail_id} @ Appointment #{self.appt_id} ({self.appt_status}) {self.appt_date}, {self.appt_time} "
+
+
+class Prescriptions(db.Model):
+
+    __tablename__ = "prescriptions"
+
+    prescription_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    pres_appt_id = db.Column(
+        db.Integer, db.ForeignKey("appointments.appt_id"), primary_key=True, nullable=False
+    )
+    pres_date = db.Column(db.Date, nullable=False)
+
+    def __init__(self, appointment_id, date) -> None:
+        super().__init__()
+        self.pres_appt_id = appointment_id
+        self.pres_date = date
+
+
+class Prescription_Extras(db.Model):
+
+    __tablename__ = "prescription_extras"
+
+    prescription_id = db.Column(
+        db.Integer,
+        db.ForeignKey("prescriptions.prescription_id"),
+        primary_key=True,
+        nullable=False,
+    )
+    diagnosis = db.Column(db.TEXT, nullable=True)
+    notes = db.Column(db.TEXT, nullable=True)
+    next_meet = db.Column(db.TEXT, nullable=True)
+    last_update_date = db.Column(db.Date, nullable=False)
+
+    def __init__(self, pescription_id, diagnosis, notes, next_meet, last_update_date) -> None:
+        super().__init__()
+        self.prescription_id = pescription_id
+        self.diagnosis = diagnosis
+        self.notes = notes
+        self.next_meet = next_meet
+        self.last_update_date = last_update_date
+
+
+class Prescribed_Items(db.Model):
+
+    __tablename__ = "prescribed_items"
+
+    pres_item_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    item_pres_id = db.Column(
+        db.Integer,
+        db.ForeignKey("prescriptions.prescription_id"),
+        primary_key=True,
+        nullable=False,
+    )
+    medicine = db.Column(db.String(100), nullable=False)
+    dosage = db.Column(db.String(50), nullable=True)
+    instruction = db.Column(db.String(100), nullable=True)
+    duration = db.Column(db.String(50), nullable=True)
+
+
+    def __init__(self, prescription_id, medicine, dosage, instruction, duration) -> None:
+        super().__init__()
+        self.item_pres_id = prescription_id
+        self.medicine = medicine
+        self.dosage = dosage
+        self.instruction = instruction
+        self.duration = duration
