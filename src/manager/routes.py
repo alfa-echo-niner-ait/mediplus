@@ -14,7 +14,7 @@ from flask import (
 )
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
-from src.doctor.models import Doctor_Time
+from src.doctor.models import Doctor_Time, Appointments, Appointment_Details
 from src.patient.models import (
     Invoices,
     Invoice_Items,
@@ -22,8 +22,6 @@ from src.patient.models import (
     Medical_Tests,
     Medical_Test_Book,
     Medical_Report_Files,
-    Appointments,
-    Appointment_Details,
 )
 from src.doctor.form import UpdateScheduleForm
 from src.manager.forms import (

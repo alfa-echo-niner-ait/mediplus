@@ -19,7 +19,7 @@ from src.public.forms import (
 )
 from src.public.utils import get_datetime
 from src.users.models import Users, Patients, User_Logs, Managers, Doctors
-from src.doctor.models import Doctor_Time
+from src.doctor.models import Doctor_Time, Appointments, Appointment_Details
 from src.patient.models import (
     Medical_Info,
     Invoices,
@@ -27,8 +27,6 @@ from src.patient.models import (
     Payments,
     Medical_Tests,
     Pending_Items,
-    Appointments,
-    Appointment_Details,
 )
 from src.users.utils import reset_mail_sender
 from src import db, token_manager, hash_manager

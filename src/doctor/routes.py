@@ -8,7 +8,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, abort, r
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Doctors, Patients
 from src.doctor.models import Doctor_Time
-from src.patient.models import Appointments, Appointment_Details
+from src.doctor.models import Appointments, Appointment_Details
 from src.doctor.form import UpdateProfileForm, ChangePasswordForm, UpdateScheduleForm
 
 
@@ -89,12 +89,33 @@ def appointment_view(appt_id):
         )
         .first_or_404()
     )
-    
+
     return render_template(
         "doctor/appointment_view.html",
         appt=appointment,
         title=f"Appointment #{appt_id} Details",
     )
+
+
+@doctor.route("/dashboard/doctor/appointments/<appt_id>/accept")
+@login_required
+def accept_appointment(appt_id):
+    if current_user.role != "Doctor":
+        abort(403)
+
+    appt_details: Appointment_Details = Appointment_Details.query.filter(
+        Appointment_Details.appt_id == int(appt_id)
+    ).first_or_404()
+    appt_details.appt_status = "Completed"
+
+    date, time = get_datetime()
+    doctor_log: User_Logs = User_Logs(current_user.id, "Accept Appointment", date, time)
+    doctor_log.desc = f"Appointment #{appt_details.appt_date}, Detail #{appt_details.appt_detail_id}"
+    db.session.add(doctor_log)
+    db.session.commit()
+
+    flash("Appointment Accepted, Continue to Prescribe.", category="success")
+    return redirect(url_for("doctor.appointment_view", appt_id=appt_id))
 
 
 @doctor.route("/dashboard/doctor/appointments/<appt_id>/cancel")

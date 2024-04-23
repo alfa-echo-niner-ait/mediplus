@@ -56,15 +56,22 @@
                 <div class="fs-6">Birthdate: {{ appt.birthdate }}</div>
                 <div class="fs-6 d-block mb-3">Date: {{ appt.appt_date }} <b>({{ appt.appt_time }})</b></div>
 
-                <a href="{{ url_for('doctor.appointment_view', appt_id=appt.appt_id) }}"
-                    class="btn btn-sm btn-info rounded me-2">
-                    Details
-                </a>
                 {% if appt.appt_status == "Booked" %}
+                <a href="{{ url_for('doctor.accept_appointment', appt_id=appt.appt_id) }}"
+                    class="btn btn-sm btn-success rounded">
+                    Accept & Prescribe
+                </a>
                 <a href="{{ url_for('doctor.cancel_appointment', appt_id=appt.appt_id) }}"
                     onclick="return confirm('Cancel Appointment #{{ appt.appt_id }}?')"
                     class="btn btn-sm btn-danger rounded">
                     Cancel
+                </a>
+                {% else %}
+                {% endif %}
+                
+                {% if appt.appt_status == "Completed" %}
+                <a href="{{ url_for('doctor.appointment_view', appt_id=appt.appt_id) }}" class="btn btn-sm btn-info rounded me-2">
+                    Prescribe & Details
                 </a>
                 {% endif %}
             </div>
