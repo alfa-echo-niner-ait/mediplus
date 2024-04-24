@@ -1,0 +1,83 @@
+<div class="modal fade modal-lg" id="add_pres_item_modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Header -->
+            <div class="modal-header bg-primary bg-opacity-10">
+                <div class="modal-title fw-bold">
+                    Add New Prescription Item
+                </div>
+                <button type="button" class="btn-close bg-danger" data-bs-dismiss="modal"></button>
+            </div>
+            <!-- Body -->
+            <div class="modal-body">
+                <form id="pres_item_form" method="post">
+                    {{ pitem_form.hidden_tag() }}
+                    <!-- Medicine -->
+                    <div class="mb-3">
+                        {{ pitem_form.item_medicine.label(class='form-label') }}
+                        {% if pitem_form.item_medicine.errors %}
+                        {{ pitem_form.item_medicine(class="form-control is-invalid", placeholder='Medicine Name')
+                        }}
+                        <div class="invalid-feedback">
+                            {% for error in pitem_form.item_medicine.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ pitem_form.item_medicine(class="form-control", placeholder='Medicine Name') }}
+                        {% endif %}
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            {{ pitem_form.item_dosage.label(class='form-label') }}
+                            {% if pitem_form.item_dosage.errors %}
+                            {{ pitem_form.item_dosage(class="form-control is-invalid", placeholder='Describe Dosage')
+                            }}
+                            <div class="invalid-feedback">
+                                {% for error in pitem_form.item_dosage.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ pitem_form.item_dosage(class="form-control", placeholder='Describe Dosage') }}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm">
+                            {{ pitem_form.item_duration.label(class='form-label') }}
+                            {% if pitem_form.item_duration.errors %}
+                            {{ pitem_form.item_duration(class="form-control is-invalid", placeholder='Eg: 3 days/2 weeks/1 month etc')
+                            }}
+                            <div class="invalid-feedback">
+                                {% for error in pitem_form.item_duration.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ pitem_form.item_duration(class="form-control", placeholder='Eg: 3 days/2 weeks/1 month etc') }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Instruction -->
+                    <div class="mb-3">
+                        {{ pitem_form.item_instruction.label(class='form-label') }}
+                        {% if pitem_form.item_instruction.errors %}
+                        {{ pitem_form.item_instruction(class="form-control is-invalid", placeholder='Medicine Usage Instruction')
+                        }}
+                        <div class="invalid-feedback">
+                            {% for error in pitem_form.item_instruction.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ pitem_form.item_instruction(class="form-control", placeholder='Medicine Usage Instruction') }}
+                        {% endif %}
+                    </div>
+                    <!-- Submit -->
+                    <div class="d-grid">
+                        {{ pitem_form.item_submit(class='btn btn-primary fw-bold text-white mt-2') }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

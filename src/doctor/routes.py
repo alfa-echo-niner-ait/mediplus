@@ -4,7 +4,16 @@ from src.public.utils import (
     profile_picture_remover,
     profile_picture_saver,
 )
-from flask import Blueprint, render_template, redirect, url_for, flash, abort, request
+from flask import (
+    Blueprint,
+    render_template,
+    redirect,
+    url_for,
+    flash,
+    abort,
+    request,
+    jsonify,
+)
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Doctors, Patients
 from src.doctor.models import Doctor_Time
@@ -15,7 +24,12 @@ from src.doctor.models import (
     Prescription_Extras,
     Prescribed_Items,
 )
-from src.doctor.form import UpdateProfileForm, ChangePasswordForm, UpdateScheduleForm
+from src.doctor.form import (
+    UpdateProfileForm,
+    ChangePasswordForm,
+    UpdateScheduleForm,
+    PresItemForm,
+)
 
 
 doctor = Blueprint("doctor", __name__)
@@ -63,6 +77,45 @@ def appointments():
         counts=counts,
         appointments=appointments,
         title="Appointments",
+    )
+
+
+@doctor.route("/dashboard/doctor/appointments/<appt_id>/details")
+@login_required
+def appointment_view(appt_id):
+    if current_user.role != "Doctor":
+        abort(403)
+
+    prescription_item_form = PresItemForm()
+    appointment = (
+        Appointments.query.filter(Appointments.appt_id == int(appt_id))
+        .join(Appointment_Details, Appointments.appt_id == Appointment_Details.appt_id)
+        .join(Patients, Appointments.appt_patient_id == Patients.p_id)
+        .join(Prescriptions, Prescriptions.pres_appt_id == Appointments.appt_id)
+        .join(Users, Patients.p_id == Users.id)
+        .order_by(Appointment_Details.appt_date.asc())
+        .add_columns(
+            Appointments.appt_id,
+            Appointment_Details.appt_status,
+            Appointment_Details.appt_date,
+            Appointment_Details.appt_time,
+            Prescriptions.prescription_id,
+            Users.gender,
+            Patients.p_id,
+            Patients.last_name,
+            Patients.first_name,
+            Patients.phone,
+            Patients.birthdate,
+            Patients.avatar,
+        )
+        .first_or_404()
+    )
+
+    return render_template(
+        "doctor/appointment_view.html",
+        appt=appointment,
+        pitem_form=prescription_item_form,
+        title=f"Appointment #{appt_id} Details",
     )
 
 
@@ -179,41 +232,6 @@ def appointment_cancelled():
         "doctor/appointments_cancelled.html",
         appointments=appointments,
         title="Cacelled Appointments",
-    )
-
-
-@doctor.route("/dashboard/doctor/appointments/<appt_id>/details")
-@login_required
-def appointment_view(appt_id):
-    if current_user.role != "Doctor":
-        abort(403)
-
-    appointment = (
-        Appointments.query.filter(Appointments.appt_id == int(appt_id))
-        .join(Appointment_Details, Appointments.appt_id == Appointment_Details.appt_id)
-        .join(Patients, Appointments.appt_patient_id == Patients.p_id)
-        .join(Users, Patients.p_id == Users.id)
-        .order_by(Appointment_Details.appt_date.asc())
-        .add_columns(
-            Appointments.appt_id,
-            Appointment_Details.appt_status,
-            Appointment_Details.appt_date,
-            Appointment_Details.appt_time,
-            Users.gender,
-            Patients.p_id,
-            Patients.last_name,
-            Patients.first_name,
-            Patients.phone,
-            Patients.birthdate,
-            Patients.avatar,
-        )
-        .first_or_404()
-    )
-
-    return render_template(
-        "doctor/appointment_view.html",
-        appt=appointment,
-        title=f"Appointment #{appt_id} Details",
     )
 
 
@@ -477,3 +495,32 @@ def logs():
         .paginate(page=page_num, per_page=12)
     )
     return render_template("doctor/logs.html", logs=logs, title="Activity Logs")
+
+
+@doctor.route(
+    "/dashboard/doctor/prescription/<prescription_id>/add_pitem", methods=["POST"]
+)
+@login_required
+def add_prescription_item(prescription_id):
+    form = PresItemForm()
+
+    new_item: Prescribed_Items = Prescribed_Items(
+        prescription_id,
+        form.item_medicine.data,
+        form.item_dosage.data,
+        form.item_instruction.data,
+        form.item_duration.data,
+    )
+    db.session.add(new_item)
+    db.session.commit()
+
+    res_data = {
+        "result": "success",
+        "id": new_item.pres_item_id,
+        "medicine": new_item.medicine,
+        "dosage": new_item.dosage,
+        "instruction": new_item.instruction,
+        "duration": new_item.duration,
+    }
+
+    return jsonify(res_data)

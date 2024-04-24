@@ -1,6 +1,16 @@
 {% extends 'layout/layout_doctor.html' %}
 
 {% block content %}
+<div id="liveToast" class="toast align-items-center text-bg-success border-0 mx-auto"
+    role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+        <div class="toast-body" id="toastMsg">
+            Message
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+            aria-label="Close"></button>
+    </div>
+</div>
 <div class="container mt-2">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
@@ -19,48 +29,169 @@
                     Appointments
                 </a>
             </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('doctor.appointment_accepted') }}">
+                    Accepted Appointments
+                </a>
+            </li>
             <li class="breadcrumb-item active">
                 #{{ appt.appt_id }}
             </li>
         </ol>
     </nav>
 </div>
-
 <div class="container">
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Medicine</th>
-                <th scope="col">Dosage</th>
-                <th scope="col">Instruction</th>
-                <th scope="col">Duration</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>Napa Extra 500 MG</td>
-                <td>3 Times Per Day</td>
-                <td>After Eating</td>
-                <td>7 Days</td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>Gastoral 250ml</td>
-                <td>2 Times Per Day</td>
-                <td>After Eating</td>
-                <td>14 Days</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="card">
+        <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between">
+            <div class="fw-bold fs-5">Diagnosis</div>
+            <button type="button" class="btn btn-sm btn-success">
+                <i class="bi bi-pencil-square"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <p class="card-text" id="diag_info">
+                With supporting text below as a natural lead-in to additional content.
+            </p>
+        </div>
+    </div>
+</div>
+<div class="container mt-3">
+    <div class="card">
+        <div class="card-header bg-primary bg-opacity-10 d-flex justify-content-between">
+                <div class="fw-bold fs-5">Prescription</div>
+                <button type="button" class="btn btn-sm btn-primary"
+                    data-bs-toggle="modal" data-bs-target="#add_pres_item_modal">
+                    <i class="bi bi-clipboard2-plus"></i>
+                </button>
+        </div>
+        <div class="card-body">
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        <th scope="col">Medicine</th>
+                        <th scope="col">Dosage</th>
+                        <th scope="col">Instruction</th>
+                        <th scope="col">Duration</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="item_list">
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
+<div class="container mt-3">
+    <div class="card mb-3">
+        <div class="card-header bg-warning bg-opacity-10 d-flex justify-content-between">
+            <div class="fw-bold fs-5">Prescription Note</div>
+            <button type="button" class="btn btn-sm btn-warning">
+                <i class="bi bi-pencil-square"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <p class="card-text" id="note_info">
+                With supporting text below as a natural lead-in to additional content.
+            </p>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header bg-info bg-opacity-10 d-flex justify-content-between">
+            <div class="fw-bold fs-5">Next Meetup</div>
+            <button type="button" class="btn btn-sm btn-info">
+                <i class="bi bi-pencil-square"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <p class="card-text" id="meet_info">
+                With supporting text below as a natural lead-in to additional content.
+            </p>
+        </div>
+    </div>
+</div>
+
+{% include '/doctor/modals/add_pres_item_modal.html' %}
 <!-- JS -->
 <script>
     $(document).ready(function () {
         $("#navAppt").removeClass("text-info");
         $("#navAppt").addClass("active");
+
+        const toastLive = document.getElementById('liveToast');
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
+
+        $.ajax({
+            type: "GET",
+            url: "{{ url_for('api.prescription_items', pres_id=appt.prescription_id) }}",
+            success: function (response) {
+                if (response[0]["result"] == "success") {
+                    // var data = ""
+                    $.each(response[1]["items"], function (index, item) {
+                        data = `
+                        <tr id="item${item.id}">
+                            <td>${item.medicine}</td>
+                            <td>${item.dosage}</td>
+                            <td>${item.instruction}</td>
+                            <td>${item.duration}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-secondary">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                         `
+                        $("#item_list").append(data);
+                    });
+                }
+            }
+        });
+
+        $("#pres_item_form").submit(function (e) {
+            e.preventDefault();
+            var data = $(this).serialize();
+            $.ajax({
+                type: "post",
+                url: "{{ url_for('doctor.add_prescription_item', prescription_id=appt.prescription_id)}}",
+                data: data,
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        data = `
+                        <tr id="item${response["id"]}">
+                            <td>${response["medicine"]}</td>
+                            <td>${response["dosage"]}</td>
+                            <td>${response["instruction"]}</td>
+                            <td>${response["duration"]}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-secondary">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                         `
+                        $("#item_list").append(data);
+                    }
+                    $("#toastMsg").removeClass("text-bg-danger");
+                    $("#toastMsg").addClass("text-bg-success");
+                    $("#toastMsg").html("New Prescription Item Added!");
+                    toastBootstrap.show();
+                    $("#add_pres_item_modal").modal("toggle");
+                },
+                error: function (error) {
+                    $("#toastMsg").removeClass("text-bg-success");
+                    $("#toastMsg").addClass("text-bg-danger");
+                    $("#toastMsg").html("Server error, try again!");
+                    toastBootstrap.show();
+                    $("#add_pres_item_modal").modal("toggle");
+                }
+            });
+        });
     });
 </script>
 {% endblock content %}

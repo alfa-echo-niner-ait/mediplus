@@ -127,7 +127,7 @@ class Prescribed_Items(db.Model):
     )
     medicine = db.Column(db.String(100), nullable=False)
     dosage = db.Column(db.String(50), nullable=True)
-    instruction = db.Column(db.String(100), nullable=True)
+    instruction = db.Column(db.String(200), nullable=True)
     duration = db.Column(db.String(50), nullable=True)
 
 

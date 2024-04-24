@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from src.users.models import Users, Patients, Managers, User_Logs
 from src.patient.models import Payments
-
+from src.doctor.models import Prescribed_Items
 
 api = Blueprint("api", __name__)
 
@@ -210,6 +210,31 @@ def search_patient():
                 return jsonify(response)
 
         return jsonify([{"result": "fail"}])
+
+
+
+@api.route("/prescription/<pres_id>/items")
+def prescription_items(pres_id):
+    pres_items: Prescribed_Items = Prescribed_Items.query.filter(Prescribed_Items.item_pres_id == int(pres_id)).all()
+
+    if pres_items:
+        response = [{"result": "success"}]
+        items = list()
+        for item in pres_items:
+            data = {
+                "id": item.pres_item_id,
+                "medicine": item.medicine,
+                "dosage": item.dosage,
+                "instruction": item.instruction,
+                "duration": item.duration
+            }
+            items.append(data)
+            
+        response.append({"items": items})
+
+        return jsonify(response )
+    
+    return jsonify([{"result": "fail"}])
 
 
 @api.route("/test")

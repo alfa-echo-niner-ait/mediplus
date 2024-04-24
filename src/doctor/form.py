@@ -94,3 +94,11 @@ class UpdateScheduleForm(FlaskForm):
         ],
     )
     submit = SubmitField("Update Schedule")
+
+
+class PresItemForm(FlaskForm):
+    item_medicine = StringField("Medicine", validators=[DataRequired()])
+    item_dosage = StringField("Dosage", validators=[DataRequired()])
+    item_duration = StringField("Duration", validators=[DataRequired()])
+    item_instruction = StringField("Instruction", validators=[DataRequired()])
+    item_submit = SubmitField("Submit")
