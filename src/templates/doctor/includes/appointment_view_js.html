@@ -1,0 +1,164 @@
+<script>
+    $(document).ready(function () {
+        $("#navAppt").removeClass("text-info");
+        $("#navAppt").addClass("active");
+
+        const toastLive = document.getElementById('liveToast');
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
+        let rowId;
+
+        // Load items
+        $.ajax({
+            type: "GET",
+            url: "{{ url_for('api.prescription_items', pres_id=appt.prescription_id) }}",
+            success: function (response) {
+                if (response[0]["result"] == "success") {
+                    // var data = ""
+                    $.each(response[1]["items"], function (index, item) {
+                        data = `
+                        <tr id="item${item.id}">
+                            <td>${item.medicine}</td>
+                            <td>${item.dosage}</td>
+                            <td>${item.instruction}</td>
+                            <td>${item.duration}</td>
+                            <td>
+                                <button type="button" id="btn_edit${item.id}" class="btn_edit btn btn-sm btn-secondary">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button type="button" id="btn_delete${item.id}" class="btn_delete btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                         `
+                        $("#item_list").append(data);
+                    });
+                }
+            }
+        });
+        // New item add handler
+        $("#pres_item_form").submit(function (e) {
+            e.preventDefault();
+            var data = $(this).serialize();
+            $.ajax({
+                type: "post",
+                url: "{{ url_for('doctor.add_prescription_item', prescription_id=appt.prescription_id)}}",
+                data: data,
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        // Clear all fields of the form
+                        $("#pres_item_form")[0].reset();
+                        data = `
+                        <tr id="item${response["id"]}">
+                            <td>${response["medicine"]}</td>
+                            <td>${response["dosage"]}</td>
+                            <td>${response["instruction"]}</td>
+                            <td>${response["duration"]}</td>
+                            <td>
+                                <button type="button" id="btn_edit${response["id"]}" class="btn_edit btn btn-sm btn-secondary">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button type="button" id="btn_delete${response["id"]}" class="btn_delete btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                         `
+                        $("#item_list").append(data);
+                    }
+                    $("#toastMsg").removeClass("text-bg-danger");
+                    $("#toastMsg").addClass("text-bg-success");
+                    $("#toastMsg").html("New Prescription Item Added!");
+                    toastBootstrap.show();
+                    $("#add_pres_item_modal").modal("toggle");
+                },
+                error: function (error) {
+                    $("#toastMsg").removeClass("text-bg-success");
+                    $("#toastMsg").addClass("text-bg-danger");
+                    $("#toastMsg").html("Server error, try again!");
+                    toastBootstrap.show();
+                    $("#add_pres_item_modal").modal("toggle");
+                }
+            });
+        });
+        // event listener to edit btn
+        $("#item_list").on("click", ".btn_edit", function () {
+            // Extract the row ID from the edit button's ID
+            rowId = $(this).attr("id").replace("btn_edit", "");
+            // Find the corresponding td elements and get their values
+            var medicine = $("#item" + rowId + " td:nth-child(1)").text();
+            var dosage = $("#item" + rowId + " td:nth-child(2)").text();
+            var instruction = $("#item" + rowId + " td:nth-child(3)").text();
+            var duration = $("#item" + rowId + " td:nth-child(4)").text();
+            // Populate the modal form fields with the extracted information
+            $("#edit_medicine").val(medicine);
+            $("#edit_dosage").val(dosage);
+            $("#edit_instruction").val(instruction);
+            $("#edit_duration").val(duration);
+            // Show the modal
+            $("#edit_pres_item_modal").modal("show");
+        });
+        // Submit edit form
+        $("#pres_item_edit_form").submit(function (e) {
+            e.preventDefault();
+            var data = $(this).serialize();
+            var url = "/dashboard/doctor/prescription/{{ appt.prescription_id }}/edit_pitem/" + parseInt(rowId)
+            $.ajax({
+                type: "post",
+                url: url,
+                data: data,
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        data = `
+                            <td>${response["medicine"]}</td>
+                            <td>${response["dosage"]}</td>
+                            <td>${response["instruction"]}</td>
+                            <td>${response["duration"]}</td>
+                            <td>
+                                <button type="button" id="btn_edit${response["id"]}" class="btn_edit btn btn-sm btn-secondary">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button type="button" id="btn_delete${response["id"]}" class="btn_delete btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                         `
+                        $('#item' + response["id"]).html(data);
+                    };
+
+                    $("#toastMsg").removeClass("text-bg-danger");
+                    $("#toastMsg").addClass("text-bg-success");
+                    $("#toastMsg").html("Prescription Item Updated!");
+                    toastBootstrap.show();
+                    $("#edit_pres_item_modal").modal("toggle");
+                },
+                error: function (error) {
+                    $("#toastMsg").removeClass("text-bg-success");
+                    $("#toastMsg").addClass("text-bg-danger");
+                    $("#toastMsg").html("Server error, try again!");
+                    toastBootstrap.show();
+                    $("#edit_pres_item_modal").modal("toggle");
+                }
+            });
+        });
+        // event listener to delete btn
+        $("#item_list").on("click", ".btn_delete", function () {
+            // Extract the row ID from the delete button's ID
+            rowId = $(this).attr("id").replace("btn_delete", "");
+            var url = "/dashboard/doctor/prescription/{{ appt.prescription_id }}/delete_pitem/" + parseInt(rowId)
+            $.ajax({
+                type: "DELETE",
+                url: url,
+                success: function (response) {
+                    if (response == "success") {
+                        $("#item" + rowId).remove();
+                        $("#toastMsg").removeClass("text-bg-danger");
+                        $("#toastMsg").addClass("text-bg-success");
+                        $("#toastMsg").html("Prescription Item Removed!");
+                        toastBootstrap.show();
+                    }
+                }
+            });
+        });
+    });
+</script>

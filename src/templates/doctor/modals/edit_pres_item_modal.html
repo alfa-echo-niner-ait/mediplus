@@ -1,0 +1,83 @@
+<div class="modal fade modal-lg" id="edit_pres_item_modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Header -->
+            <div class="modal-header bg-primary bg-opacity-10">
+                <div class="modal-title fw-bold">
+                    Edit Prescription Item
+                </div>
+                <button type="button" class="btn-close bg-danger" data-bs-dismiss="modal"></button>
+            </div>
+            <!-- Body -->
+            <div class="modal-body">
+                <form id="pres_item_edit_form" method="post">
+                    {{ pedit_form.hidden_tag() }}
+                    <!-- Medicine -->
+                    <div class="mb-3">
+                        {{ pedit_form.edit_medicine.label(class='form-label') }}
+                        {% if pedit_form.edit_medicine.errors %}
+                        {{ pedit_form.edit_medicine(class="form-control is-invalid", placeholder='Medicine Name')
+                        }}
+                        <div class="invalid-feedback">
+                            {% for error in pedit_form.edit_medicine.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ pedit_form.edit_medicine(class="form-control", placeholder='Medicine Name') }}
+                        {% endif %}
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            {{ pedit_form.edit_dosage.label(class='form-label') }}
+                            {% if pedit_form.edit_dosage.errors %}
+                            {{ pedit_form.edit_dosage(class="form-control is-invalid", placeholder='Describe Dosage')
+                            }}
+                            <div class="invalid-feedback">
+                                {% for error in pedit_form.edit_dosage.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ pedit_form.edit_dosage(class="form-control", placeholder='Describe Dosage') }}
+                            {% endif %}
+                        </div>
+                        <div class="col-sm">
+                            {{ pedit_form.edit_duration.label(class='form-label') }}
+                            {% if pedit_form.edit_duration.errors %}
+                            {{ pedit_form.edit_duration(class="form-control is-invalid", placeholder='Eg: 3 days/2 weeks/1 month etc')
+                            }}
+                            <div class="invalid-feedback">
+                                {% for error in pedit_form.edit_duration.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ pedit_form.edit_duration(class="form-control", placeholder='Eg: 3 days/2 weeks/1 month etc') }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Instruction -->
+                    <div class="mb-3">
+                        {{ pedit_form.edit_instruction.label(class='form-label') }}
+                        {% if pedit_form.edit_instruction.errors %}
+                        {{ pedit_form.edit_instruction(class="form-control is-invalid", placeholder='Medicine Usage Instruction')
+                        }}
+                        <div class="invalid-feedback">
+                            {% for error in pedit_form.edit_instruction.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ pedit_form.edit_instruction(class="form-control", placeholder='Medicine Usage Instruction') }}
+                        {% endif %}
+                    </div>
+                    <!-- Submit -->
+                    <div class="d-grid">
+                        {{ pedit_form.edit_submit(class='btn btn-primary fw-bold text-white mt-2') }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -29,6 +29,7 @@ from src.doctor.form import (
     ChangePasswordForm,
     UpdateScheduleForm,
     PresItemForm,
+    PresEditItemForm,
 )
 
 
@@ -87,6 +88,7 @@ def appointment_view(appt_id):
         abort(403)
 
     prescription_item_form = PresItemForm()
+    edit_item_form = PresEditItemForm()
     appointment = (
         Appointments.query.filter(Appointments.appt_id == int(appt_id))
         .join(Appointment_Details, Appointments.appt_id == Appointment_Details.appt_id)
@@ -115,6 +117,7 @@ def appointment_view(appt_id):
         "doctor/appointment_view.html",
         appt=appointment,
         pitem_form=prescription_item_form,
+        pedit_form=edit_item_form,
         title=f"Appointment #{appt_id} Details",
     )
 
@@ -524,3 +527,39 @@ def add_prescription_item(prescription_id):
     }
 
     return jsonify(res_data)
+
+@doctor.route(
+    "/dashboard/doctor/prescription/<prescription_id>/edit_pitem/<item_id>", methods=["POST"]
+)
+@login_required
+def edit_prescription_item(prescription_id, item_id):
+    form = PresEditItemForm()
+    item: Prescribed_Items = Prescribed_Items.query.filter(Prescribed_Items.pres_item_id == int(item_id)).first()
+
+    item.medicine = form.edit_medicine.data
+    item.dosage = form.edit_dosage.data
+    item.instruction = form.edit_instruction.data
+    item.duration = form.edit_duration.data
+
+    db.session.commit()
+
+    res_data = {
+        "result": "success",
+        "id": item.pres_item_id,
+        "medicine": item.medicine,
+        "dosage": item.dosage,
+        "instruction": item.instruction,
+        "duration": item.duration,
+    }
+
+    return jsonify(res_data)
+
+
+@doctor.route("/dashboard/doctor/prescription/<prescription_id>/delete_pitem/<item_id>", methods=["DELETE"])
+@login_required
+def delete_prescription_item(prescription_id, item_id):
+    item: Prescribed_Items = Prescribed_Items.query.filter(Prescribed_Items.pres_item_id == int(item_id)).first()
+    if item:
+        db.session.delete(item)
+        db.session.commit()
+        return "success"

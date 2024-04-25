@@ -101,4 +101,11 @@ class PresItemForm(FlaskForm):
     item_dosage = StringField("Dosage", validators=[DataRequired()])
     item_duration = StringField("Duration", validators=[DataRequired()])
     item_instruction = StringField("Instruction", validators=[DataRequired()])
-    item_submit = SubmitField("Submit")
+    item_submit = SubmitField("Add to Prescription")
+
+class PresEditItemForm(FlaskForm):
+    edit_medicine = StringField("Medicine", validators=[DataRequired()])
+    edit_dosage = StringField("Dosage", validators=[DataRequired()])
+    edit_duration = StringField("Duration", validators=[DataRequired()])
+    edit_instruction = StringField("Instruction", validators=[DataRequired()])
+    edit_submit = SubmitField("Update")
