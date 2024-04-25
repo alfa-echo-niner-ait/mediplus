@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from src.users.models import Users, Patients, Managers, User_Logs
 from src.patient.models import Payments
-from src.doctor.models import Prescribed_Items
+from src.doctor.models import Prescribed_Items, Prescription_Extras
 
 api = Blueprint("api", __name__)
 
@@ -212,10 +212,15 @@ def search_patient():
         return jsonify([{"result": "fail"}])
 
 
-
 @api.route("/prescription/<pres_id>/items")
 def prescription_items(pres_id):
-    pres_items: Prescribed_Items = Prescribed_Items.query.filter(Prescribed_Items.item_pres_id == int(pres_id)).all()
+    pres_items: Prescribed_Items = Prescribed_Items.query.filter(
+        Prescribed_Items.item_pres_id == int(pres_id)
+    ).all()
+
+    pres_extras: Prescription_Extras = Prescription_Extras.query.filter(
+        Prescription_Extras.prescription_id == int(pres_id)
+    ).first()
 
     if pres_items:
         response = [{"result": "success"}]
@@ -226,15 +231,22 @@ def prescription_items(pres_id):
                 "medicine": item.medicine,
                 "dosage": item.dosage,
                 "instruction": item.instruction,
-                "duration": item.duration
+                "duration": item.duration,
             }
             items.append(data)
-            
         response.append({"items": items})
+        
+        extras = {
+            "diagnosis": pres_extras.diagnosis,
+            "notes": pres_extras.notes,
+            "next_meet": pres_extras.next_meet
+        }
+        response.append({"extras": extras})
 
-        return jsonify(response )
-    
+        return jsonify(response)
+
     return jsonify([{"result": "fail"}])
+
 
 
 @api.route("/test")

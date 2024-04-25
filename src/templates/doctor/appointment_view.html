@@ -43,22 +43,26 @@
 <div class="container">
     <div class="card">
         <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between">
-            <div class="fw-bold fs-5">Diagnosis</div>
-            <button type="button" class="btn btn-sm btn-success">
+            <div class="fw-bold fs-5">Diagnosis Details</div>
+            <button type="button" class="btn btn-sm btn-success" id="diag_info_btn">
                 <i class="bi bi-pencil-square"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-success" style="display: none;" id="diag_info_save_btn"
+                onclick="update_diagnosis()">
+                <i class="bi bi-check-square-fill"></i>
             </button>
         </div>
         <div class="card-body">
-            <p class="card-text" id="diag_info">
-                With supporting text below as a natural lead-in to additional content.
-            </p>
+            <p class="card-text" id="diag_info"></p>
+            <textarea name="diag_info_box" id="diag_info_box" rows="3"
+                class="form-control" style="display: none;"></textarea>
         </div>
     </div>
 </div>
 <div class="container mt-3">
     <div class="card">
         <div class="card-header bg-primary bg-opacity-10 d-flex justify-content-between">
-                <div class="fw-bold fs-5">Prescription</div>
+                <div class="fw-bold fs-5">Prescribe Medicine</div>
                 <button type="button" class="btn btn-sm btn-primary"
                     data-bs-toggle="modal" data-bs-target="#add_pres_item_modal">
                     <i class="bi bi-clipboard2-plus"></i>
@@ -86,27 +90,33 @@
     <div class="card mb-3">
         <div class="card-header bg-warning bg-opacity-10 d-flex justify-content-between">
             <div class="fw-bold fs-5">Prescription Note</div>
-            <button type="button" class="btn btn-sm btn-warning">
+            <button type="button" class="btn btn-sm btn-warning" id="note_info_btn">
                 <i class="bi bi-pencil-square"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-warning" style="display: none;" id="note_info_save_btn"
+                onclick="update_note()">
+                <i class="bi bi-check-square-fill"></i>
             </button>
         </div>
         <div class="card-body">
-            <p class="card-text" id="note_info">
-                With supporting text below as a natural lead-in to additional content.
-            </p>
+            <p class="card-text" id="note_info"></p>
+            <textarea name="note_info_box" id="note_info_box" rows="3" class="form-control" style="display: none;"></textarea>
         </div>
     </div>
     <div class="card mb-3">
         <div class="card-header bg-info bg-opacity-10 d-flex justify-content-between">
             <div class="fw-bold fs-5">Next Meetup</div>
-            <button type="button" class="btn btn-sm btn-info">
+            <button type="button" class="btn btn-sm btn-info" id="meet_info_btn">
                 <i class="bi bi-pencil-square"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-success" style="display: none;" id="meet_info_save_btn"
+                onclick="update_meet()">
+                <i class="bi bi-check-square-fill"></i>
             </button>
         </div>
         <div class="card-body">
-            <p class="card-text" id="meet_info">
-                With supporting text below as a natural lead-in to additional content.
-            </p>
+            <p class="card-text" id="meet_info"></p>
+            <textarea name="meet_info_box" id="meet_info_box" rows="3" class="form-control" style="display: none;"></textarea>
         </div>
     </div>
 </div>

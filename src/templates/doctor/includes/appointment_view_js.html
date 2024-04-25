@@ -1,19 +1,19 @@
 <script>
+    let toastLive;
+    let toastBootstrap;
+    let rowId;
     $(document).ready(function () {
         $("#navAppt").removeClass("text-info");
         $("#navAppt").addClass("active");
 
-        const toastLive = document.getElementById('liveToast');
-        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
-        let rowId;
-
-        // Load items
+        toastLive = document.getElementById('liveToast');
+        toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
+        // Load items and extras
         $.ajax({
             type: "GET",
             url: "{{ url_for('api.prescription_items', pres_id=appt.prescription_id) }}",
             success: function (response) {
                 if (response[0]["result"] == "success") {
-                    // var data = ""
                     $.each(response[1]["items"], function (index, item) {
                         data = `
                         <tr id="item${item.id}">
@@ -33,6 +33,11 @@
                          `
                         $("#item_list").append(data);
                     });
+                    // Extras
+                    var extras = response[2]["extras"];
+                    $("#diag_info").html(extras.diagnosis);
+                    $("#note_info").html(extras.notes);
+                    $("#meet_info").html(extras.next_meet);
                 }
             }
         });
@@ -160,5 +165,99 @@
                 }
             });
         });
+        // Diagnosis btn
+        $("#diag_info_btn").click(function (e) { 
+            $("#diag_info").hide();
+            $("#diag_info_btn").hide();
+            $("#diag_info_save_btn").show();
+            $("#diag_info_box").show();
+            $("#diag_info_box").focus();
+
+            $("#diag_info_box").val($("#diag_info").text());
+        });
+        // Note btn
+        $("#note_info_btn").click(function (e) { 
+            $("#note_info").hide();
+            $("#note_info_btn").hide();
+            $("#note_info_save_btn").show();
+            $("#note_info_box").show();
+            $("#note_info_box").focus();
+
+            $("#note_info_box").val($("#note_info").text());
+        });
+        // Meet btn
+        $("#meet_info_btn").click(function (e) { 
+            $("#meet_info").hide();
+            $("#meet_info_btn").hide();
+            $("#meet_info_save_btn").show();
+            $("#meet_info_box").show();
+            $("#meet_info_box").focus();
+
+            $("#meet_info_box").val($("#meet_info").text());
+        });
     });
+
+    function update_diagnosis() {
+        // Diagnosis save btn
+        $("#diag_info").show();
+        $("#diag_info_btn").show();
+        $("#diag_info_save_btn").hide();
+        $("#diag_info_box").hide();
+        $("#diag_info").html($("#diag_info_box").val());
+        $.ajax({
+            type: "POST",
+            url: "{{ url_for('doctor.update_prescription_diagnosis', prescription_id=appt.prescription_id) }}",
+            data: {
+                diag: $("#diag_info_box").val()
+            },
+            success: function (response) {
+                $("#toastMsg").removeClass("text-bg-danger");
+                $("#toastMsg").addClass("text-bg-success");
+                $("#toastMsg").html("Diagnosis information updated!");
+                toastBootstrap.show();
+            }
+        });
+    }
+    function update_note() {
+        // Note save btn
+        $("#note_info").show();
+        $("#note_info_btn").show();
+        $("#note_info_save_btn").hide();
+        $("#note_info_box").hide();
+        $("#note_info").html($("#note_info_box").val());
+        $.ajax({
+            type: "POST",
+            url: "{{ url_for('doctor.update_prescription_notes', prescription_id=appt.prescription_id) }}",
+            data: {
+                notes: $("#note_info_box").val()
+            },
+            success: function (response) {
+                $("#toastMsg").removeClass("text-bg-danger");
+                $("#toastMsg").addClass("text-bg-success");
+                $("#toastMsg").html("Prescription note updated!");
+                toastBootstrap.show();
+            }
+        });
+    }
+    function update_meet() {
+        // Note save btn
+        $("#meet_info").show();
+        $("#meet_info_btn").show();
+        $("#meet_info_save_btn").hide();
+        $("#meet_info_box").hide();
+        $("#meet_info").html($("#meet_info_box").val());
+        $.ajax({
+            type: "POST",
+            url: "{{ url_for('doctor.update_prescription_nextmeet', prescription_id=appt.prescription_id) }}",
+            data: {
+                meet: $("#meet_info_box").val()
+            },
+            success: function (response) {
+                $("#toastMsg").removeClass("text-bg-danger");
+                $("#toastMsg").addClass("text-bg-success");
+                $("#toastMsg").html("Next meeting information updated!");
+                toastBootstrap.show();
+            }
+        });
+    }
 </script>

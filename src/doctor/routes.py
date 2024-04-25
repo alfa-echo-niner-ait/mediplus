@@ -256,8 +256,12 @@ def accept_appointment(appt_id, patient_id):
     db.session.add(doctor_log)
 
     # Initialize prescription for the appointment
-    new_prescription = Prescriptions(appt_details.appt_id, date)
+    new_prescription = Prescriptions(appt_details.appt_id, date, date, time)
     db.session.add(new_prescription)
+    db.session.commit()
+
+    new_extras = Prescription_Extras(new_prescription.prescription_id)
+    db.session.add(new_extras)
     db.session.commit()
 
     flash("Appointment Accepted, Continue to Prescribe.", category="success")
@@ -507,6 +511,13 @@ def logs():
 def add_prescription_item(prescription_id):
     form = PresItemForm()
 
+    date, time = get_datetime()
+    prescription: Prescriptions = Prescriptions.query.filter(
+        Prescriptions.prescription_id == int(prescription_id)
+    ).first()
+    prescription.last_update_date = date
+    prescription.last_update_time = time
+
     new_item: Prescribed_Items = Prescribed_Items(
         prescription_id,
         form.item_medicine.data,
@@ -528,18 +539,29 @@ def add_prescription_item(prescription_id):
 
     return jsonify(res_data)
 
+
 @doctor.route(
-    "/dashboard/doctor/prescription/<prescription_id>/edit_pitem/<item_id>", methods=["POST"]
+    "/dashboard/doctor/prescription/<prescription_id>/edit_pitem/<item_id>",
+    methods=["POST"],
 )
 @login_required
 def edit_prescription_item(prescription_id, item_id):
     form = PresEditItemForm()
-    item: Prescribed_Items = Prescribed_Items.query.filter(Prescribed_Items.pres_item_id == int(item_id)).first()
+    item: Prescribed_Items = Prescribed_Items.query.filter(
+        Prescribed_Items.pres_item_id == int(item_id)
+    ).first()
 
     item.medicine = form.edit_medicine.data
     item.dosage = form.edit_dosage.data
     item.instruction = form.edit_instruction.data
     item.duration = form.edit_duration.data
+
+    date, time = get_datetime()
+    prescription: Prescriptions = Prescriptions.query.filter(
+        Prescriptions.prescription_id == int(prescription_id)
+    ).first()
+    prescription.last_update_date = date
+    prescription.last_update_time = time
 
     db.session.commit()
 
@@ -555,11 +577,67 @@ def edit_prescription_item(prescription_id, item_id):
     return jsonify(res_data)
 
 
-@doctor.route("/dashboard/doctor/prescription/<prescription_id>/delete_pitem/<item_id>", methods=["DELETE"])
+@doctor.route(
+    "/dashboard/doctor/prescription/<prescription_id>/delete_pitem/<item_id>",
+    methods=["DELETE"],
+)
 @login_required
 def delete_prescription_item(prescription_id, item_id):
-    item: Prescribed_Items = Prescribed_Items.query.filter(Prescribed_Items.pres_item_id == int(item_id)).first()
+    item: Prescribed_Items = Prescribed_Items.query.filter(
+        Prescribed_Items.pres_item_id == int(item_id)
+    ).first()
     if item:
         db.session.delete(item)
+
+        date, time = get_datetime()
+        prescription: Prescriptions = Prescriptions.query.filter(
+            Prescriptions.prescription_id == int(prescription_id)
+        ).first()
+        prescription.last_update_date = date
+        prescription.last_update_time = time
+
+        db.session.commit()
+        return "success"
+
+
+@doctor.route(
+    "/dashboard/doctor/prescription/<prescription_id>/update/diagnosis",
+    methods=["POST"],
+)
+@login_required
+def update_prescription_diagnosis(prescription_id):
+    extras: Prescription_Extras = Prescription_Extras.query.filter(
+        Prescription_Extras.prescription_id == int(prescription_id)
+    ).first()
+    if extras:
+        extras.diagnosis = request.form.get("diag")
+        db.session.commit()
+        return "success"
+
+
+@doctor.route(
+    "/dashboard/doctor/prescription/<prescription_id>/update/notes", methods=["POST"]
+)
+@login_required
+def update_prescription_notes(prescription_id):
+    extras: Prescription_Extras = Prescription_Extras.query.filter(
+        Prescription_Extras.prescription_id == int(prescription_id)
+    ).first()
+    if extras:
+        extras.notes = request.form.get("notes")
+        db.session.commit()
+        return "success"
+
+
+@doctor.route(
+    "/dashboard/doctor/prescription/<prescription_id>/update/nextmeet", methods=["POST"]
+)
+@login_required
+def update_prescription_nextmeet(prescription_id):
+    extras: Prescription_Extras = Prescription_Extras.query.filter(
+        Prescription_Extras.prescription_id == int(prescription_id)
+    ).first()
+    if extras:
+        extras.next_meet = request.form.get("meet")
         db.session.commit()
         return "success"
