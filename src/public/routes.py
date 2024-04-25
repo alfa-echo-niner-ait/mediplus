@@ -7,6 +7,7 @@ from flask import (
     request,
     session,
 )
+from sqlalchemy.orm import aliased
 from flask_login import current_user, login_user, login_required, logout_user
 from src.public.forms import (
     LoginForm,
@@ -19,7 +20,14 @@ from src.public.forms import (
 )
 from src.public.utils import get_datetime
 from src.users.models import Users, Patients, User_Logs, Managers, Doctors
-from src.doctor.models import Doctor_Time, Appointments, Appointment_Details, Prescriptions
+from src.doctor.models import (
+    Doctor_Time,
+    Appointments,
+    Appointment_Details,
+    Prescriptions,
+    Prescribed_Items,
+    Prescription_Extras,
+)
 from src.patient.models import (
     Medical_Info,
     Invoices,
@@ -39,15 +47,14 @@ def index():
     if current_user.is_authenticated:
         if current_user.role == "Patient":
             session["pending_items"] = Pending_Items.query.filter_by(
-                item_user_id=current_user.id).count()
+                item_user_id=current_user.id
+            ).count()
         if "avatar" not in session:
             if current_user.role == "Patient":
-                patient = Patients.query.filter_by(
-                    p_id=current_user.id).first()
+                patient = Patients.query.filter_by(p_id=current_user.id).first()
                 session["avatar"] = patient.avatar
             elif current_user.role == "Manager":
-                manager = Managers.query.filter_by(
-                    m_id=current_user.id).first()
+                manager = Managers.query.filter_by(m_id=current_user.id).first()
                 session["avatar"] = manager.avatar
             elif current_user.role == "Doctor":
                 doctor = Doctors.query.filter_by(d_id=current_user.id).first()
@@ -79,7 +86,8 @@ def login():
                 patient = Patients.query.filter_by(p_id=user.id).first()
                 session["avatar"] = patient.avatar
                 session["pending_items"] = Pending_Items.query.filter_by(
-                    item_user_id=current_user.id).count()
+                    item_user_id=current_user.id
+                ).count()
             elif user.role == "Manager":
                 manager = Managers.query.filter_by(m_id=user.id).first()
                 session["avatar"] = manager.avatar
@@ -90,8 +98,8 @@ def login():
             date, time = get_datetime()
 
             new_log = User_Logs(current_user.id, "Login", date, time)
-            new_log.log_desc = f"IP: {request.remote_addr}, Device: {
-                request.headers.get("User-Agent")}"
+            new_log.log_desc = f"""IP: {request.remote_addr},
+            Device: {request.headers.get("User-Agent")}"""
 
             db.session.add(new_log)
             db.session.commit()
@@ -105,8 +113,8 @@ def login():
 def logout():
     date, time = get_datetime()
     new_log = User_Logs(current_user.id, "Logout", date, time)
-    new_log.log_desc = f"IP: {request.remote_addr}, Device: {
-        request.headers.get("User-Agent")}"
+    new_log.log_desc = f"""IP: {request.remote_addr},
+    Device: {request.headers.get("User-Agent")}"""
 
     db.session.add(new_log)
     db.session.commit()
@@ -133,8 +141,7 @@ def register():
         birthdate = form.birthdate.data
 
         avatar = "user_male.svg" if gender == "Male" else "user_female.svg"
-        password_hash = hash_manager.generate_password_hash(
-            password).decode("utf-8")
+        password_hash = hash_manager.generate_password_hash(password).decode("utf-8")
         date, time = get_datetime()
 
         new_user = Users(username, password_hash, email, gender, "Patient")
@@ -142,11 +149,10 @@ def register():
         db.session.commit()
 
         user = Users.query.filter_by(username=username).first()
-        new_patient = Patients(user.id, first_name,
-                               last_name, birthdate, avatar)
+        new_patient = Patients(user.id, first_name, last_name, birthdate, avatar)
         new_log = User_Logs(user.id, "Registration", date, time)
-        new_log.log_desc = f"IP: {request.remote_addr}, Device: {
-            request.headers.get("User-Agent")}"
+        new_log.log_desc = f"""IP: {request.remote_addr},
+        Device: {request.headers.get("User-Agent")}"""
 
         db.session.add(new_patient)
         db.session.add(new_log)
@@ -179,8 +185,8 @@ def reset_request():
 
             date, time = get_datetime()
             new_log = User_Logs(user.id, "Password Reset Request", date, time)
-            new_log.log_desc = f"IP: {request.remote_addr}, Device: {
-                request.headers.get("User-Agent")}"
+            new_log.log_desc = f"""IP: {request.remote_addr},
+            Device: {request.headers.get("User-Agent")}"""
 
             db.session.add(new_log)
             db.session.commit()
@@ -206,30 +212,24 @@ def reset_password(username, token):
                 "public/reset_password.html", form=form, title="Change Password"
             )
         else:
-            flash("Reset link error or timedout! Please try again!",
-                  category="danger")
+            flash("Reset link error or timedout! Please try again!", category="danger")
             return redirect(url_for("public.reset_request"))
 
     if form.validate_on_submit():
         password = form.password.data
-        password_hash = hash_manager.generate_password_hash(password).decode(
-            "utf-8"
-        )
+        password_hash = hash_manager.generate_password_hash(password).decode("utf-8")
 
         user.password_hash = password_hash
         user.token = ""
 
         date, time = get_datetime()
         new_log = User_Logs(user.id, "Change Password", date, time)
-        new_log.log_desc = f"IP: {request.remote_addr}, Device: {
-            request.headers.get("User-Agent")}"
+        new_log.log_desc = f"""IP: {request.remote_addr}, Device: {request.headers.get("User-Agent")}"""
 
         db.session.add(new_log)
         db.session.commit()
 
-        flash(
-            "Password changed successfully! Login to continue.", category="success"
-        )
+        flash("Password changed successfully! Login to continue.", category="success")
         return redirect(url_for("public.login"))
     else:
         flash("Sorry, password didn't match!", category="danger")
@@ -243,7 +243,8 @@ def reset_password(username, token):
 def dashboard():
     if current_user.role == "Patient":
         session["pending_items"] = Pending_Items.query.filter_by(
-            item_user_id=current_user.id).count()
+            item_user_id=current_user.id
+        ).count()
     if "avatar" not in session:
         if current_user.role == "Patient":
             patient = Patients.query.filter_by(p_id=current_user.id).first()
@@ -267,7 +268,8 @@ def dashboard():
 def invoice(id):
     invoice: Invoices = Invoices.query.filter_by(invoice_id=id).first_or_404()
     patient: Patients = Patients.query.filter_by(
-        p_id=invoice.invoice_patient_id).first()
+        p_id=invoice.invoice_patient_id
+    ).first()
     items: Invoice_Items = Invoice_Items.query.filter_by(invoice_id=id).all()
 
     url = url_for(
@@ -276,14 +278,21 @@ def invoice(id):
         _external=True,
     )
     return render_template(
-        "public/invoice.html", title=f"Invoice #{id}", invoice=invoice, patient=patient, items=items, url=url)
+        "public/invoice.html",
+        title=f"Invoice #{id}",
+        invoice=invoice,
+        patient=patient,
+        items=items,
+        url=url,
+    )
 
 
 @public.route("/tests", methods=["GET", "POST"])
 def tests():
     if current_user.is_authenticated and current_user.role == "Patient":
         session["pending_items"] = Pending_Items.query.filter_by(
-            item_user_id=current_user.id).count()
+            item_user_id=current_user.id
+        ).count()
     page_num = request.args.get("page", 1, int)
     title = "Medical Tests"
     search = "no"
@@ -297,34 +306,38 @@ def tests():
         if page_num > 1:
             page_num = 1
         tests = Medical_Tests.query.filter(
-            Medical_Tests.test_name.icontains(
-                form.keyword.data) | Medical_Tests.test_desc.icontains(form.keyword.data)
+            Medical_Tests.test_name.icontains(form.keyword.data)
+            | Medical_Tests.test_desc.icontains(form.keyword.data)
         ).paginate(page=page_num, per_page=15)
         title = f"Search Result: {form.keyword.data}"
         search = "yes"
 
-    return render_template("public/tests.html", form=form, tests=tests, search=search, title=title)
+    return render_template(
+        "public/tests.html", form=form, tests=tests, search=search, title=title
+    )
 
 
-@public.route('/doctors', methods=["GET", "POST"])
+@public.route("/doctors", methods=["GET", "POST"])
 def doctors():
     page_num = request.args.get("page", 1, int)
     title = "Doctors List"
     search = "no"
     form = SearchDoctorForm()
 
-    doctors = Doctors.query.join(
-        Users, Doctors.d_id == Users.id
-    ).join(
-        Doctor_Time, Doctors.d_id == Doctor_Time.doctor_id
-        ).add_columns(
-        Users.gender,
-        Doctors.d_id,
-        Doctors.first_name,
-        Doctors.last_name,
-        Doctors.title, Doctors.avatar,
-        Doctor_Time.appt_status,
-    ).paginate(page=page_num, per_page=12)
+    doctors = (
+        Doctors.query.join(Users, Doctors.d_id == Users.id)
+        .join(Doctor_Time, Doctors.d_id == Doctor_Time.doctor_id)
+        .add_columns(
+            Users.gender,
+            Doctors.d_id,
+            Doctors.first_name,
+            Doctors.last_name,
+            Doctors.title,
+            Doctors.avatar,
+            Doctor_Time.appt_status,
+        )
+        .paginate(page=page_num, per_page=12)
+    )
 
     if form.validate_on_submit():
         if page_num > 1:
@@ -332,29 +345,37 @@ def doctors():
         search = "yes"
         title = f"Search Result: {form.keyword.data}"
 
-        doctors = Doctors.query.filter(
-            Doctors.title.icontains(form.keyword.data) | Doctors.last_name.icontains(
-                form.keyword.data) | Doctors.first_name.icontains(form.keyword.data)
-        ).join(Users, Doctors.d_id == Users.id
-               ).add_columns(
-            Users.gender,
-            Doctors.d_id,
-            Doctors.first_name,
-            Doctors.last_name,
-            Doctors.title,
-            Doctors.avatar,
-        ).paginate(page=page_num, per_page=12)
+        doctors = (
+            Doctors.query.filter(
+                Doctors.title.icontains(form.keyword.data)
+                | Doctors.last_name.icontains(form.keyword.data)
+                | Doctors.first_name.icontains(form.keyword.data)
+            )
+            .join(Users, Doctors.d_id == Users.id)
+            .add_columns(
+                Users.gender,
+                Doctors.d_id,
+                Doctors.first_name,
+                Doctors.last_name,
+                Doctors.title,
+                Doctors.avatar,
+            )
+            .paginate(page=page_num, per_page=12)
+        )
 
-    return render_template('public/doctors.html',
-                           doctors=doctors, form=form,
-                           search=search, title=title)
+    return render_template(
+        "public/doctors.html", doctors=doctors, form=form, search=search, title=title
+    )
 
 
-@public.route('/doctors/<id>')
+@public.route("/doctors/<id>")
 @login_required
 def view_doctor(id):
-    doctor = Doctors.query.filter(Doctors.d_id == int(id)).join(
-        Users, Doctors.d_id == Users.id).join(Doctor_Time, Doctors.d_id == Doctor_Time.doctor_id).add_columns(
+    doctor = (
+        Doctors.query.filter(Doctors.d_id == int(id))
+        .join(Users, Doctors.d_id == Users.id)
+        .join(Doctor_Time, Doctors.d_id == Doctor_Time.doctor_id)
+        .add_columns(
             Users.gender,
             Doctors.d_id,
             Doctors.first_name,
@@ -363,22 +384,25 @@ def view_doctor(id):
             Doctors.avatar,
             Doctor_Time.appt_status,
             Doctor_Time.day_time_slot,
-    ).first_or_404()
-    
+        )
+        .first_or_404()
+    )
+
     days = [int(time) for time in doctor.day_time_slot.get("days", [])]
     form = AppointmentForm()
     if request.method == "GET" and doctor.day_time_slot:
         form.times.data = doctor.day_time_slot["times"]
 
     return render_template(
-        'public/doctor_details.html',
+        "public/doctor_details.html",
         doctor=doctor,
         form=form,
         days=days,
-        title=f"Dr. {doctor.last_name} {doctor.first_name}"
-        )
-    
-@public.route('/doctors/<doctor_id>/book_appt', methods=["POST"])
+        title=f"Dr. {doctor.last_name} {doctor.first_name}",
+    )
+
+
+@public.route("/doctors/<doctor_id>/book_appt", methods=["POST"])
 @login_required
 def book_appointment(doctor_id):
     form = AppointmentForm()
@@ -387,32 +411,76 @@ def book_appointment(doctor_id):
             new_appt: Appointments = Appointments(int(doctor_id), current_user.id)
             db.session.add(new_appt)
             db.session.commit()
-            
-            new_appt_details: Appointment_Details = Appointment_Details(new_appt.appt_id, "Booked", form.appt_date.data, form.times.data[0])
+
+            new_appt_details: Appointment_Details = Appointment_Details(
+                new_appt.appt_id, "Booked", form.appt_date.data, form.times.data[0]
+            )
             db.session.add(new_appt_details)
             db.session.commit()
-            
+
             date, time = get_datetime()
-            new_log: User_Logs = User_Logs(current_user.id, "New Appointment", date, time)
+            new_log: User_Logs = User_Logs(
+                current_user.id, "New Appointment", date, time
+            )
             new_log.log_desc = f"Appointment #{new_appt.appt_id}, Detail #{new_appt_details.appt_detail_id}, Doctor #{doctor_id}"
             db.session.add(new_log)
             db.session.commit()
 
             flash("Booking Appointment Successfull!", category="success")
-            return redirect(url_for('public.view_doctor', id=doctor_id))
+            return redirect(url_for("public.view_doctor", id=doctor_id))
 
         else:
             flash("Booking Appointment Failed!", category="danger")
-            return redirect(url_for('public.view_doctor', id=doctor_id))
+            return redirect(url_for("public.view_doctor", id=doctor_id))
 
 
-@public.route('/prescription/<pres_id>')
+@public.route("/prescription/<pres_id>")
 def prescription(pres_id):
-    prescription: Prescriptions = Prescriptions.query.filter(Prescriptions.prescription_id == int(pres_id)).first_or_404()
+    doctor = aliased(Doctors)
+    patient = aliased(Patients)
+
+    prescription: Prescriptions = (
+        Prescriptions.query.filter(Prescriptions.prescription_id == int(pres_id))
+        .join(
+            Prescription_Extras,
+            Prescription_Extras.prescription_id == Prescriptions.prescription_id,
+        )
+        .join(Appointments, Appointments.appt_id == Prescriptions.pres_appt_id)
+        .join(patient, patient.p_id == Appointments.appt_patient_id)
+        .join(doctor, doctor.d_id == Appointments.appt_doctor_id)
+        .join(Users, Users.id == patient.p_id)
+        .add_columns(
+            Prescriptions.prescription_id,
+            Prescriptions.pres_date,
+            Prescriptions.last_update_date,
+            Prescription_Extras.diagnosis,
+            Prescription_Extras.notes,
+            Prescription_Extras.next_meet,
+            Users.gender,
+            patient.first_name.label("patient_first_name"),
+            patient.last_name.label("patient_last_name"),
+            patient.birthdate.label("patient_dob"),
+            doctor.d_id.label("doctor_id"),
+            doctor.first_name.label("doctor_first_name"),
+            doctor.last_name.label("doctor_last_name"),
+            doctor.title.label("doctor_title"),
+        )
+        .first_or_404()
+    )
+
+    prescription_items: Prescribed_Items = Prescribed_Items.query.filter(
+        Prescribed_Items.item_pres_id == int(pres_id)
+    ).all()
+
     url = url_for(
         "public.prescription",
         pres_id=prescription.prescription_id,
         _external=True,
     )
     return render_template(
-        "public/prescription.html", title=f"Prescription #{pres_id}", url=url)
+        "public/prescription.html",
+        pres=prescription,
+        items=prescription_items,
+        url=url,
+        title=f"Prescription #{pres_id}",
+    )
