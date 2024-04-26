@@ -31,6 +31,7 @@ from src.patient.forms import (
     MedicalInfoForm,
     Record_Upload_Form,
 )
+from src.doctor.models import Appointments, Appointment_Details, Prescriptions
 from src import db, hash_manager
 from src.public.utils import (
     get_datetime,
@@ -65,6 +66,31 @@ def dashboard():
 
     return render_template(
         "patient/dashboard.html", user=user, ip=ip, info=info, title="Dashboard"
+    )
+
+@patient.route("/dashboard/patient/new")
+@login_required
+def dashboard_new():
+    user = (
+        Patients.query.join(Users, Patients.p_id == Users.id)
+        .filter(Patients.p_id == current_user.id)
+        .add_columns(
+            Users.username,
+            Users.gender,
+            Users.email,
+            Patients.first_name,
+            Patients.last_name,
+            Patients.phone,
+            Patients.birthdate,
+            Patients.avatar,
+        )
+        .first()
+    )
+    ip = request.remote_addr
+    info = request.headers.get("User-Agent")
+
+    return render_template(
+        "patient/new_dashboard.html", user=user, ip=ip, info=info, title="Dashboard"
     )
 
 
@@ -562,3 +588,13 @@ def download_report_file(file_id):
     else:
         flash("Download failed! Access denied.", category="danger")
         return redirect(url_for("patient.medical_records"))
+
+
+@patient.route("/dashboard/patient/appointments")
+@login_required
+def appointments():
+
+    return render_template(
+        "patient/appointments.html",
+        title=f"Appointment History",
+    )
