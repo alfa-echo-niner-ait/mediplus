@@ -13,7 +13,7 @@ from flask import (
     session,
 )
 from flask_login import login_required, current_user
-from src.users.models import Users, Patients, Managers, User_Logs
+from src.users.models import Users, Patients, Doctors, Managers, User_Logs
 from src.patient.models import (
     Medical_Info,
     Patient_Record_Files,
@@ -40,10 +40,10 @@ from src.public.utils import (
 )
 
 
-patient = Blueprint("patient", __name__)
+patient = Blueprint(name="patient", import_name=__name__, url_prefix="/patient")
 
 
-@patient.route("/dashboard/patient")
+@patient.route("/dashboard")
 @login_required
 def dashboard():
     user = (
@@ -66,31 +66,6 @@ def dashboard():
 
     return render_template(
         "patient/dashboard.html", user=user, ip=ip, info=info, title="Dashboard"
-    )
-
-@patient.route("/dashboard/patient/new")
-@login_required
-def dashboard_new():
-    user = (
-        Patients.query.join(Users, Patients.p_id == Users.id)
-        .filter(Patients.p_id == current_user.id)
-        .add_columns(
-            Users.username,
-            Users.gender,
-            Users.email,
-            Patients.first_name,
-            Patients.last_name,
-            Patients.phone,
-            Patients.birthdate,
-            Patients.avatar,
-        )
-        .first()
-    )
-    ip = request.remote_addr
-    info = request.headers.get("User-Agent")
-
-    return render_template(
-        "patient/new_dashboard.html", user=user, ip=ip, info=info, title="Dashboard"
     )
 
 
@@ -185,7 +160,7 @@ def create_invoice():
     return redirect(url_for("patient.invoices"))
 
 
-@patient.route("/dashboard/patient/update_profile", methods=["GET", "POST"])
+@patient.route("/dashboard/update_profile", methods=["GET", "POST"])
 @login_required
 def update_profile():
     form = UpdateProfileForm()
@@ -239,7 +214,7 @@ def update_profile():
     )
 
 
-@patient.route("/dashboard/patient/change_password", methods=["GET", "POST"])
+@patient.route("/dashboard/change_password", methods=["GET", "POST"])
 @login_required
 def change_password():
     form = ChangePasswordForm()
@@ -272,7 +247,7 @@ def change_password():
     )
 
 
-@patient.route("/dashboard/patient/medical_records", methods=["GET", "POST"])
+@patient.route("/dashboard/medical_records", methods=["GET", "POST"])
 @login_required
 def medical_records():
     page_num = request.args.get("page", 1, int)
@@ -323,7 +298,7 @@ def medical_records():
 
 
 # Record file upload handler
-@patient.route("/dashboard/patient/upload_record", methods=["POST"])
+@patient.route("/dashboard/upload_record", methods=["POST"])
 @login_required
 def upload_record():
     upload_form = Record_Upload_Form()
@@ -362,7 +337,7 @@ def upload_record():
         return redirect(url_for("patient.medical_records"))
 
 
-@patient.route("/dashboard/patient/delete_record/<id>", methods=["GET"])
+@patient.route("/dashboard/delete_record/<id>", methods=["GET"])
 @login_required
 def delete_record_file(id):
     file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
@@ -395,7 +370,7 @@ def delete_record_file(id):
         return redirect(url_for("patient.medical_records"))
 
 
-@patient.route("/dashboard/patient/file/<id>")
+@patient.route("/dashboard/file/<id>")
 @login_required
 def view_record_file(id):
     file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
@@ -431,7 +406,7 @@ def download_record_file(file_id):
         return redirect(url_for("patient.medical_records"))
 
 
-@patient.route("/dashboard/patient/logs")
+@patient.route("/dashboard/logs")
 @login_required
 def logs():
     page_num = request.args.get("page", 1, int)
@@ -444,7 +419,7 @@ def logs():
     return render_template("patient/logs.html", logs=logs, title="Activity Logs")
 
 
-@patient.route("/dashboard/patient/invoices")
+@patient.route("/dashboard/invoices")
 @login_required
 def invoices():
     page_num = request.args.get("page", 1, int)
@@ -458,7 +433,7 @@ def invoices():
     return render_template("patient/invoices.html", title="Invoices", invoices=invoices)
 
 
-@patient.route("/dashboard/patient/tests")
+@patient.route("/dashboard/tests")
 @login_required
 def tests():
     page_num = request.args.get("page", 1, int)
@@ -486,7 +461,7 @@ def tests():
     return render_template("patient/tests.html", items=items, title="My Medical Tests")
 
 
-@patient.route("/dashboard/patient/tests/<serial>")
+@patient.route("/dashboard/tests/<serial>")
 @login_required
 def test_report(serial):
     item = (
@@ -524,7 +499,7 @@ def test_report(serial):
     )
 
 
-@patient.route("/dashboard/patient/tests/<serial_number>/report/<id>")
+@patient.route("/dashboard/tests/<serial_number>/report/<id>")
 @login_required
 def view_report_file(serial_number, id):
     file = (
@@ -590,11 +565,78 @@ def download_report_file(file_id):
         return redirect(url_for("patient.medical_records"))
 
 
-@patient.route("/dashboard/patient/appointments")
+@patient.route("/dashboard/appointments")
 @login_required
 def appointments():
+    page_num = request.args.get("page", 1, int)
 
+    appointments = (
+        Appointments.query.filter(Appointments.appt_patient_id == current_user.id)
+        .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
+        .join(Doctors, Appointments.appt_doctor_id == Doctors.d_id)
+        .join(Users, Users.id == Doctors.d_id)
+        .order_by(Appointment_Details.appt_date.desc())
+        .add_columns(
+            Appointments.appt_id,
+            Appointment_Details.appt_status,
+            Appointment_Details.appt_date,
+            Appointment_Details.appt_time,
+            Doctors.d_id,
+            Doctors.last_name,
+            Doctors.first_name,
+            Doctors.title,
+            Doctors.avatar,
+            Users.gender,
+        )
+        .paginate(page=page_num, per_page=10)
+    )
     return render_template(
         "patient/appointments.html",
+        appointments=appointments,
         title=f"Appointment History",
+    )
+
+
+@patient.route("/dashboard/prescriptions")
+@login_required
+def prescriptions():
+    page_num = request.args.get("page", 1, int)
+
+    prescriptions = (
+        Prescriptions.query.join(
+            Appointments, Appointments.appt_id == Prescriptions.pres_appt_id
+        )
+        .filter(Appointments.appt_patient_id == current_user.id)
+        .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
+        .join(Doctors, Doctors.d_id == Appointments.appt_doctor_id)
+        .join(Users, Users.id == Doctors.d_id)
+        .add_columns(
+            Prescriptions.prescription_id,
+            Prescriptions.last_update_date,
+            Appointment_Details.appt_date,
+            Appointment_Details.appt_time,
+            Doctors.d_id,
+            Doctors.last_name,
+            Doctors.first_name,
+            Users.gender,
+        )
+        .paginate(page=page_num, per_page=12)
+    )
+
+    return render_template(
+        "patient/prescriptions.html",
+        prescriptions=prescriptions,
+        title=f"My Prescriptions",
+    )
+
+
+@patient.route("/dashboard/appointments/<appt_id>/prescription")
+@login_required
+def view_prescription(appt_id):
+    prescription: Prescriptions = Prescriptions.query.filter(
+        Prescriptions.pres_appt_id == int(appt_id)
+    ).first_or_404()
+
+    return redirect(
+        url_for("public.prescription", pres_id=prescription.prescription_id)
     )

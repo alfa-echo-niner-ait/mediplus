@@ -1,15 +1,16 @@
 {% extends 'layout/layout_public.html' %}
 
 {% block content %}
-<div class="container mt-3">
+<div class="container mt-2">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
             <li class="breadcrumb-item">
-                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                <a class="link-body-emphasis fw-semibold text-decoration-none"
+                    href="{{ url_for('public.index') }}">
                     Home
                 </a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">
+            <li class="breadcrumb-item active">
                 Dashboard
             </li>
         </ol>
@@ -112,7 +113,7 @@
     </div>
 </div>
 
-<div class="container mb-3">
+<div class="container mt-3 mb-3">
     <div class="pb-2 fs-4 fw-bold border-bottom">
         <i class="bi bi-person-fill-gear"></i> Account Operations
     </div>
@@ -174,7 +175,7 @@
                 <i class="bi bi-prescription"></i>
             </div>
             <div>
-                <a href=""
+                <a href="{{ url_for('patient.prescriptions') }}"
                     class="text-decoration-none fw-bold mb-0 fs-4 text-success">
                     Prescriptions
                 </a>
@@ -195,13 +196,21 @@
         </div>
         <div class="col d-flex align-items-start">
             <div class="fs-3 text-success me-3">
-                <i class="bi bi-person-fill-add"></i>
+                <i class="bi bi-list-task"></i>
             </div>
             <div>
-                <a href=""
+                {% if session['pending_items'] > 0 %}
+                <a href="{{ url_for('patient.pending_items') }}"
                     class="text-decoration-none fw-bold mb-0 fs-4 text-success">
                     Pending Items
                 </a>
+                <small><sup class="badge rounded-pill text-bg-danger">{{ session['pending_items'] }}</sup></small>
+                {% else %}
+                <a class="text-decoration-none fw-bold mb-0 fs-4 text-success">
+                    Pending Items
+                </a>
+                <small><sup class="badge rounded-pill text-bg-secondary">0</sup></small>
+                {% endif %}
                 <p>Paragraph of text beneath the heading to explain the heading.</p>
             </div>
         </div>
