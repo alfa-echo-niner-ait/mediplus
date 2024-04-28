@@ -16,6 +16,13 @@ from flask import (
 )
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Doctors, Patients
+from src.patient.models import (
+    Medical_Info,
+    Medical_Report_Files,
+    Medical_Test_Book,
+    Invoices,
+    Invoice_Items,
+)
 from src.doctor.models import Doctor_Time
 from src.doctor.models import (
     Appointments,
@@ -44,6 +51,163 @@ def dashboard():
 
     flash("Page loaded successfully!", category="info")
     return render_template("doctor/dashboard.html")
+
+
+@doctor.route("/dashboard/doctor/patients")
+@login_required
+def patients():
+    if current_user.role != "Doctor":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    patients = (
+        Patients.query.join(Appointments, Appointments.appt_patient_id == Patients.p_id)
+        .filter(Appointments.appt_doctor_id == current_user.id)
+        .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
+        .filter(Appointment_Details.appt_status == "Completed")
+        .join(Users, Users.id == Patients.p_id)
+        .add_columns(
+            Patients.p_id,
+            Patients.last_name,
+            Patients.first_name,
+            Patients.phone,
+            Patients.birthdate,
+            Patients.avatar,
+            Users.gender,
+        )
+        .paginate(page=page_num, per_page=12)
+    )
+    return render_template(
+        "doctor/patients.html", patients=patients, title="My Patients"
+    )
+
+
+@doctor.route("/dashboard/doctor/patients/<patient_id>")
+@login_required
+def view_patient(patient_id):
+    if current_user.role != "Doctor":
+        abort(403)
+
+    patient: Patients = (
+        Patients.query.filter(Patients.p_id == int(patient_id))
+        .join(Users, Users.id == Patients.p_id)
+        .join(Medical_Info, Medical_Info.patient_id == Patients.p_id)
+        .add_columns(
+            Patients.p_id,
+            Patients.last_name,
+            Patients.first_name,
+            Patients.phone,
+            Patients.birthdate,
+            Patients.avatar,
+            Users.gender,
+            Users.email,
+            Medical_Info.blood_group,
+            Medical_Info.height_cm,
+            Medical_Info.weight_kg,
+            Medical_Info.allergies,
+            Medical_Info.medical_conditions,
+        )
+        .first_or_404()
+    )
+
+    return render_template(
+        "doctor/view_patient.html",
+        patient=patient,
+        title=f"Patient {patient.last_name} {patient.first_name}",
+    )
+
+
+@doctor.route("/dashboard/doctor/patients/<patient_id>/appointments")
+@login_required
+def view_patient_appointments(patient_id):
+    if current_user.role != "Doctor":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    patient: Patients = Patients.query.filter(
+        Patients.p_id == int(patient_id)
+    ).first_or_404()
+    appointments = (
+        Appointments.query.filter(Appointments.appt_patient_id == patient.p_id)
+        .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
+        .filter(Appointment_Details.appt_status == "Completed")
+        .join(Doctors, Appointments.appt_doctor_id == Doctors.d_id)
+        .join(Users, Users.id == Doctors.d_id)
+        .order_by(Appointment_Details.appt_date.desc())
+        .add_columns(
+            Appointments.appt_id,
+            Appointment_Details.appt_status,
+            Appointment_Details.appt_date,
+            Appointment_Details.appt_time,
+            Doctors.d_id,
+            Doctors.last_name,
+            Doctors.first_name,
+            Doctors.title,
+            Doctors.avatar,
+            Users.gender,
+        )
+        .paginate(page=page_num, per_page=10)
+    )
+
+    return render_template(
+        "doctor/patient_appointments.html",
+        patient=patient,
+        appointments=appointments,
+        title=f"Patient Appointment History",
+    )
+
+
+@doctor.route("/dashboard/doctor/patients/<patient_id>/tests")
+@login_required
+def view_patient_tests(patient_id):
+    if current_user.role != "Doctor":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    patient: Patients = Patients.query.filter(
+        Patients.p_id == int(patient_id)
+    ).first_or_404()
+    tests = (
+        Medical_Test_Book.query.filter(
+            Medical_Test_Book.test_patient_id == Patients.p_id
+        )
+        .filter(Medical_Test_Book.test_patient_id == patient.p_id)
+        .filter(Medical_Test_Book.test_status == "Done")
+        .join(Invoice_Items, Invoice_Items.item_id == Medical_Test_Book.invoice_item_id)
+        .join(Invoices, Invoices.invoice_id == Invoice_Items.invoice_id)
+        .order_by(Invoices.invoice_date.desc())
+        .add_columns(
+            Medical_Test_Book.serial_number,
+            Invoice_Items.item_desc,
+            Invoices.invoice_date,
+        )
+        .paginate(page=page_num, per_page=12)
+    )
+
+    return render_template(
+        "doctor/patient_test_files.html",
+        patient=patient,
+        tests=tests,
+        title=f"Patient Medical Tests",
+    )
+
+
+@doctor.route("/dashboard/doctor/patients/<patient_id>/records")
+@login_required
+def view_patient_records(patient_id):
+    if current_user.role != "Doctor":
+        abort(403)
+
+    patient = Patients.query.filter(Patients.p_id == int(patient_id)).first_or_404()
+
+    return render_template(
+        "doctor/patient_record_files.html",
+        patient=patient,
+        title=f"Patient Medical Records",
+    )
 
 
 @doctor.route("/dashboard/doctor/appointments")
@@ -89,16 +253,16 @@ def appointment_view(appt_id):
 
     prescription_item_form = PresItemForm()
     edit_item_form = PresEditItemForm()
+
     appointment = (
         Appointments.query.filter(Appointments.appt_id == int(appt_id))
         .join(Appointment_Details, Appointments.appt_id == Appointment_Details.appt_id)
         .join(Patients, Appointments.appt_patient_id == Patients.p_id)
-        .join(Prescriptions, Prescriptions.pres_appt_id == Appointments.appt_id)
+        .join(Medical_Info, Medical_Info.patient_id == Patients.p_id)
         .join(Users, Patients.p_id == Users.id)
-        .order_by(Appointment_Details.appt_date.asc())
+        .join(Prescriptions, Prescriptions.pres_appt_id == Appointments.appt_id)
         .add_columns(
             Appointments.appt_id,
-            Appointment_Details.appt_status,
             Appointment_Details.appt_date,
             Appointment_Details.appt_time,
             Prescriptions.prescription_id,
@@ -109,6 +273,11 @@ def appointment_view(appt_id):
             Patients.phone,
             Patients.birthdate,
             Patients.avatar,
+            Medical_Info.blood_group,
+            Medical_Info.height_cm,
+            Medical_Info.weight_kg,
+            Medical_Info.allergies,
+            Medical_Info.medical_conditions,
         )
         .first_or_404()
     )

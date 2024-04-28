@@ -14,34 +14,25 @@
                     Dashboard
                 </a>
             </li>
-            <li class="breadcrumb-item">
-                <a class="link-body-emphasis fw-semibold text-decoration-none"
-                    href="{{ url_for('doctor.appointments') }}">
-                    Appointments
-                </a>
-            </li>
             <li class="breadcrumb-item active">
-                Accepted Appointments
+                Patients
             </li>
         </ol>
     </nav>
 </div>
-
 <div class="container">
     <div class="my-3 p-3 bg-body rounded shadow-sm">
-        <h4 class="border-bottom pb-2 mb-0">Appointments List</h4>
-        {% if appointments.total != 0 %}
-        {% for appt in appointments %}
+        <h4 class="border-bottom pb-2 mb-0">Patients List</h4>
+        {% if patients.total != 0 %}
+        {% for pat in patients %}
         <div class="d-flex text-muted pt-3">
-            <img src="{{ url_for('static', filename='avatars/patient/'~appt.avatar) }}" alt="{{ appt.last_name }}"
+            <img src="{{ url_for('static', filename='avatars/patient/'~pat.avatar) }}" alt="{{ pat.last_name }}"
                 width="70" height="70" class="rounded-circle flex-shrink-0 me-2 mt-3">
             <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
                 <div class="d-flex justify-content-between">
                     <strong class="fs-6 mt-2 text-gray-dark">
-                        <a href="{{ url_for('doctor.view_patient', patient_id=appt.p_id)}}" class="text-decoration-none text-info-emphasis">
-                            {{ appt.last_name }} {{ appt.first_name }}
-                        </a>
-                        {% if appt.gender == "Male" %}
+                        {{ pat.last_name }} {{ pat.first_name }}
+                        {% if pat.gender == "Male" %}
                         <span class="badge bg-info-subtle text-info-emphasis rounded-pill">
                             <i class="bi bi-gender-male"></i>
                         </span>
@@ -52,33 +43,28 @@
                         {% endif %}
                     </strong>
                     <div class="fw-bold">
-                        <div class="fs-6 mb-1">#{{ appt.appt_id }}</div>
-                        {% if appt.appt_status == "Completed" %}
-                        <span class="badge bg-success">{{ appt.appt_status }}</span>
-                        {% elif appt.appt_status == "Booked" %}
-                        <span class="badge bg-info">{{ appt.appt_status }}</span>
-                        {% elif appt.appt_status == "Cancelled" %}
-                        <span class="badge bg-danger">{{ appt.appt_status }}</span>
-                        {% endif %}
+                        <a href="{{ url_for('doctor.view_patient', patient_id=pat.p_id) }}"
+                            class="btn btn-sm btn-outline-secondary rounded-3">
+                            <i class="bi bi-eye-fill"></i> Full Records
+                        </a>
                     </div>
                 </div>
-                <div class="fs-6">Phone: {{ appt.phone }}</div>
-                <div class="fs-6">Birthdate: {{ appt.birthdate }}</div>
-                <div class="fs-6 d-block mb-3">Date: {{ appt.appt_date }} <b>({{ appt.appt_time }})</b></div>
+                <div class="fs-6">Phone: {{ pat.phone }}</div>
+                <div class="fs-6">Birthdate: {{ pat.birthdate }}</div>
             </div>
         </div>
         {% endfor %}
         <!-- Pagination -->
         <small class="d-block text-end mt-3">
-            {% for page_num in appointments.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% for page_num in patients.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
             {% if page_num %}
-            {% if appointments.page == page_num %}
-            <a class="btn btn-sm btn-primary m-2 pop" href="{{ url_for('doctor.appointment_cancelled', page=page_num) }}"
+            {% if patients.page == page_num %}
+            <a class="btn btn-sm btn-info m-2 pop" href="{{ url_for('doctor.patients', page=page_num) }}"
                 id="pg_link{{ page_num }}">
                 {{ page_num }}
             </a>
             {% else %}
-            <a class="btn btn-sm btn-primary m-2 pop" href="{{ url_for('doctor.appointment_cancelled', page=page_num) }}"
+            <a class="btn btn-sm btn-info m-2 pop" href="{{ url_for('doctor.patients', page=page_num) }}"
                 id="pg_link{{ page_num }}">
                 {{ page_num }}
             </a>
@@ -91,15 +77,14 @@
             {% endfor %}
         </small>
         {% else %}
-        <div class="text-danger fw-bold text-center m-3">No appointements found!</div>
+        <div class="text-danger fw-bold text-center m-3">No patients found!</div>
         {% endif %}
     </div>
 </div>
-<!-- JS -->
 <script>
     $(document).ready(function () {
-        $("#navAppt").removeClass("text-info");
-        $("#navAppt").addClass("active");
-    });
+            $("#navPat").removeClass("text-info");
+            $("#navPat").addClass("active");
+        });
 </script>
 {% endblock content %}

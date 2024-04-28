@@ -37,7 +37,9 @@
             <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
                 <div class="d-flex justify-content-between">
                     <strong class="fs-6 mt-2 text-gray-dark">
-                        {{ appt.last_name }} {{ appt.first_name }}
+                        <a href="{{ url_for('doctor.view_patient', patient_id=appt.p_id)}}" class="text-decoration-none text-info-emphasis">
+                            {{ appt.last_name }} {{ appt.first_name }}
+                        </a>
                         {% if appt.gender == "Male" %}
                         <span class="badge bg-info-subtle text-info-emphasis rounded-pill">
                             <i class="bi bi-gender-male"></i>

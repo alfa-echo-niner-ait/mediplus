@@ -1,14 +1,43 @@
 {% extends 'layout/layout_doctor.html' %}
 
 {% block content %}
-<div id="liveToast" class="toast align-items-center text-bg-success border-0 mx-auto"
-    role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-        <div class="toast-body" id="toastMsg">
-            Message
+<style>
+    /* Custom CSS to position the toast */
+    @media (max-width: 767.98px) {
+        /* Apply styles only for mobile devices */
+        .toast-container {
+            bottom: auto !important;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            max-width: none;
+            padding: 0;
+        }
+        .toast {
+            margin-bottom: 0 !important;
+        }
+    }
+</style>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast align-items-center text-bg-success border-0 mx-auto" role="alert"
+        aria-live="assertive" aria-atomic="true" style="z-index: 1;">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMsg"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
         </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-            aria-label="Close"></button>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast align-items-center text-bg-success border-0 mx-auto"
+        role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 1;">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMsg"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
+        </div>
     </div>
 </div>
 <div class="container mt-2">
@@ -40,10 +69,65 @@
         </ol>
     </nav>
 </div>
-<div class="container">
+<!-- Patient Info -->
+<div class="container mb-3">
+    <div class="d-md-flex justify-content-between">
+        <div class="mb-3">
+            <div class="fs-5 fw-semibold border-bottom pb-2 mb-2">
+                <i class="bi bi-clipboard2-pulse-fill"></i> Medical Information
+            </div>
+            <div class="fs-6">
+                <span class="fw-bold">Blood Group: </span> {{ appt.blood_group }}
+            </div>
+            <div class="fs-6">
+                <span class="fw-bold">Height/Weight: </span> {{ appt.height_cm }} CM/{{ appt.weight_kg }} KG
+            </div>
+            <div class="fs-6">
+                <span class="fw-bold">Allergies: </span> {{ appt.allergies }}
+            </div>
+            <div class="fs-6">
+                <span class="fw-bold">Other Medical Conditions: </span> {{ appt.medical_conditions }}
+            </div>
+        </div>
+        <div class="mb-3">
+            <div class="fs-5 fw-semibold border-bottom pb-2 mb-2">
+                <i class="bi bi-person-lines-fill"></i> Personal Information
+            </div>
+            <div class="fs-6">
+                <span class="fw-bold">Name: </span> {{ appt.last_name }} {{ appt.first_name }}
+                {% if appt.gender == "Male" %}
+                <span class="badge bg-info-subtle text-info-emphasis rounded-pill">
+                    <i class="bi bi-gender-male"></i>
+                </span>
+                {% else %}
+                <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill">
+                    <i class="bi bi-gender-female"></i>
+                </span>
+                {% endif %}
+            </div>
+            <div class="fs-6">
+                <span class="fw-bold">DOB: </span> {{ appt.birthdate }}
+            </div>
+            <div class="fs-6">
+                <span class="fw-bold">Phone: </span> {{ appt.phone }}
+            </div>
+            <div class="fs-6">
+                <span class="fw-bold">Appointment: </span>{{ appt.appt_date }} ({{ appt.appt_time }})
+            </div>
+            <div class="fs-6">
+                <a href="{{ url_for('doctor.view_patient', patient_id=appt.p_id )}}"
+                    class="icon-link d-inline">
+                    <i class="bi bi-eye-fill"></i> View All Records
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-3">
     <div class="card">
         <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between">
-            <div class="fw-bold fs-5">Diagnosis Details</div>
+            <div class="fw-semibold fs-5">Diagnosis Details</div>
             <button type="button" class="btn btn-sm btn-success" id="diag_info_btn">
                 <i class="bi bi-pencil-square"></i>
             </button>
@@ -62,7 +146,7 @@
 <div class="container mt-3">
     <div class="card">
         <div class="card-header bg-primary bg-opacity-10 d-flex justify-content-between">
-                <div class="fw-bold fs-5">Prescribe Medicine</div>
+                <div class="fw-semibold fs-5">Prescribe Medicine</div>
                 <button type="button" class="btn btn-sm btn-primary"
                     data-bs-toggle="modal" data-bs-target="#add_pres_item_modal">
                     <i class="bi bi-clipboard2-plus"></i>
@@ -89,7 +173,7 @@
 <div class="container mt-3">
     <div class="card mb-3">
         <div class="card-header bg-warning bg-opacity-10 d-flex justify-content-between">
-            <div class="fw-bold fs-5">Prescription Note</div>
+            <div class="fw-semibold fs-5">Prescription Note</div>
             <button type="button" class="btn btn-sm btn-warning" id="note_info_btn">
                 <i class="bi bi-pencil-square"></i>
             </button>
@@ -105,7 +189,7 @@
     </div>
     <div class="card mb-3">
         <div class="card-header bg-info bg-opacity-10 d-flex justify-content-between">
-            <div class="fw-bold fs-5">Next Meetup</div>
+            <div class="fw-semibold fs-5">Next Meetup</div>
             <button type="button" class="btn btn-sm btn-info" id="meet_info_btn">
                 <i class="bi bi-pencil-square"></i>
             </button>
@@ -118,6 +202,13 @@
             <p class="card-text" id="meet_info"></p>
             <textarea name="meet_info_box" id="meet_info_box" rows="3" class="form-control" style="display: none;"></textarea>
         </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <a href="{{ url_for('public.prescription', pres_id=appt.prescription_id) }}"
+            class="btn btn-outline-secondary" target="_blank">
+            View Generated Prescription
+        </a>
     </div>
 </div>
 

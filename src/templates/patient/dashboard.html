@@ -21,10 +21,10 @@
     <div class="row row-cols-1 row-cols-md-2 align-items-md-center g-5">
         <div class="col d-flex flex-column align-items-start gap-2">
             <div class="d-flex justify-content-between align-items-center">
-                <img class="rounded-circle border" height="140px" width="140px" alt="{{ user.username }}"
+                <img class="rounded-circle border shadow" height="130px" width="130px" alt="{{ user.username }}"
                     src="{{ url_for('static', filename='avatars/patient/'~user.avatar) }}" />
                 <div class="ms-3">
-                    <div class="fw-bold fs-4 text-body-emphasis">
+                    <div class="fw-semibold fs-4 text-body-emphasis">
                         {{ user.last_name}} {{ user.first_name}}
                         {% if user.gender == "Male" %}
                         <span class="badge bg-info-subtle text-info-emphasis rounded-pill">
@@ -36,10 +36,10 @@
                         </span>
                         {% endif %}
                     </div>
-                    <div class="text-secondary fw-bold">
+                    <div class="text-secondary fw-semibold">
                         ({{ current_user.username}})
                     </div>
-                    <div class="text-secondary fw-bold">
+                    <div class="text-secondary fw-semibold">
                         #ID: {{ current_user.id }}
                     </div>
                 </div>
@@ -124,7 +124,7 @@
             </div>
             <div>
                 <a href="{{ url_for('public.doctors') }}"
-                    class="text-decoration-none fw-bold mb-0 fs-4 text-success">
+                    class="text-decoration-none fw-semibold mb-0 fs-4 text-success">
                     Doctors
                 </a>
                 <p>
@@ -138,11 +138,11 @@
             </div>
             <div>
                 <a href="{{ url_for('public.tests') }}"
-                    class="text-decoration-none fw-bold mb-0 fs-4 text-success">
+                    class="text-decoration-none fw-semibold mb-0 fs-4 text-success">
                     Test Catalog
                 </a>
                 <p>
-                    Need to do medical test? Check our available tests and register for your need.
+                    Need to do medical test? Check our available tests and book for your need.
                 </p>
             </div>
         </div>
@@ -152,10 +152,12 @@
             </div>
             <div>
                 <a href="{{ url_for('patient.appointments') }}"
-                    class="text-decoration-none fw-bold mb-0 fs-4 text-success">
+                    class="text-decoration-none fw-semibold mb-0 fs-4 text-success">
                     My Appointments
                 </a>
-                <p>Paragraph of text beneath the heading to explain the heading.</p>
+                <p>
+                    Check your all doctor appointments history in details
+                </p>
             </div>
         </div>
         <div class="col d-flex align-items-start">
@@ -164,10 +166,12 @@
             </div>
             <div>
                 <a href="{{ url_for('patient.tests') }}"
-                    class="text-decoration-none fw-bold mb-0 fs-4 text-success">
+                    class="text-decoration-none fw-semibold mb-0 fs-4 text-success">
                     My Tests
                 </a>
-                <p>Paragraph of text beneath the heading to explain the heading.</p>
+                <p>
+                    View and collect results of your completed medical tests
+                </p>
             </div>
         </div>
         <div class="col d-flex align-items-start">
@@ -176,10 +180,12 @@
             </div>
             <div>
                 <a href="{{ url_for('patient.prescriptions') }}"
-                    class="text-decoration-none fw-bold mb-0 fs-4 text-success">
+                    class="text-decoration-none fw-semibold mb-0 fs-4 text-success">
                     Prescriptions
                 </a>
-                <p>Paragraph of text beneath the heading to explain the heading.</p>
+                <p>
+                    Check the prescriptions of your previous doctor appointments
+                </p>
             </div>
         </div>
         <div class="col d-flex align-items-start">
@@ -188,10 +194,12 @@
             </div>
             <div>
                 <a href="{{ url_for('patient.invoices') }}"
-                    class="text-decoration-none fw-bold mb-0 fs-4 text-success">
+                    class="text-decoration-none fw-semibold mb-0 fs-4 text-success">
                     Invoices
                 </a>
-                <p>Paragraph of text beneath the heading to explain the heading.</p>
+                <p>
+                    View all of your invoices with their status and details
+                </p>
             </div>
         </div>
         <div class="col d-flex align-items-start">
@@ -201,17 +209,19 @@
             <div>
                 {% if session['pending_items'] > 0 %}
                 <a href="{{ url_for('patient.pending_items') }}"
-                    class="text-decoration-none fw-bold mb-0 fs-4 text-success">
+                    class="text-decoration-none fw-semibold mb-0 fs-4 text-success">
                     Pending Items
                 </a>
                 <small><sup class="badge rounded-pill text-bg-danger">{{ session['pending_items'] }}</sup></small>
                 {% else %}
-                <a class="text-decoration-none fw-bold mb-0 fs-4 text-success">
+                <a class="text-decoration-none fw-semibold mb-0 fs-4 text-success">
                     Pending Items
                 </a>
                 <small><sup class="badge rounded-pill text-bg-secondary">0</sup></small>
                 {% endif %}
-                <p>Paragraph of text beneath the heading to explain the heading.</p>
+                <p>
+                    Check for any pending list of medical test booking and create invoice
+                </p>
             </div>
         </div>
         <div class="col d-flex align-items-start">
@@ -220,7 +230,7 @@
             </div>
             <div>
                 <a href="{{ url_for('public.logout') }}"
-                    class="text-decoration-none fw-bold mb-0 fs-4 text-danger">
+                    class="text-decoration-none fw-semibold mb-0 fs-4 text-danger">
                     Logout
                 </a>
                 <p>
@@ -228,6 +238,13 @@
                 </p>
             </div>
         </div>
+    </div>
+</div>
+<div class="container mb-3">
+    <hr>
+    <div class="text-center fw-light text-secondary text-break small">
+        <strong>IP: </strong> {{ ip }}
+        <strong>Device: </strong> {{ info }}
     </div>
 </div>
 {% endblock content %}
