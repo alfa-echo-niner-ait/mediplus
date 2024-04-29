@@ -1,12 +1,14 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, url_for
+from flask_login import login_required
 from src.users.models import Users, Patients, Managers, User_Logs
-from src.patient.models import Payments
+from src.patient.models import Payments, Medical_Report_Files
 from src.doctor.models import Prescribed_Items, Prescription_Extras
 
 api = Blueprint("api", __name__)
 
 
 @api.route("/api/public/log/<log_id>")
+@login_required
 def log(log_id):
     log: User_Logs = User_Logs.query.filter_by(log_id=int(log_id)).first()
     if log:
@@ -247,6 +249,39 @@ def prescription_items(pres_id):
 
     return jsonify([{"result": "fail"}])
 
+
+@api.route("/api/doctor/patient/<patient_id>/test_results/<serial>")
+@login_required
+def patient_test_result_files(patient_id, serial):
+    files: Medical_Report_Files = Medical_Report_Files.query.filter(
+        Medical_Report_Files.test_book_serial == serial
+    ).all()
+
+    if len(files) > 0:
+        response = [{"result": "success"}]
+        file_list = list()
+        for file in files:
+            data = {
+                "name": file.file_name,
+                "size": file.file_size_kb,
+                "date": str(file.upload_date),
+                "view_url": url_for(
+                    "doctor.view_patient_test_file",
+                    patient_id=patient_id,
+                    file_id=file.file_id,
+                ),
+                "download_url": url_for(
+                    "doctor.download_patient_test_file",
+                    patient_id=patient_id,
+                    file_id=file.file_id,
+                ),
+            }
+            file_list.append(data)
+        response.append({"files": file_list})
+
+        return jsonify(response)
+    else:
+        return jsonify([{"result": "fail"}])
 
 
 @api.route("/test")

@@ -1,3 +1,4 @@
+import os
 from src import db, hash_manager
 from src.public.utils import (
     get_datetime,
@@ -13,15 +14,18 @@ from flask import (
     abort,
     request,
     jsonify,
+    current_app,
+    send_file,
 )
 from flask_login import login_required, current_user
-from src.users.models import Users, User_Logs, Doctors, Patients
+from src.users.models import Users, User_Logs, Doctors, Patients, Managers
 from src.patient.models import (
     Medical_Info,
     Medical_Report_Files,
     Medical_Test_Book,
     Invoices,
     Invoice_Items,
+    Patient_Record_Files,
 )
 from src.doctor.models import Doctor_Time
 from src.doctor.models import (
@@ -188,10 +192,68 @@ def view_patient_tests(patient_id):
     )
 
     return render_template(
-        "doctor/patient_test_files.html",
+        "doctor/patient_test_history.html",
         patient=patient,
         tests=tests,
         title=f"Patient Medical Tests",
+    )
+
+
+@doctor.route("/dashboard/doctor/patients/<patient_id>/test_file/<file_id>")
+@login_required
+def view_patient_test_file(patient_id, file_id):
+    if current_user.role != "Doctor":
+        abort(403)
+
+    patient = Patients.query.filter(Patients.p_id == int(patient_id)).first_or_404()
+    file = (
+        Medical_Report_Files.query.filter(Medical_Report_Files.file_id == int(file_id))
+        .join(
+            Medical_Test_Book,
+            Medical_Report_Files.test_book_serial == Medical_Test_Book.serial_number,
+        )
+        .join(Managers, Medical_Report_Files.upload_manager_id == Managers.m_id)
+        .add_columns(
+            Medical_Report_Files.file_id,
+            Medical_Report_Files.file_name,
+            Medical_Report_Files.file_path_name,
+            Medical_Report_Files.file_size_kb,
+            Medical_Report_Files.upload_date,
+            Medical_Report_Files.upload_time,
+            Medical_Report_Files.test_book_serial,
+            Managers.first_name,
+            Managers.last_name,
+        )
+        .first_or_404()
+    )
+
+    return render_template(
+        "doctor/patient_test_file_view.html",
+        title=f"Report: {file.file_name}",
+        file=file,
+        patient=patient,
+    )
+
+
+@doctor.route("/dashboard/doctor/patients/<patient_id>/test_files/<file_id>/download")
+@login_required
+def download_patient_test_file(patient_id, file_id):
+    if current_user.role != "Doctor":
+        abort(403)
+
+    file: Medical_Report_Files = Medical_Report_Files.query.filter(
+        Medical_Report_Files.file_id == int(file_id)
+    ).first_or_404()
+
+    file_name = f"{file.file_name}_{file.file_path_name}"
+    return send_file(
+        os.path.join(
+            current_app.root_path,
+            "static/upload/manager/test_results/",
+            file.file_path_name,
+        ),
+        download_name=file_name,
+        as_attachment=True,
     )
 
 
@@ -201,12 +263,63 @@ def view_patient_records(patient_id):
     if current_user.role != "Doctor":
         abort(403)
 
+    page_num = request.args.get("page", 1, int)
+
     patient = Patients.query.filter(Patients.p_id == int(patient_id)).first_or_404()
+    files: Patient_Record_Files = (
+        Patient_Record_Files.query.filter(
+            Patient_Record_Files.record_patient_id == int(patient_id)
+        )
+        .order_by(Patient_Record_Files.file_id.desc())
+        .paginate(page=page_num, per_page=10)
+    )
 
     return render_template(
         "doctor/patient_record_files.html",
         patient=patient,
+        files=files,
         title=f"Patient Medical Records",
+    )
+
+
+@doctor.route("/dashboard/doctor/patients/<patient_id>/records/<file_id>")
+@login_required
+def view_patient_record_file(patient_id, file_id):
+    if current_user.role != "Doctor":
+        abort(403)
+
+    patient = Patients.query.filter(Patients.p_id == int(patient_id)).first_or_404()
+    file: Patient_Record_Files = Patient_Record_Files.query.filter(
+        Patient_Record_Files.file_id == int(file_id)
+    ).first_or_404()
+
+    return render_template(
+        "doctor/patient_record_file_view.html",
+        patient=patient,
+        file=file,
+        title=f"Patient Medical Records",
+    )
+
+
+@doctor.route("/dashboard/doctor/patients/<patient_id>/records/<file_id>/download")
+@login_required
+def download_patient_record_file(patient_id, file_id):
+    if current_user.role != "Doctor":
+        abort(403)
+
+    file: Patient_Record_Files = Patient_Record_Files.query.filter(
+        Patient_Record_Files.file_id == int(file_id)
+    ).first_or_404()
+
+    file_name = f"{file.file_name}_{file.file_path_name}"
+    return send_file(
+        os.path.join(
+            current_app.root_path,
+            "static/upload/patient/records/",
+            file.file_path_name,
+        ),
+        download_name=file_name,
+        as_attachment=True,
     )
 
 
@@ -236,7 +349,7 @@ def appointments():
         .filter(Appointment_Details.appt_status == "Cancelled")
         .count(),
     }
-    print(counts)
+
     return render_template(
         "doctor/appointments.html",
         counts=counts,

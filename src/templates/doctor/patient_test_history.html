@@ -40,19 +40,39 @@
             <div class="display-6 me-3">
                 #{{ loop.index }}
             </div>
-            <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+            <div class="pb-3 mb-0 lh-sm border-bottom w-100">
                 <div class="d-flex justify-content-between">
                     <strong class="fs-6 mt-2 text-gray-dark">
                         {{ test.item_desc }}
                     </strong>
                     <div class="fw-bold">
-                        <a href=""
+                        <!-- <a href=""
                             class="btn btn-sm btn-outline-info rounded-3">
-                            <i class="bi bi-eye-fill"></i> Results
-                        </a>
+                            <i class="bi bi-eye-fill"></i> View Results
+                        </a> -->
+                        <button type="button"
+                            onclick="showResults('{{ test.serial_number }}')"
+                            class="btn btn-sm btn-outline-info rounded-3"
+                            id="showBtn{{ test.serial_number }}">
+                            <i class="bi bi-eye-fill"></i> View Results
+                        </button>
+                        <button type="button"
+                            onclick="hideResults('{{ test.serial_number }}')"
+                            class="btn btn-sm btn-outline-secondary rounded-3"
+                            id="hideBtn{{ test.serial_number }}"
+                            style="display: none;">
+                            <i class="bi bi-eye-slash-fill"></i> Hide Results
+                        </button>
                     </div>
                 </div>
                 <div class="fs-6">Date: {{ test.invoice_date }}</div>
+                <div id="testFiles{{ test.serial_number }}" class="mt-2" style="display: none;">
+                    <table class="table table-borderless table-sm">
+                        <tbody id="fileList{{ test.serial_number }}">
+                            
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -90,5 +110,49 @@
         $("#navPat").removeClass("text-info");
         $("#navPat").addClass("active");
     });
+
+    function showResults(test_id) {
+        $("#testFiles" + test_id).show();
+        $("#showBtn" + test_id).hide();
+        $("#hideBtn" + test_id).show();
+
+        $.ajax({
+            type: "GET",
+            url: "/api/doctor/patient/"+"{{ patient.p_id }}"+"/test_results/"+test_id,
+            success: function (response) {
+                if (response[0]["result"] == "success") {
+                    $.each(response[1]["files"], function (index, file) {  
+                        data = `
+                        <tr class="border-top">
+                                <td class="fw-light">${file.name}</td>
+                                <td class="fw-light">${file.size} KB</td>
+                                <td class="fw-light">${file.date}</td>
+                                <td class="text-end">
+                                    <a href="${file.view_url}"
+                                        class="btn btn-sm btn-secondary fw-light">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                    <a href="${file.download_url}"
+                                        class="btn btn-sm btn-success fw-light">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                         `
+                        $("#fileList" + test_id).append(data);  
+                    });
+                }
+                else {
+                    $("#fileList" + test_id).append("No results found!");
+                }
+            }
+        });
+    };
+
+    function hideResults(test_id) {
+        $("#testFiles" + test_id).hide();
+        $("#showBtn" + test_id).show();
+        $("#hideBtn" + test_id).hide();
+    };
 </script>
 {% endblock content %}
