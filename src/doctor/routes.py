@@ -53,8 +53,67 @@ def dashboard():
     if current_user.role != "Doctor":
         abort(403)
 
-    flash("Page loaded successfully!", category="info")
-    return render_template("doctor/dashboard.html")
+    user = (
+        Doctors.query.filter(Doctors.d_id == current_user.id)
+        .join(Users, Doctors.d_id == Users.id)
+        .join(Doctor_Time, Doctor_Time.doctor_id == Doctors.d_id)
+        .add_columns(
+            Users.username,
+            Users.gender,
+            Users.email,
+            Doctors.title,
+            Doctors.first_name,
+            Doctors.last_name,
+            Doctors.phone,
+            Doctors.birthdate,
+            Doctors.avatar,
+            Doctor_Time.appt_status,
+        )
+        .first()
+    )
+
+    pending_count = (
+        Appointments.query.filter(Appointments.appt_doctor_id == current_user.id)
+        .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
+        .filter(Appointment_Details.appt_status == "Booked")
+        .count()
+    )
+
+    ip = request.remote_addr
+    info = request.headers.get("User-Agent")
+
+    return render_template(
+        "doctor/dashboard.html",
+        user=user,
+        pending=pending_count,
+        ip=ip,
+        info=info,
+        title="Dashboard",
+    )
+
+
+@doctor.route("/dashboard/doctor/change_status")
+@login_required
+def change_appt_status():
+    if current_user.role != "Doctor":
+        abort(403)
+
+    doctor_time: Doctor_Time = Doctor_Time.query.filter(
+        Doctor_Time.doctor_id == current_user.id
+    ).first_or_404()
+
+    if doctor_time.appt_status == "Available":
+        doctor_time.appt_status = "Unavailable"
+    else:
+        doctor_time.appt_status = "Available"
+
+    date, time = get_datetime()
+    new_log = User_Logs(current_user.id, "Change Status", date, time)
+    db.session.add(new_log)
+    db.session.commit()
+
+    flash("Status Changed Successfully!", category="success")
+    return redirect(url_for("doctor.dashboard"))
 
 
 @doctor.route("/dashboard/doctor/patients")
