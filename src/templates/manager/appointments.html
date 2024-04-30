@@ -52,14 +52,19 @@
                 <td>{{ appt.appt_date }}</td>
                 <td>{{ appt.appt_time}}</td>
                 <td class="text-end">
-                    <a href=""
-                        class="btn btn-sm btn-secondary text-white pop">
-                        Details
+                    {% if appt.appt_status == "Completed" %}
+                    <a href="{{ url_for('patient.view_prescription', appt_id=appt.appt_id) }}"
+                        class="btn btn-sm btn-info pop" target="_blank">
+                        <i class="bi bi-prescription"></i>
                     </a>
-                    <a href="" class="btn btn-sm btn-danger"
-                        onclick="return confirm('Delete Appointment {{ appt.appt_id }}?')">
-                        Delete
+                    {% endif %}
+                    {% if appt.appt_status == "Booked" %}
+                    <a href="{{ url_for('manager.cancel_appointment', appt_id=appt.appt_id) }}"
+                        class="btn btn-sm btn-danger"
+                        onclick="return confirm('Cancel Appointment {{ appt.appt_id }}?')">
+                        <i class="bi bi-trash"></i>
                     </a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

@@ -1,4 +1,5 @@
 import os
+import json
 import secrets
 from flask import (
     Blueprint,
@@ -43,6 +44,8 @@ from src.public.utils import (
     profile_picture_saver,
     profile_picture_remover,
 )
+from src.manager.utils import users_pie_data, user_logs_bar_data
+
 
 # Declare Blueprint
 manager = Blueprint("manager", __name__)
@@ -51,10 +54,32 @@ manager = Blueprint("manager", __name__)
 @manager.route("/dashboard/manager")
 @login_required
 def dashboard():
-    return render_template("manager/dashboard.html", title="Manager Dashboard")
+    counts = {
+        "patients": Users.query.filter(Users.role == "Patient").count(),
+        "managers": Users.query.filter(Users.role == "Manager").count(),
+        "doctors": Users.query.filter(Users.role == "Doctor").count(),
+        "tests": Medical_Test_Book.query.filter(
+            Medical_Test_Book.test_status == "Done"
+        ).count(),
+        "appt": Appointment_Details.query.filter(
+            Appointment_Details.appt_status == "Completed"
+        ).count(),
+        "invoices": Invoices.query.count(),
+    }
+
+    pie_data = users_pie_data()
+    bar_data = user_logs_bar_data(days=7)
+
+    return render_template(
+        "manager/dashboard.html",
+        counts=counts,
+        pie_data=json.dumps(pie_data),
+        bar_data=json.dumps(bar_data),
+        title="Manager Dashboard",
+    )
 
 
-@manager.route("/dashboard/appointments")
+@manager.route("/dashboard/manager/appointments")
 @login_required
 def appointments():
     if current_user.role != "Manager":
@@ -77,7 +102,8 @@ def appointments():
             Doctors.last_name,
             Doctors.first_name,
             Patients.p_id,
-        ).paginate(page=page_num, per_page=15)
+        )
+        .paginate(page=page_num, per_page=15)
     )
 
     return render_template(
@@ -85,6 +111,41 @@ def appointments():
         appointments=appointments,
         title="Appointments Management",
     )
+
+
+@manager.route("/dashboard/manager/appointments/<appt_id>/cancel")
+@login_required
+def cancel_appointment(appt_id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    appointment_details: Appointment_Details = Appointment_Details.query.filter(
+        Appointment_Details.appt_id == int(appt_id)
+    ).first_or_404()
+    appointment_details.appt_status = "Cancelled"
+    appointment: Appointments = Appointments.query.filter(
+        Appointments.appt_id == int(appt_id)
+    ).first()
+
+    date, time = get_datetime()
+    manager_log: User_Logs = User_Logs(
+        current_user.id, "Cancel Appointment", date, time
+    )
+    manager_log.log_desc = f"Appointment #{appointment.appt_id}, Patient #{appointment.appt_patient_id} on {appointment_details.appt_date} ({appointment_details.appt_time})"
+    db.session.add(manager_log)
+
+    patient_log: User_Logs = User_Logs(
+        appointment.appt_patient_id, "Appointment Cancelled", date, time
+    )
+    patient_log.log_desc = (
+        f"Doctor has cancelled your appointment. Try different date/time slot."
+    )
+    db.session.add(patient_log)
+
+    db.session.commit()
+
+    flash("Appointment has been cancelled!", category="warning")
+    return redirect(url_for("manager.appointments"))
 
 
 @manager.route("/dashboard/manager/tests", methods=["GET", "POST"])

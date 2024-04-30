@@ -2,6 +2,7 @@
 
 
 {% block content %}
+<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script> -->
 <div class="container-fluid">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
@@ -22,23 +23,29 @@
     </nav>
 </div>
 
-<div class="container-fluid">
+<div class="container">
     <div class="row gy-3">
         <div class="col-md-2 mb-2 pop">
-            <div class="card h-100 bg-danger-subtle text-danger">
-                <div class="card-body text-center">
-                    <h5 class="card-title fs-3 fw-bold">1430</h5>
-                    <p class="card-text">
-                        Registered Patients
-                    </p>
+            <a href="{{ url_for('manager.patients') }}" class="text-decoration-none">
+                <div class="card h-100 bg-danger-subtle text-danger">
+                    <div class="card-body text-center">
+                        <h5 class="card-title fs-3 fw-bold">
+                            {{ counts["patients"]}}
+                        </h5>
+                        <p class="card-text">
+                            Registered Patients
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-2 mb-2 pop">
             <a href="{{ url_for('manager.doctors') }}" class="text-decoration-none">
                 <div class="card h-100 bg-success-subtle text-success">
                     <div class="card-body text-center">
-                        <h5 class="card-title fs-3 fw-bold">33</h5>
+                        <h5 class="card-title fs-3 fw-bold">
+                            {{ counts["doctors"]}}
+                        </h5>
                         <p class="card-text">
                             Registered Doctors
                         </p>
@@ -47,20 +54,26 @@
             </a>
         </div>
         <div class="col-md-2 mb-2 pop">
-            <div class="card h-100 bg-info-subtle text-info">
-                <div class="card-body text-center">
-                    <h5 class="card-title fs-3 fw-bold">12</h5>
-                    <p class="card-text">
-                        Working Managers
-                    </p>
+            <a href="{{ url_for('manager.managers') }}" class="text-decoration-none">
+                <div class="card h-100 bg-info-subtle text-info">
+                    <div class="card-body text-center">
+                        <h5 class="card-title fs-3 fw-bold">
+                            {{ counts["managers"]}}
+                        </h5>
+                        <p class="card-text">
+                            Working Managers
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-2 mb-2 pop">
             <a href="{{ url_for('manager.tests') }}" class="text-decoration-none">
                 <div class="card h-100 bg-primary-subtle text-primary">
                     <div class="card-body text-center">
-                        <h5 class="card-title fs-3 fw-bold">3223</h5>
+                        <h5 class="card-title fs-3 fw-bold">
+                            {{ counts["tests"]}}
+                        </h5>
                         <p class="card-text">
                             Medical Tests Done
                         </p>
@@ -69,20 +82,26 @@
             </a>
         </div>
         <div class="col-md-2 mb-2 pop">
-            <div class="card h-100 bg-warning-subtle text-warning">
-                <div class="card-body text-center">
-                    <h5 class="card-title fs-3 fw-bold">2618</h5>
-                    <p class="card-text">
-                        Doctor Meetup
-                    </p>
+            <a href="{{ url_for('manager.appointments') }}" class="text-decoration-none">
+                <div class="card h-100 bg-warning-subtle text-warning">
+                    <div class="card-body text-center">
+                        <h5 class="card-title fs-3 fw-bold">
+                            {{ counts["appt"]}}
+                        </h5>
+                        <p class="card-text">
+                            Doctor Meetup
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-2 mb-2 pop">
             <a href="{{ url_for('manager.invoices') }}" class="text-decoration-none">
                 <div class="card h-100 bg-dark-subtle text-dark">
                     <div class="card-body text-center">
-                        <h5 class="card-title fs-3 fw-bold">1526</h5>
+                        <h5 class="card-title fs-3 fw-bold">
+                            {{ counts["invoices"]}}
+                        </h5>
                         <p class="card-text">
                             Completed Invoices
                         </p>
@@ -93,10 +112,41 @@
     </div>
 </div>
 
-
+<div class="container overflow-hidden text-center mt-3">
+    <div class="ms-1 row border rounded-3">
+        <div class="col-md-4">
+            <div id="pie_pat"></div>
+        </div>
+        <div class="col-md-4">
+            <div id="pie_doc"></div>
+        </div>
+        <div class="col-md-4">
+            <div id="pie_man"></div>
+        </div>
+    </div>
+</div>
+<div class="container overflow-hidden text-center mt-1">
+    <div class="border rounded-3">
+        <div id="bar_chart"></div>
+    </div>
+</div>
 <script>
     $(document).ready(function () {
         $("#side_overview").addClass("text-success-emphasis bg-success-subtle");
     });
+    // Convert data
+    const pie_data = JSON.parse('{{ pie_data | safe }}');
+    const bar_data = JSON.parse('{{ bar_data | safe }}')
+    
+    // Pie charts
+    Plotly.newPlot("pie_pat", pie_data["pat"], { title: "Patients" }, { responsive: true });
+    Plotly.newPlot("pie_doc", pie_data["doc"], { title: "Doctors" }, { responsive: true });
+    Plotly.newPlot("pie_man", pie_data["man"], { title: "Managers" }, { responsive: true });
+
+    // Bar chart
+    const xArray = [55, 49, 44, 24, 15];
+    const yArray = ["Italy", "France", "Spain", "USA", "Argentina"];
+
+    Plotly.newPlot("bar_chart", bar_data, { title: "User Activities(Last 7 Days)" }, { responsive: true });
 </script>
 {% endblock content %}
