@@ -1236,7 +1236,7 @@ def account():
         form.birthdate.data = profile.birthdate
 
     return render_template(
-        "manager/account.html", title="My Account", logs=logs, form=form
+        "manager/account.html", title="My Account", profile=profile, logs=logs, form=form
     )
 
 

@@ -36,7 +36,32 @@
         </a>
     </div>
 </div>
-
+<!-- Filter -->
+<div class="container mt-2">
+    <div class="border rounded mb-3 p-3">
+        <h4 class="fs-5 mb-2">
+            <i class="bi bi-search"></i> Search Doctor
+        </h4>
+        <div class="row">
+            <div class="col">
+                <label class="form-label" for="search_by">Search By</label>
+                <select class="form-select" id="search_by">
+                    <option value="username">Username</option>
+                    <option value="id">User ID</option>
+                    <option value="email">User Email</option>
+                </select>
+            </div>
+            <div class="col">
+                <label class="form-label" for="keyword">Keyword</label>
+                <input class="form-control" id="keyword" placeholder="Enter Keyword" required type="text">
+            </div>
+            <div class="col mt-auto">
+                <button class="btn btn-success" id="search">Search</button>
+            </div>
+        </div>
+        <div id="msg"></div>
+    </div>
+</div>
 <!-- Doctor List -->
 <div class="container mt-3">
     <table class="table table-bordered table-hover shadow">

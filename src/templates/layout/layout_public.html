@@ -29,12 +29,7 @@
         <nav class="navbar navbar-expand-md fixed-top bg-lightmint">
             <div class="container">
                 <a class="navbar-brand fs-5" href="{{ url_for('public.index')}}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#198754" viewBox="0 0 16 16">
-                        <path
-                            d="M1.475 9C2.702 10.84 4.779 12.871 8 15c3.221-2.129 5.298-4.16 6.525-6H12a.5.5 0 0 1-.464-.314l-1.457-3.642-1.598 5.593a.5.5 0 0 1-.945.049L5.889 6.568l-1.473 2.21A.5.5 0 0 1 4 9z" />
-                        <path
-                            d="M.88 8C-2.427 1.68 4.41-2 7.823 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C11.59-2 18.426 1.68 15.12 8h-2.783l-1.874-4.686a.5.5 0 0 0-.945.049L7.921 8.956 6.464 5.314a.5.5 0 0 0-.88-.091L3.732 8z" />
-                    </svg>
+                    <i class="bi bi-heart-pulse-fill text-success"></i>
                     <b class="text-danger">Medi</b><b class="text-success">Plus</b>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
@@ -44,21 +39,36 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <ul class="navbar-nav ms-auto mb-2 mb-md-0">
                         {% if current_user.is_authenticated %}
-                        {% if current_user.role == "Patient" %}
-                        {% if session['pending_items'] > 0 %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('patient.pending_items') }}">
-                                Pending Items
-                                <small>
-                                    <sup class="badge rounded-pill text-bg-danger">{{ session['pending_items'] }}</sup>
-                                </small>
-                            </a>
-                        </li>
-                        {% endif %}
-                        {% endif %}
+                            {% if current_user.role == "Patient" %}
+                                {% if session['pending_items'] > 0 %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('patient.pending_items') }}">
+                                        Pending Items
+                                        <small>
+                                            <sup class="badge rounded-pill text-bg-danger">{{ session['pending_items'] }}</sup>
+                                        </small>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            {% endif %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('public.dashboard') }}">
                                 Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('public.doctors') }}">
+                                Doctors
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('public.tests') }}">
+                                Tests
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('patient.appointments') }}">
+                                Appointments
                             </a>
                         </li>
                         <li class="nav-item">
@@ -69,10 +79,14 @@
 
                         {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('public.doctors') }}">Doctors</a>
+                            <a class="nav-link" href="{{ url_for('public.doctors') }}">
+                                Doctors
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('public.tests') }}">Tests</a>
+                            <a class="nav-link" href="{{ url_for('public.tests') }}">
+                                Tests
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('public.login') }}">
@@ -113,7 +127,7 @@
 
     <footer class="mt-auto pt-2" style="background-color: #d6f6d4;">
         <p class="text-center text-muted">
-            © MediPlus 2024, <a class="text-primary text-decoration-none" href="">About This Project</a>
+            © MediPlus 2024, <a class="text-primary text-decoration-none" href="{{ url_for('public.about') }}" target="_blank">About This Project</a>
         </p>
     </footer>
 

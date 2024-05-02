@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About This Project - MediPlus</title>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap-icons.min.css')}}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <main class="w-100 m-auto align-items-center px-5">
+        <div class="text-center">
+            <div class="display-5 mt-3">
+                <a href="{{ url_for('public.index') }}"
+                    class="text-decoration-none">
+                    <i class="bi bi-heart-pulse-fill text-success"></i>
+                    <b class="text-danger">Medi</b><b class="text-success">Plus</b>
+                </a>
+            </div>
+            <div class="display-6 mt-3 text-wrap">
+                Design and Implementation of Medical Records Management System
+            </div>
+            <hr>
+            <div class="fs-5 fw-light mt-3">
+                Graduation Project
+            </div>
+            <div class="fs-5">
+                Shandong University of Science and Technology
+            </div>
+            <div class="table-responsive mt-5">
+                <table class="table table-bordered table-responsive">
+                    <tr>
+                        <th scope="row">Project By</th>
+                        <td>Ayub Ali Emon</td>
+                        <th scope="row">Student ID</th>
+                        <td>202001051911</td>
+                        <th scope="row">Instructor</th>
+                        <td>Xu Shixiao</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">College</th>
+                        <td>Computer Sciene</td>
+                        <th scope="row">Major</th>
+                        <td>Software Engineering</td>
+                        <th scope="row">Class</th>
+                        <td>2020</td>
+                    </tr>
+                </table>
+            </div>
+            <p class="lead mt-3" style="text-align: justify;">
+                <i>MediPlus</i> is a digital hospital/medical web application, which is convenient not only for the management but also for the
+                doctors and patients to reduce the hassle between them. Here every management is easy to control for the managers,
+                whether it is appointment medical test management or patient and doctor management. Everything is together in the
+                manager dashboard. Which gives ultimate control of the whole system. Also, doctors do not need to make tons of inquiries
+                about reports or past treatments from the patients. As, all the patient's appointments, medical tests and other medical
+                history are present with the patient account, which is easily accessible to the doctors. It also saves the time and
+                money of the patients, as they can pre-appoint appointments with doctors and medical tests. Moreover, the test reports
+                and all the prescriptions for doctor appointments are added to their account and accessible anytime. Patients can also
+                add their necessary medical information and upload their past medical records/reports to their account, which makes it
+                easier for doctors to understand their health situation.
+            </p>
+        </div>
+    </main>
+    <footer class="mt-auto text-center text-secondary p-3 fs-5">
+        <strong>
+            &copy; Ayub Ali Emon, SDUST
+        </strong>
+        <br>
+        Check my projects on
+        <a href="https://github.com/alfa-echo-niner-ait/" target="_blank">
+            <i class="bi bi-github"></i> GitHub
+        </a>
+    </footer>
+</body>
+</html>

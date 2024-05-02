@@ -62,6 +62,9 @@ def index():
 
     return render_template("public/index.html")
 
+@public.route("/about")
+def about():
+    return render_template("public/about.html")
 
 @public.route("/login", methods=["GET", "POST"])
 def login():
