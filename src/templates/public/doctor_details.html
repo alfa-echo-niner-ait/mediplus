@@ -45,17 +45,25 @@
             {{ doctor.title }}
         </div>
         {% if doctor.appt_status == "Available" %}
-        <span class="badge rounded-pill text-bg-success">{{ doctor.appt_status }}</span>
-        <br>
-        <button class="btn btn-sm btn-mint fw-bold mt-2" data-bs-toggle="modal" data-bs-target="#apptModal">
-            Book Appointment
-        </button>
+        <div class="btn-group mt-2 gap-3">
+            <button class="btn btn-sm btn-mint fw-bold rounded-pill pop"
+                data-bs-toggle="modal" data-bs-target="#apptModal">
+                <i class="bi bi-calendar-plus-fill"></i> Book Meetup
+            </button>
+            <a href="tel:{{ doctor.phone }}"
+                class="btn btn-sm btn-secondary fw-bold rounded-pill pop">
+                <i class="bi bi-telephone-fill"></i> Make a Call
+            </a>
+        </div>
         {% else %}
         <span class="badge rounded-pill text-bg-danger">{{ doctor.appt_status }}</span>
         {% endif %}
     </div>
 </div>
 
+<div class="container mt-3 mb-3">
+    {% include '/public/includes/doctor_appt_history.html' %}
+</div>
 {% include '/public/modals/book_appointment_modal.html' %}
 
 {% endblock content %}

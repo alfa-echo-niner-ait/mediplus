@@ -62,9 +62,11 @@ def index():
 
     return render_template("public/index.html")
 
+
 @public.route("/about")
 def about():
     return render_template("public/about.html")
+
 
 @public.route("/login", methods=["GET", "POST"])
 def login():
@@ -374,6 +376,8 @@ def doctors():
 @public.route("/doctors/<id>")
 @login_required
 def view_doctor(id):
+    page_num = request.args.get("page", 1, int)
+
     doctor = (
         Doctors.query.filter(Doctors.d_id == int(id))
         .join(Users, Doctors.d_id == Users.id)
@@ -385,6 +389,7 @@ def view_doctor(id):
             Doctors.last_name,
             Doctors.title,
             Doctors.avatar,
+            Doctors.phone,
             Doctor_Time.appt_status,
             Doctor_Time.day_time_slot,
         )
@@ -396,9 +401,22 @@ def view_doctor(id):
     if request.method == "GET" and doctor.day_time_slot:
         form.times.data = doctor.day_time_slot["times"]
 
+    appointments = (
+        Appointments.query.filter(Appointments.appt_doctor_id == doctor.d_id)
+        .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
+        .add_columns(
+            Appointment_Details.appt_status,
+            Appointment_Details.appt_date,
+            Appointment_Details.appt_time,
+        )
+        .order_by(Appointment_Details.appt_date.desc())
+        .paginate(page=page_num, per_page=6)
+    )
+
     return render_template(
         "public/doctor_details.html",
         doctor=doctor,
+        appointments=appointments,
         form=form,
         days=days,
         title=f"Dr. {doctor.last_name} {doctor.first_name}",

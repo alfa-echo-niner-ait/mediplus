@@ -21,9 +21,16 @@
         </ol>
     </nav>
 </div>
-
+<div class="container mt-3">
+    <div class="text-end">
+        <a href="{{ url_for('manager.register_manager') }}"
+            class="btn btn-success fw-bold pop">
+            <i class="bi bi-person-plus-fill"></i> Register New Manager
+        </a>
+    </div>
+</div>
 <!-- Filter -->
-<div class="container">
+<div class="container mt-2">
     <div class="border rounded mb-3 p-3">
         <h4 class="fs-5 mb-2">
             <i class="bi bi-search"></i> Search Manager
@@ -62,7 +69,7 @@
                 <th scope="col">Gender</th>
                 <th scope="col">Email</th>
                 <th scope="col">Phone</th>
-                <th scope="col">Avatar</th>
+                <th scope="col" class="text-end">Actions</th>
             </tr>
         </thead>
         <tbody id="manager_data">
@@ -75,7 +82,14 @@
                 <td>{{ man.gender }}</td>
                 <td>{{ man.email }}</td>
                 <td>{{ man.phone }}</td>
-                <td>{{ man.avatar }}</td>
+                <td class="text-end">
+                    <a href="" class="btn btn-sm btn-secondary">View</a>
+                    <a href="{{ url_for('manager.delete_manager', id=man.id) }}"
+                        class="btn btn-sm btn-danger"
+                        onclick="return confirm('Delete Manager {{ man.username }}?')">
+                        Delete
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

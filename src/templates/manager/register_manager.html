@@ -1,0 +1,167 @@
+{% extends 'layout/layout_manager.html' %}
+
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    <i class="bi bi-house-door-fill"></i> Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('manager.managers') }}">
+                    Managers
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                Register New Manager
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container">
+    <form action="" method="POST">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col-sm-12 col-md-6 col-lg-6">
+                <div class="fs-4 fw-semibold mb-3">
+                    Account Information
+                </div>
+                <!-- Username -->
+                <div class="input-group mb-3">
+                    {{ form.username.label(class='input-group-text fw-bold') }}
+                    {{ form.username(class='form-control', placeholder='Enter Username for the Account') }}
+                    {% if form.username.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.username.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Password -->
+                <div class="input-group mb-3">
+                    {{ form.password.label(class='input-group-text fw-bold') }}
+                    {{ form.password(class='form-control', placeholder='Enter Password for the Account') }}
+                    {% if form.password.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.password.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Confirm Password -->
+                <div class="input-group mb-3">
+                    {{ form.confirm_password.label(class='input-group-text fw-bold') }}
+                    {{ form.confirm_password(class='form-control', placeholder='Re-enter to Confirm Password') }}
+                    {% if form.confirm_password.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.confirm_password.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Email -->
+                <div class="input-group mb-3">
+                    {{ form.email.label(class='input-group-text fw-bold') }}
+                    {{ form.email(class='form-control', placeholder='Enter Email Address') }}
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Phone -->
+                <div class="input-group mb-3">
+                    {{ form.phone.label(class='input-group-text fw-bold') }}
+                    {{ form.phone(class='form-control', placeholder='Enter Phone Number') }}
+                    {% if form.phone.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.phone.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-6 col-lg-6">
+                <div class="fs-4 fw-semibold mb-3">
+                    Personal Details
+                </div>
+                <!-- First Name -->
+                <div class="input-group mb-3">
+                    {{ form.first_name.label(class='input-group-text fw-bold') }}
+                    {{ form.first_name(class='form-control', placeholder='Enter First Name') }}
+                    {% if form.first_name.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.first_name.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Last Name -->
+                <div class="input-group mb-3">
+                    {{ form.last_name.label(class='input-group-text fw-bold') }}
+                    {{ form.last_name(class='form-control', placeholder='Enter Last Name') }}
+                    {% if form.last_name.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.last_name.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Gender -->
+                <div class="input-group mb-3">
+                    {{ form.gender.label(class='input-group-text fw-bold') }}
+                    {{ form.gender(class='form-select') }}
+                    {% if form.gender.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.gender.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Birthdate -->
+                <div class="input-group mb-3">
+                    {{ form.birthdate.label(class='input-group-text fw-bold') }}
+                    {{ form.birthdate(class='form-control') }}
+                    {% if form.birthdate.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.birthdate.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+        <div class="text-center">
+            <!-- Submit -->
+            {{ form.submit(class='btn btn-success w-50 mt-2 mb-5 py-2') }}
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#side_manager").addClass("text-success-emphasis bg-success-subtle");
+    });
+</script>
+{% endblock content %}

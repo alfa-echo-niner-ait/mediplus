@@ -15,7 +15,12 @@ from flask import (
 )
 from flask_login import login_required, current_user
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
-from src.doctor.models import Doctor_Time, Appointments, Appointment_Details
+from src.doctor.models import (
+    Doctor_Time,
+    Appointments,
+    Appointment_Details,
+    Prescriptions,
+)
 from src.patient.models import (
     Invoices,
     Invoice_Items,
@@ -36,6 +41,7 @@ from src.manager.forms import (
     RegisterDoctorForm,
     UpdateDoctorForm,
     DoctorPasswordForm,
+    RegisterManagerForm,
 )
 from src.public.forms import SearchTestForm
 from src import db, hash_manager
@@ -659,13 +665,88 @@ def managers():
             Managers.first_name,
             Managers.last_name,
             Managers.phone,
-            Managers.avatar,
         )
         .order_by(Managers.m_id.desc())
         .paginate(page=page_num, per_page=12)
     )
 
     return render_template("manager/managers.html", managers=managers, title="Managers")
+
+
+@manager.route("/dashboard/manager/managers/register", methods=["GET", "POST"])
+@login_required
+def register_manager():
+    form = RegisterManagerForm()
+
+    if form.validate_on_submit():
+        # Account Info
+        username = form.username.data
+        password = form.password.data
+        email = form.email.data
+        phone = form.phone.data
+
+        password_hash = hash_manager.generate_password_hash(password).decode("utf-8")
+        # Manager Info
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        gender = form.gender.data
+        birthday = form.birthdate.data
+        avatar = "manager.svg"
+
+        # Create New User
+        new_user = Users(username, password_hash, email, gender, "Manager")
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Create New Manager
+        new_manager = Managers(
+            new_user.id, first_name, last_name, phone, birthday, avatar
+        )
+        db.session.add(new_manager)
+        db.session.commit()
+
+        # Create Log
+        date, time = get_datetime()
+        # New Manager Log
+        new_log = User_Logs(new_manager.m_id, "Account Registration", date, time)
+        new_log.log_desc = f"Account Registered by Manager #{current_user.id} ({current_user.username})"
+        db.session.add(new_log)
+        # Register Manager Log
+        new_log = User_Logs(current_user.id, "Add New Manager", date, time)
+        new_log.log_desc = f"Registered New Manager #{new_manager.m_id} ({username})"
+        db.session.add(new_log)
+
+        db.session.commit()
+
+        flash("New Manager Registered Successfully!", category="success")
+        return redirect(url_for("manager.managers"))
+
+    return render_template(
+        "manager/register_manager.html", form=form, title="Register New Manager"
+    )
+
+
+@manager.route("/dashboard/manager/managers/<id>/delete")
+@login_required
+def delete_manager(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    user: Users = Users.query.filter(Users.id == int(id)).first_or_404()
+    manager: Managers = Managers.query.filter(Managers.m_id == int(id)).first_or_404()
+    db.session.delete(user)
+
+    date, time = get_datetime()
+    # Manager Log
+    new_log = User_Logs(current_user.id, "Delete Manager Account", date, time)
+    new_log.log_desc = (
+        f"Manager #{id}({user.username}),{manager.last_name} {manager.first_name}"
+    )
+    db.session.add(new_log)
+    db.session.commit()
+
+    flash("Manager Account Deleted Successfully!", category="warning")
+    return redirect(url_for("manager.managers"))
 
 
 @manager.route("/dashboard/manager/doctors")
@@ -675,6 +756,7 @@ def doctors():
 
     doctors = (
         Doctors.query.join(Users, Doctors.d_id == Users.id)
+        .join(Doctor_Time, Doctor_Time.doctor_id == Doctors.d_id)
         .add_columns(
             Users.username,
             Users.gender,
@@ -683,6 +765,7 @@ def doctors():
             Doctors.first_name,
             Doctors.last_name,
             Doctors.phone,
+            Doctor_Time.appt_status,
         )
         .paginate(page=page_num, per_page=12)
     )
@@ -696,12 +779,14 @@ def view_doctor(id):
     if current_user.role != "Manager":
         abort(403)
 
+    page_num = request.args.get("page", 1, int)
     password_form = DoctorPasswordForm()
     doctor = (
         Doctors.query.filter(Doctors.d_id == int(id))
         .join(Users, Doctors.d_id == Users.id)
         .join(Doctor_Time, Doctors.d_id == Doctor_Time.doctor_id)
         .add_columns(
+            Users.username,
             Users.gender,
             Doctors.d_id,
             Doctors.first_name,
@@ -714,9 +799,32 @@ def view_doctor(id):
         .first_or_404()
     )
 
+    appointments = (
+        Appointments.query.filter(Appointments.appt_doctor_id == doctor.d_id)
+        .join(Appointment_Details, Appointments.appt_id == Appointment_Details.appt_id)
+        .join(Patients, Appointments.appt_patient_id == Patients.p_id)
+        .join(Users, Patients.p_id == Users.id)
+        .order_by(Appointment_Details.appt_date.desc())
+        .add_columns(
+            Appointments.appt_id,
+            Appointment_Details.appt_status,
+            Appointment_Details.appt_date,
+            Appointment_Details.appt_time,
+            Users.gender,
+            Patients.p_id,
+            Patients.last_name,
+            Patients.first_name,
+            Patients.phone,
+            Patients.birthdate,
+            Patients.avatar,
+        )
+        .paginate(page=page_num, per_page=5)
+    )
+
     return render_template(
         "manager/doctor_view.html",
         doctor=doctor,
+        appointments=appointments,
         password_form=password_form,
         title=f"Dr. {doctor.last_name} {doctor.first_name}",
     )
@@ -1236,7 +1344,11 @@ def account():
         form.birthdate.data = profile.birthdate
 
     return render_template(
-        "manager/account.html", title="My Account", profile=profile, logs=logs, form=form
+        "manager/account.html",
+        title="My Account",
+        profile=profile,
+        logs=logs,
+        form=form,
     )
 
 

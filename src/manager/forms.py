@@ -173,3 +173,29 @@ class DoctorPasswordForm(FlaskForm):
     )
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
     submit = SubmitField("Change Password")
+
+
+class RegisterManagerForm(FlaskForm):
+    username = StringField(
+        "Username", validators=[DataRequired(), Length(min=2, max=50)]
+    )
+    password = PasswordField(
+        "Password",
+        validators=[
+            DataRequired(),
+            EqualTo("confirm_password", "Password Didn't Match!"),
+        ],
+    )
+    confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
+    email = StringField("Email Address", validators=[DataRequired()])
+    gender = SelectField(
+        "Gender",
+        validators=[DataRequired()],
+        choices=[("Male", "Male"), ("Female", "Female")],
+    )
+    first_name = StringField("First Name", validators=[DataRequired()])
+    last_name = StringField("Last Name", validators=[DataRequired()])
+    phone = StringField("Phone", validators=[DataRequired()])
+    birthdate = DateField("Birth Date", validators=[DataRequired()], default=date.today)
+
+    submit = SubmitField("Register")

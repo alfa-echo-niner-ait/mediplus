@@ -26,13 +26,7 @@
     <div class="text-end">
         <a href="{{ url_for('manager.register_doctor') }}"
             class="btn btn-info text-white fw-bold pop">
-            <svg width="18" height="18" fill="currentColor" class="bi"
-                viewBox="0 0 16 16">
-                <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
-                <path fill-rule="evenodd"
-                    d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5" />
-            </svg>
-            Register New Doctor
+            <i class="bi bi-person-plus-fill"></i> Register New Doctor
         </a>
     </div>
 </div>
@@ -65,14 +59,13 @@
 <!-- Doctor List -->
 <div class="container mt-3">
     <table class="table table-bordered table-hover shadow">
-        <thead class="table-success">
+        <thead class="table-info">
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Username</th>
                 <th scope="col">Title</th>
-                <th scope="col">Firstname</th>
-                <th scope="col">Lastname</th>
-                <th scope="col">Gender</th>
+                <th scope="col">Name</th>
+                <th scope="col">Status</th>
                 <th scope="col">Phone</th>
                 <th scope="col" class="text-center">Actions</th>
             </tr>
@@ -83,19 +76,35 @@
                 <td>{{ doc.d_id }}</td>
                 <td>{{ doc.username }}</td>
                 <td>{{ doc.title }}</td>
-                <td>{{ doc.first_name }}</td>
-                <td>{{ doc.last_name }}</td>
-                <td>{{ doc.gender }}</td>
+                <td>
+                    Dr. {{ doc.last_name }} {{ doc.first_name }}
+                    {% if doc.gender == "Male" %}
+                    <span class="badge bg-info-subtle text-info-emphasis rounded-pill">
+                        <i class="bi bi-gender-male"></i>
+                    </span>
+                    {% else %}
+                    <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill">
+                        <i class="bi bi-gender-female"></i>
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if doc.appt_status == "Available" %}
+                    <span class="badge rounded-pill text-bg-success">{{ doc.appt_status }}</span>
+                    {% else %}
+                    <span class="badge rounded-pill text-bg-danger">{{ doc.appt_status }}</span>
+                    {% endif %}
+                </td>
                 <td>{{ doc.phone }}</td>
                 <td class="text-center">
                     <a href="{{ url_for('manager.view_doctor', id=doc.d_id) }}"
                         class="btn btn-sm btn-secondary pop">
-                        View
+                        <i class="bi bi-eye-fill"></i>
                     </a>
                     <a href="{{ url_for('manager.delete_doctor', id=doc.d_id)}}"
                         class="btn btn-sm btn-danger pop"
                         onclick="return confirm('Delete Dr. {{ doc.last_name }} {{ doc.first_name }}?')">
-                        Delete
+                        <i class="bi bi-trash3-fill"></i>
                     </a>
                 </td>
             </tr>
@@ -110,18 +119,18 @@
         {% for page_num in doctors.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
         {% if doctors.page == page_num %}
-        <a class="btn btn-success m-2" href="{{ url_for('manager.doctors', page=page_num) }}"
+        <a class="btn btn-sm btn-info m-2" href="{{ url_for('manager.doctors', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
-        <a class="btn btn-outline-success m-2" href="{{ url_for('manager.doctors', page=page_num) }}"
+        <a class="btn btn-sm btn-outline-info m-2" href="{{ url_for('manager.doctors', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% endif %}
         {% else %}
-        <button class="btn btn-outline-secondary m-2" disabled>
+        <button class="btn btn-sm btn-outline-secondary m-2" disabled>
             ...
         </button>
         {% endif %}

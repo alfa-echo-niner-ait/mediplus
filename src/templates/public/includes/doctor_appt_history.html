@@ -1,0 +1,22 @@
+<div class="fs-4 fw-semibold mb-2">
+    Appointment History
+</div>
+
+<div class="row ms-1">
+    {% for appt in appointments  %}
+        <div class="col-sm-6 col-md-3 col-lg-2 text-center border rounded-3 p-1 bg-light mb-2 me-2">
+            {% if appt.appt_status == "Completed" %}
+            <span class="badge bg-success">{{ appt.appt_status }}</span>
+            {% elif appt.appt_status == "Booked" %}
+            <span class="badge bg-info">{{ appt.appt_status }}</span>
+            {% elif appt.appt_status == "Cancelled" %}
+            <span class="badge bg-danger">{{ appt.appt_status }}</span>
+            {% endif %}
+            <div class="text-center text-secondary mt-1">
+                <strong>{{ appt.appt_date }}</strong>
+                <br>
+                {{ appt.appt_time }}
+            </div>
+        </div>
+    {% endfor %}
+</div>
