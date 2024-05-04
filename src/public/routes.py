@@ -410,7 +410,7 @@ def view_doctor(id):
             Appointment_Details.appt_time,
         )
         .order_by(Appointment_Details.appt_date.desc())
-        .paginate(page=page_num, per_page=6)
+        .paginate(page=page_num, per_page=12)
     )
 
     return render_template(
