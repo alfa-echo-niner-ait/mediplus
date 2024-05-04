@@ -21,7 +21,7 @@
             <td class="fw-light">{{ file.upload_date }}</td>
             <td class="text-end">
                 <!-- View -->
-                <a href="{{ url_for('doctor.view_patient_record_file', patient_id=patient.p_id, file_id=file.file_id)}}"
+                <a href="{{ url_for('manager.view_patient_record_file', patient_id=patient.p_id, file_id=file.file_id)}}"
                     class="btn btn-sm btn-secondary fw-light">
                     <i class="bi bi-eye-fill"></i>
                 </a>

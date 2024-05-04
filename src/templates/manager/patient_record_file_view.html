@@ -1,7 +1,7 @@
-{% extends 'layout/layout_doctor.html' %}
+{% extends 'layout/layout_manager.html' %}
 
 {% block content %}
-<div class="container mt-2">
+<div class="container-fluid">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
             <li class="breadcrumb-item">
@@ -15,13 +15,13 @@
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('doctor.patients') }}">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('manager.patients') }}">
                     Patients
                 </a>
             </li>
             <li class="breadcrumb-item">
                 <a class="link-body-emphasis fw-semibold text-decoration-none"
-                    href="{{ url_for('doctor.view_patient', patient_id=patient.p_id) }}">
+                    href="{{ url_for('manager.view_patient', id=patient.p_id) }}">
                     {{ patient.last_name }} {{ patient.first_name }}
                 </a>
             </li>
@@ -31,6 +31,7 @@
         </ol>
     </nav>
 </div>
+
 <div class="container">
     <div class="row border p-3 m-3 mt-0 rounded">
         <div class="col-md-6 text-break">
@@ -68,10 +69,7 @@
 </div>
 <script>
     $(document).ready(function () {
-        $("#navPat").removeClass("text-info");
-        $("#navPat").addClass("active");
-        
-        
+        $("#side_patient").addClass("text-success-emphasis bg-success-subtle");
     });
     function goBack() {
         window.history.back();

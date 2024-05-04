@@ -44,7 +44,7 @@
         </div>
     </div>
     <div class="text-center d-sm-flex justify-content-center align-items-center mt-3">
-        <a href="{{ url_for('doctor.view_patient_appointments', patient_id=patient.p_id) }}"
+        <a href="{{ url_for('manager.view_patient_appointments', id=patient.p_id) }}"
             class="btn btn-sm btn-outline-info rounded-3 mb-2 me-2">
             Appointment History
         </a>

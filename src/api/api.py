@@ -115,7 +115,6 @@ def search_patient():
                     Patients.first_name,
                     Patients.last_name,
                     Patients.birthdate,
-                    Patients.avatar,
                 )
                 .all()
             )
@@ -129,10 +128,10 @@ def search_patient():
                         "username": pat[2],
                         "gender": pat[3],
                         "email": pat[4],
-                        "first_name": pat[5],
-                        "last_name": pat[6],
+                        "first_name": pat[4],
+                        "last_name": pat[5],
                         "birthdate": str(pat[7]),
-                        "avatar": pat[8],
+                        "view_url": url_for('manager.view_patient', id=pat[1]),
                     }
                     p_data.append(res)
                 response.append({"patients": p_data})
@@ -152,7 +151,6 @@ def search_patient():
                     Patients.first_name,
                     Patients.last_name,
                     Patients.birthdate,
-                    Patients.avatar,
                 )
                 .first()
             )
@@ -168,7 +166,7 @@ def search_patient():
                     "first_name": patient.first_name,
                     "last_name": patient.last_name,
                     "birthdate": str(patient.birthdate),
-                    "avatar": patient.avatar,
+                    "view_url": url_for("manager.view_patient", id=patient.id),
                 }
                 response.append({"patients": [res]})
 
@@ -187,7 +185,6 @@ def search_patient():
                     Patients.first_name,
                     Patients.last_name,
                     Patients.birthdate,
-                    Patients.avatar,
                 )
                 .all()
             )
@@ -204,7 +201,7 @@ def search_patient():
                         "first_name": pat[5],
                         "last_name": pat[6],
                         "birthdate": str(pat[7]),
-                        "avatar": pat[8],
+                        "view_url": url_for("manager.view_patient", id=pat[1]),
                     }
                     p_data.append(res)
                 response.append({"patients": p_data})

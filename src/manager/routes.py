@@ -1139,7 +1139,6 @@ def patients():
             Patients.first_name,
             Patients.last_name,
             Patients.birthdate,
-            Patients.avatar,
         )
         .order_by(Patients.p_id.desc())
         .paginate(page=page_num, per_page=15)
@@ -1190,6 +1189,67 @@ def view_patient(id):
         title=f"{patient.last_name} {patient.first_name}",
         patient=patient,
         files=files,
+    )
+
+
+@manager.route("/dashboard/doctor/patients/<patient_id>/records/<file_id>")
+@login_required
+def view_patient_record_file(patient_id, file_id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    patient = Patients.query.filter(Patients.p_id == int(patient_id)).first_or_404()
+    file: Patient_Record_Files = Patient_Record_Files.query.filter(
+        Patient_Record_Files.file_id == int(file_id)
+    ).first_or_404()
+
+    return render_template(
+        "manager/patient_record_file_view.html",
+        patient=patient,
+        file=file,
+        title=f"{file.file_name}",
+    )
+
+
+
+@manager.route("/dashboard/manager/patients/<id>/appointments")
+@login_required
+def view_patient_appointments(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    patient: Patients = Patients.query.filter(
+        Patients.p_id == int(id)
+    ).first_or_404()
+    appointments = (
+        Appointments.query.filter(Appointments.appt_patient_id == patient.p_id)
+        .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
+        .filter(Appointment_Details.appt_status == "Completed")
+        .join(Doctors, Appointments.appt_doctor_id == Doctors.d_id)
+        .join(Users, Users.id == Doctors.d_id)
+        .order_by(Appointment_Details.appt_date.desc())
+        .add_columns(
+            Appointments.appt_id,
+            Appointment_Details.appt_status,
+            Appointment_Details.appt_date,
+            Appointment_Details.appt_time,
+            Doctors.d_id,
+            Doctors.last_name,
+            Doctors.first_name,
+            Doctors.title,
+            Doctors.avatar,
+            Users.gender,
+        )
+        .paginate(page=page_num, per_page=10)
+    )
+
+    return render_template(
+        "manager/patient_appointments.html",
+        patient=patient,
+        appointments=appointments,
+        title=f"Patient Appointment History",
     )
 
 
