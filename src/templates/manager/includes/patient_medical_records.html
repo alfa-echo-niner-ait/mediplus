@@ -22,7 +22,7 @@
             <td class="text-end">
                 <!-- View -->
                 <a href="{{ url_for('manager.view_patient_record_file', patient_id=patient.p_id, file_id=file.file_id)}}"
-                    class="btn btn-sm btn-secondary fw-light">
+                    class="btn btn-sm btn-secondary fw-light" target="_blank">
                     <i class="bi bi-eye-fill"></i>
                 </a>
                 <!-- Download -->
@@ -31,8 +31,9 @@
                     <i class="bi bi-download"></i>
                 </a>
                 <!-- Delete -->
-                <a href="{{ url_for('doctor.download_patient_record_file', patient_id=patient.p_id, file_id=file.file_id) }}"
-                    class="btn btn-sm btn-danger fw-light">
+                <a href="{{ url_for('manager.delete_patient_record_file', patient_id=patient.p_id, file_id=file.file_id) }}"
+                    class="btn btn-sm btn-danger fw-light"
+                    onclick="return confirm('Delete file: {{ file.file_name }}?')">
                     <i class="bi bi-trash3-fill"></i>
                 </a>
             </td>

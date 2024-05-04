@@ -1192,7 +1192,7 @@ def view_patient(id):
     )
 
 
-@manager.route("/dashboard/doctor/patients/<patient_id>/records/<file_id>")
+@manager.route("/dashboard/manager/patients/<patient_id>/records/<file_id>")
 @login_required
 def view_patient_record_file(patient_id, file_id):
     if current_user.role != "Manager":
@@ -1211,6 +1211,41 @@ def view_patient_record_file(patient_id, file_id):
     )
 
 
+@manager.route("/dashboard/manager/patients/<patient_id>/records/<file_id>/delete")
+@login_required
+def delete_patient_record_file(patient_id, file_id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    file: Patient_Record_Files = Patient_Record_Files.query.filter_by(
+        file_id=int(file_id)
+    ).first_or_404()
+
+    if file.record_patient_id == int(patient_id):
+        date, time = get_datetime()
+        new_log = User_Logs(current_user.id, "Delete Patient Record", date, time)
+        new_log.log_desc = (
+            f"Patient #{patient_id}, File:{file.file_name}({file.file_size_kb} KB), {file.file_path_name}"
+        )
+
+        os.remove(
+            os.path.join(
+                current_app.root_path,
+                "static/upload/patient/records/",
+                file.file_path_name,
+            )
+        )
+
+        db.session.delete(file)
+        db.session.add(new_log)
+        db.session.commit()
+
+        flash("File deleted successfully!", category="info")
+        return redirect(url_for("manager.view_patient", id=int(patient_id)))
+    else:
+        flash("Delete failed! Permission unmatch", category="danger")
+        return redirect(url_for("manager.view_patient", id=int(patient_id)))
+
 
 @manager.route("/dashboard/manager/patients/<id>/appointments")
 @login_required
@@ -1220,9 +1255,7 @@ def view_patient_appointments(id):
 
     page_num = request.args.get("page", 1, int)
 
-    patient: Patients = Patients.query.filter(
-        Patients.p_id == int(id)
-    ).first_or_404()
+    patient: Patients = Patients.query.filter(Patients.p_id == int(id)).first_or_404()
     appointments = (
         Appointments.query.filter(Appointments.appt_patient_id == patient.p_id)
         .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
@@ -1250,6 +1283,87 @@ def view_patient_appointments(id):
         patient=patient,
         appointments=appointments,
         title=f"Patient Appointment History",
+    )
+
+
+@manager.route("/dashboard/manager/patients/<id>/tests")
+@login_required
+def view_patient_tests(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    patient: Patients = Patients.query.filter(
+        Patients.p_id == int(id)
+    ).first_or_404()
+    tests = (
+        Medical_Test_Book.query.filter(
+            Medical_Test_Book.test_patient_id == Patients.p_id
+        )
+        .filter(Medical_Test_Book.test_patient_id == patient.p_id)
+        .filter(Medical_Test_Book.test_status == "Done")
+        .join(Invoice_Items, Invoice_Items.item_id == Medical_Test_Book.invoice_item_id)
+        .join(Invoices, Invoices.invoice_id == Invoice_Items.invoice_id)
+        .order_by(Invoices.invoice_date.desc())
+        .add_columns(
+            Medical_Test_Book.serial_number,
+            Invoice_Items.item_desc,
+            Invoices.invoice_date,
+        )
+        .paginate(page=page_num, per_page=12)
+    )
+
+    return render_template(
+        "manager/patient_test_history.html",
+        patient=patient,
+        tests=tests,
+        title=f"{patient.last_name}'s Medical Test History",
+    )
+
+
+@manager.route("/dashboard/manager/patients/<id>/invoices")
+@login_required
+def view_patient_invoices(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    patient: Patients = Patients.query.filter(Patients.p_id == int(id)).first_or_404()
+    invoices = (
+        Invoices.query.filter_by(invoice_patient_id=int(id))
+        .order_by(Invoices.invoice_id.desc())
+        .paginate(page=page_num, per_page=12)
+    )
+
+    return render_template(
+        "manager/patient_invoices.html",
+        patient=patient,
+        invoices=invoices,
+        title=f"{patient.last_name}'s Invoices",
+    )
+
+@manager.route("/dashboard/manager/patients/<id>/logs")
+@login_required
+def view_patient_logs(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    patient: Patients = Patients.query.filter(Patients.p_id == int(id)).first_or_404()
+    logs = (
+        User_Logs.query.filter_by(user_id=int(id))
+        .order_by(User_Logs.log_id.desc())
+        .paginate(page=page_num, per_page=12)
+    )
+
+    return render_template(
+        "manager/patient_logs.html",
+        patient=patient,
+        logs=logs,
+        title=f"{patient.last_name}'s Account Logs",
     )
 
 

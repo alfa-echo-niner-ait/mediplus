@@ -1,7 +1,7 @@
-{% extends 'layout/layout_doctor.html' %}
+{% extends 'layout/layout_manager.html' %}
 
 {% block content %}
-<div class="container mt-2">
+<div class="container-fluid">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
             <li class="breadcrumb-item">
@@ -15,25 +15,26 @@
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('doctor.patients') }}">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('manager.patients') }}">
                     Patients
                 </a>
             </li>
             <li class="breadcrumb-item">
                 <a class="link-body-emphasis fw-semibold text-decoration-none"
-                    href="{{ url_for('doctor.view_patient', patient_id=patient.p_id) }}">
+                    href="{{ url_for('manager.view_patient', id=patient.p_id) }}">
                     {{ patient.last_name }} {{ patient.first_name }}
                 </a>
             </li>
             <li class="breadcrumb-item active">
-                Medical Test History
+                Test History
             </li>
         </ol>
     </nav>
 </div>
+
 <div class="container">
     <div class="my-3 p-3 bg-body rounded shadow-sm">
-        <h4 class="border-bottom pb-2 mb-0">Medical Test List</h4>
+        <h4 class="border-bottom pb-2 mb-0">Medical Test List({{ tests.total }})</h4>
         {% if tests.total != 0 %}
         {% for test in tests %}
         <div class="d-flex text-muted pt-3">
@@ -46,6 +47,10 @@
                         {{ test.item_desc }}
                     </strong>
                     <div class="fw-bold">
+                        <!-- <a href=""
+                            class="btn btn-sm btn-outline-info rounded-3">
+                            <i class="bi bi-eye-fill"></i> View Results
+                        </a> -->
                         <button type="button"
                             onclick="showResults('{{ test.serial_number }}')"
                             class="btn btn-sm btn-outline-info rounded-3"
@@ -65,6 +70,7 @@
                 <div id="testFiles{{ test.serial_number }}" class="mt-2" style="display: none;">
                     <table class="table table-borderless table-sm">
                         <tbody id="fileList{{ test.serial_number }}">
+                            
                         </tbody>
                     </table>
                 </div>
@@ -72,18 +78,18 @@
         </div>
         {% endfor %}
         <!-- Pagination -->
-        <small class="d-block text-end mt-3">
+        <small class="d-block text-center mt-3">
             {% for page_num in tests.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
             {% if page_num %}
             {% if tests.page == page_num %}
             <a class="btn btn-sm btn-info m-2 pop"
-                href="{{ url_for('doctor.view_patient_tests', patient_id=patient.p_id, page=page_num) }}"
+                href="{{ url_for('manager.view_patient_tests', id=patient.p_id, page=page_num) }}"
                 id="pg_link{{ page_num }}">
                 {{ page_num }}
             </a>
             {% else %}
             <a class="btn btn-sm btn-info m-2 pop"
-                href="{{ url_for('doctor.view_patient_tests', patient_id=patient.p_id, page=page_num) }}"
+                href="{{ url_for('manager.view_patient_tests', id=patient.p_id, page=page_num) }}"
                 id="pg_link{{ page_num }}">
                 {{ page_num }}
             </a>
@@ -102,8 +108,7 @@
 </div>
 <script>
     $(document).ready(function () {
-        $("#navPat").removeClass("text-info");
-        $("#navPat").addClass("active");
+        $("#side_patient").addClass("text-success-emphasis bg-success-subtle");
     });
 
     function showResults(test_id) {
@@ -113,7 +118,7 @@
 
         $.ajax({
             type: "GET",
-            url: "/api/doctor/patient/"+"{{ patient.p_id }}"+"/test_results/"+test_id,
+            url: "/api/manager/patients/"+"{{ patient.p_id }}"+"/test_results/"+test_id,
             success: function (response) {
                 if (response[0]["result"] == "success") {
                     data = ""
@@ -125,7 +130,7 @@
                                 <td class="fw-light">${file.date}</td>
                                 <td class="text-end">
                                     <a href="${file.view_url}"
-                                        class="btn btn-sm btn-secondary fw-light">
+                                        class="btn btn-sm btn-secondary fw-light" target="_blank">
                                         <i class="bi bi-eye-fill"></i>
                                     </a>
                                     <a href="${file.download_url}"

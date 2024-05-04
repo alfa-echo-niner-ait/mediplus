@@ -1,6 +1,5 @@
 {% extends 'layout/layout_manager.html' %}
 
-
 {% block content %}
 <div class="container-fluid">
     <nav aria-label="breadcrumb">
@@ -15,6 +14,17 @@
                     Dashboard
                 </a>
             </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('manager.patients') }}">
+                    Patients
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                <a class="link-body-emphasis fw-semibold text-decoration-none"
+                    href="{{ url_for('manager.view_patient', id=patient.p_id) }}">
+                    {{ patient.last_name }} {{ patient.first_name }}
+                </a>
+            </li>
             <li class="breadcrumb-item active">
                 Invoices
             </li>
@@ -22,88 +32,50 @@
     </nav>
 </div>
 
-<!-- Filter -->
-<div class="container">
-    <div class="border rounded mb-3 p-3">
-        <h4 class="fs-5 mb-2">
-            <i class="bi bi-search"></i> Search Invoices
-        </h4>
-        <div class="row">
-            <div class="col">
-                <label class="form-label" for="search_by">Search By</label>
-                <select class="form-select" id="search_by">
-                    <option value="id">Invoice ID</option>
-                    <option value="userid">User ID</option>
-                    <option value="name">User Name</option>
-                </select>
-            </div>
-            <div class="col">
-                <label class="form-label" for="keyword">Keyword</label>
-                <input class="form-control" id="keyword" placeholder="Enter Keyword" required type="text">
-            </div>
-            <div class="col mt-auto">
-                <button class="btn btn-success" id="search">Search</button>
-            </div>
-        </div>
-        <div id="msg"></div>
-    </div>
-</div>
-
 <!-- Invoice List -->
 <div class="container">
     <div class="fs-4 fw-semibold mb-3">
         Invoice List ({{ invoices.total }})
     </div>
-    <table class="table table-bordered table-hover shadow">
+    <table class="table table-hover shadow">
         <thead class="table-success">
             <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Patient</th>
-                <th scope="col">Phone</th>
+                <th scope="col">Invoice ID</th>
                 <th scope="col">Total Amount</th>
                 <th scope="col">Status</th>
-                <th scope="col">Creation Date</th>
-                <th scope="col">Creation Time</th>
-                <th scope="col">Actions</th>
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col" class="text-end">Actions</th>
             </tr>
         </thead>
-        <tbody id="manager_data">
+        <tbody id="log_data">
             {% for invoice in invoices %}
             <tr>
                 <td>{{ invoice.invoice_id }}</td>
-                <td>
-                    {{ invoice.last_name }} {{ invoice.first_name }}
-                </td>
-                <td>{{ invoice.phone }}</td>
                 <td>{{ invoice.total_amount }}</td>
                 {% if invoice.status == 'Unpaid' %}
                 <td class="table-danger">{{ invoice.status }}</td>
                 {% else %}
-                <td class="table-warning">{{ invoice.status }}</td>
+                <td class="table-info">{{ invoice.status }}</td>
                 {% endif %}
                 <td>{{ invoice.invoice_date }}</td>
                 <td>{{ invoice.invoice_time }}</td>
-                <td>
+                <td class="text-end">
                     <!-- View -->
-                    <a href="{{ url_for('public.invoice', id=invoice.invoice_id)}}"
-                        class="btn btn-sm btn-secondary fw-light" target="_blank">
+                    <a href="{{ url_for('public.invoice', id=invoice.invoice_id)}}" class="btn btn-sm btn-secondary fw-light"
+                        target="_blank">
                         <i class="bi bi-eye-fill"></i>
                     </a>
                     <!-- Update -->
                     <a href="{{ url_for('manager.invoice_update', id=invoice.invoice_id)}}"
-                        class="btn btn-sm btn-success">
+                        class="btn btn-sm btn-success" target="_blank">
                         <i class="bi bi-pencil-square"></i>
-                    </a>
-                    <!-- Delete -->
-                    <a href="{{ url_for('manager.invoice_delete', id=invoice.invoice_id)}}"
-                        class="btn btn-sm btn-danger" onclick="return confirm('Delete Invoice #{{ invoice.invoice_id }}?')">
-                        <i class="bi bi-trash3-fill"></i>
                     </a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table
 </div>
 <!-- Pagination -->
 <div class="container mt-3 mb-3" id="manager_pagination">
@@ -111,12 +83,12 @@
         {% for page_num in invoices.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
         {% if invoices.page == page_num %}
-        <a class="btn btn-sm btn-success m-2" href="{{ url_for('manager.invoices', page=page_num) }}"
+        <a class="btn btn-sm btn-success m-2" href="{{ url_for('manager.view_patient_invoices', id=patient.p_id, page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
-        <a class="btn btn-sm btn-success-info m-2" href="{{ url_for('manager.invoices', page=page_num) }}"
+        <a class="btn btn-sm btn-success-info m-2" href="{{ url_for('manager.view_patient_invoices', id=patient.p_id, page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
@@ -129,10 +101,9 @@
         {% endfor %}
     </div>
 </div>
-<!-- JS -->
 <script>
     $(document).ready(function () {
-        $("#side_invoices").addClass("text-success-emphasis bg-success-subtle");
+        $("#side_patient").addClass("text-success-emphasis bg-success-subtle");
     });
 </script>
 {% endblock content %}

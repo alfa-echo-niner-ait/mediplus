@@ -413,7 +413,7 @@ def logs():
     logs = (
         User_Logs.query.filter_by(user_id=current_user.id)
         .order_by(User_Logs.log_id.desc())
-        .paginate(page=page_num, per_page=10)
+        .paginate(page=page_num, per_page=12)
     )
 
     return render_template("patient/logs.html", logs=logs, title="Activity Logs")

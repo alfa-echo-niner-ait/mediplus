@@ -48,15 +48,15 @@
             class="btn btn-sm btn-outline-info rounded-3 mb-2 me-2">
             Appointment History
         </a>
-        <a href="{{ url_for('doctor.view_patient_tests', patient_id=patient.p_id) }}"
+        <a href="{{ url_for('manager.view_patient_tests', id=patient.p_id) }}"
             class="btn btn-sm btn-outline-info rounded-3 mb-2 me-2">
             Medical Test History
         </a>
-        <a href=""
+        <a href="{{ url_for('manager.view_patient_invoices', id=patient.p_id) }}"
             class="btn btn-sm btn-outline-info rounded-3 mb-2 me-2">
             Invoices
         </a>
-        <a href=""
+        <a href="{{ url_for('manager.view_patient_logs', id=patient.p_id) }}"
             class="btn btn-sm btn-outline-info rounded-3 mb-2 me-2">
             Account Logs
         </a>

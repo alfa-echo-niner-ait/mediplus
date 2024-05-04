@@ -249,7 +249,7 @@ def prescription_items(pres_id):
 
 @api.route("/api/doctor/patient/<patient_id>/test_results/<serial>")
 @login_required
-def patient_test_result_files(patient_id, serial):
+def patient_test_result_files_doctor_view(patient_id, serial):
     files: Medical_Report_Files = Medical_Report_Files.query.filter(
         Medical_Report_Files.test_book_serial == serial
     ).all()
@@ -265,6 +265,40 @@ def patient_test_result_files(patient_id, serial):
                 "view_url": url_for(
                     "doctor.view_patient_test_file",
                     patient_id=patient_id,
+                    file_id=file.file_id,
+                ),
+                "download_url": url_for(
+                    "doctor.download_patient_test_file",
+                    patient_id=patient_id,
+                    file_id=file.file_id,
+                ),
+            }
+            file_list.append(data)
+        response.append({"files": file_list})
+
+        return jsonify(response)
+    else:
+        return jsonify([{"result": "fail"}])
+
+
+@api.route("/api/manager/patients/<patient_id>/test_results/<serial>")
+@login_required
+def patient_test_result_files_manager_view(patient_id, serial):
+    files: Medical_Report_Files = Medical_Report_Files.query.filter(
+        Medical_Report_Files.test_book_serial == serial
+    ).all()
+
+    if len(files) > 0:
+        response = [{"result": "success"}]
+        file_list = list()
+        for file in files:
+            data = {
+                "name": file.file_name,
+                "size": file.file_size_kb,
+                "date": str(file.upload_date),
+                "view_url": url_for(
+                    "manager.view_test_report",
+                    serial_number=serial,
                     file_id=file.file_id,
                 ),
                 "download_url": url_for(
