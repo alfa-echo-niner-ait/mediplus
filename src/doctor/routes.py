@@ -152,6 +152,8 @@ def view_patient(patient_id):
     if current_user.role != "Doctor":
         abort(403)
 
+    page_num = request.args.get("page", 1, int)
+
     patient: Patients = (
         Patients.query.filter(Patients.p_id == int(patient_id))
         .join(Users, Users.id == Patients.p_id)
@@ -174,9 +176,18 @@ def view_patient(patient_id):
         .first_or_404()
     )
 
+    files: Patient_Record_Files = (
+        Patient_Record_Files.query.filter(
+            Patient_Record_Files.record_patient_id == int(patient_id)
+        )
+        .order_by(Patient_Record_Files.file_id.desc())
+        .paginate(page=page_num, per_page=10)
+    )
+
     return render_template(
         "doctor/view_patient.html",
         patient=patient,
+        files=files,
         title=f"Patient {patient.last_name} {patient.first_name}",
     )
 
@@ -313,31 +324,6 @@ def download_patient_test_file(patient_id, file_id):
         ),
         download_name=file_name,
         as_attachment=True,
-    )
-
-
-@doctor.route("/dashboard/doctor/patients/<patient_id>/records")
-@login_required
-def view_patient_records(patient_id):
-    if current_user.role != "Doctor":
-        abort(403)
-
-    page_num = request.args.get("page", 1, int)
-
-    patient = Patients.query.filter(Patients.p_id == int(patient_id)).first_or_404()
-    files: Patient_Record_Files = (
-        Patient_Record_Files.query.filter(
-            Patient_Record_Files.record_patient_id == int(patient_id)
-        )
-        .order_by(Patient_Record_Files.file_id.desc())
-        .paginate(page=page_num, per_page=10)
-    )
-
-    return render_template(
-        "doctor/patient_record_files.html",
-        patient=patient,
-        files=files,
-        title=f"Patient Medical Records",
     )
 
 
