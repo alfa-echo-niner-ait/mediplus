@@ -1,0 +1,73 @@
+<div class="fs-4 fw-semibold mb-2">Medical Records</div>
+
+
+{% if files.total != 0 %}
+<table class="table table-striped border">
+    <thead>
+        <tr>
+            <th class="text-start">#</th>
+            <th class="text-start">Description</th>
+            <th>File Size</th>
+            <th>Upload Date</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+        <tr>
+            <td class="text-start fw-light">{{ loop.index }}</td>
+            <td class="text-start fw-light">{{ file.file_name }}</td>
+            <td class="fw-light">{{ file.file_size_kb }} KB</td>
+            <td class="fw-light">{{ file.upload_date }}</td>
+            <td class="text-end">
+                <!-- View -->
+                <a href="{{ url_for('doctor.view_patient_record_file', patient_id=patient.p_id, file_id=file.file_id)}}"
+                    class="btn btn-sm btn-secondary fw-light">
+                    <i class="bi bi-eye-fill"></i>
+                </a>
+                <!-- Download -->
+                <a href="{{ url_for('doctor.download_patient_record_file', patient_id=patient.p_id, file_id=file.file_id) }}"
+                    class="btn btn-sm btn-success fw-light">
+                    <i class="bi bi-download"></i>
+                </a>
+                <!-- Delete -->
+                <a href="{{ url_for('doctor.download_patient_record_file', patient_id=patient.p_id, file_id=file.file_id) }}"
+                    class="btn btn-sm btn-danger fw-light">
+                    <i class="bi bi-trash3-fill"></i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-warning" role="alert">
+    No records found!
+</div>
+{% endif %}
+
+
+<!-- Pagination -->
+<div class="border rounded d-flex justify-content-center">
+    {% for page_num in files.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+    {% if page_num %}
+    {% if files.page == page_num %}
+    <a class="btn btn-sm btn-info m-2"
+        href="{{ url_for('manager.view_patient', id=patient.p_id, page=page_num) }}"
+        id="pg_link{{ page_num }}">
+        {{ page_num }}
+    </a>
+    {% else %}
+    <a class="btn btn-sm btn-outline-info m-2"
+        href="{{ url_for('manager.view_patient', id=patient.p_id, page=page_num) }}"
+        id="pg_link{{ page_num }}">
+        {{ page_num }}
+    </a>
+    {% endif %}
+    {% else %}
+    <button class="btn btn-sm btn-outline-secondary m-2" disabled>
+        ...
+    </button>
+    {% endif %}
+    {% endfor %}
+</div>

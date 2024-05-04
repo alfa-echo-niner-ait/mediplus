@@ -25,9 +25,11 @@ from src.patient.models import (
     Invoices,
     Invoice_Items,
     Payments,
+    Medical_Info,
     Medical_Tests,
     Medical_Test_Book,
     Medical_Report_Files,
+    Patient_Record_Files,
 )
 from src.doctor.form import UpdateScheduleForm
 from src.manager.forms import (
@@ -1122,6 +1124,9 @@ def delete_doctor(id):
 @manager.route("/dashboard/manager/patients")
 @login_required
 def patients():
+    if current_user.role != "Manager":
+        abort(403)
+
     page_num = request.args.get("page", 1, int)
 
     patients = (
@@ -1140,6 +1145,52 @@ def patients():
         .paginate(page=page_num, per_page=15)
     )
     return render_template("manager/patients.html", title="Patients", patients=patients)
+
+
+@manager.route("/dashboard/manager/patients/<id>")
+def view_patient(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    page_num = request.args.get("page", 1, int)
+
+    patient: Patients = (
+        Patients.query.filter(Patients.p_id == int(id))
+        .join(Users, Users.id == Patients.p_id)
+        .join(Medical_Info, Medical_Info.patient_id == Patients.p_id)
+        .add_columns(
+            Patients.p_id,
+            Patients.last_name,
+            Patients.first_name,
+            Patients.phone,
+            Patients.birthdate,
+            Patients.avatar,
+            Users.username,
+            Users.gender,
+            Users.email,
+            Medical_Info.blood_group,
+            Medical_Info.height_cm,
+            Medical_Info.weight_kg,
+            Medical_Info.allergies,
+            Medical_Info.medical_conditions,
+        )
+        .first_or_404()
+    )
+
+    files: Patient_Record_Files = (
+        Patient_Record_Files.query.filter(
+            Patient_Record_Files.record_patient_id == int(id)
+        )
+        .order_by(Patient_Record_Files.file_id.desc())
+        .paginate(page=page_num, per_page=10)
+    )
+
+    return render_template(
+        "manager/view_patient.html",
+        title=f"{patient.last_name} {patient.first_name}",
+        patient=patient,
+        files=files,
+    )
 
 
 # Activity Logs

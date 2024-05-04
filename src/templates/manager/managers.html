@@ -29,38 +29,11 @@
         </a>
     </div>
 </div>
-<!-- Filter -->
-<div class="container mt-2">
-    <div class="border rounded mb-3 p-3">
-        <h4 class="fs-5 mb-2">
-            <i class="bi bi-search"></i> Search Manager
-        </h4>
-        <div class="row">
-            <div class="col">
-                <label class="form-label" for="search_by">Search By</label>
-                <select class="form-select" id="search_by">
-                    <option value="username">Username</option>
-                    <option value="id">User ID</option>
-                    <option value="email">User Email</option>
-                </select>
-            </div>
-            <div class="col">
-                <label class="form-label" for="keyword">Keyword</label>
-                <input class="form-control" id="keyword" placeholder="Enter Keyword" required type="text">
-            </div>
-            <div class="col mt-auto">
-                <button class="btn btn-success" id="search">Search</button>
-            </div>
-        </div>
-        <div id="msg"></div>
-    </div>
-</div>
-
 
 <!-- Manager List -->
-<div class="container">
+<div class="container mt-3">
     <table class="table table-bordered table-hover shadow">
-        <thead class="table-success">
+        <thead class="table-danger">
             <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Username</th>
@@ -102,12 +75,12 @@
         {% for page_num in managers.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
         {% if managers.page == page_num %}
-        <a class="btn btn-success m-2" href="{{ url_for('manager.managers', page=page_num) }}"
+        <a class="btn btn-sm btn-danger m-2" href="{{ url_for('manager.managers', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
-        <a class="btn btn-outline-success m-2" href="{{ url_for('manager.managers', page=page_num) }}"
+        <a class="btn btn-sm btn-outline-danger m-2" href="{{ url_for('manager.managers', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>

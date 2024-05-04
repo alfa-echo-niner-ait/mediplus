@@ -1,0 +1,111 @@
+{% extends 'layout/layout_manager.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    <i class="bi bi-house-door-fill"></i> Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('manager.patients') }}">
+                    Patients
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                {{ patient.last_name }} {{ patient.first_name }}
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container">
+    <div class="text-center">
+        <img class="rounded-circle border shadow" height="135px" width="135px"
+            src="{{ url_for('static', filename='avatars/patient/'~patient.avatar) }}" />
+        <div class="fs-4 fw-light">
+            {{ patient.last_name }} {{ patient.first_name }}
+            {% if patient.gender == "Male" %}
+            <span class="badge bg-info-subtle text-info-emphasis rounded-pill">
+                <i class="bi bi-gender-male"></i>
+            </span>
+            {% else %}
+            <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill">
+                <i class="bi bi-gender-female"></i>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="text-center d-sm-flex justify-content-center align-items-center mt-3">
+        <a href="{{ url_for('doctor.view_patient_appointments', patient_id=patient.p_id) }}"
+            class="btn btn-sm btn-outline-info rounded-3 mb-2 me-2">
+            Appointment History
+        </a>
+        <a href="{{ url_for('doctor.view_patient_tests', patient_id=patient.p_id) }}"
+            class="btn btn-sm btn-outline-info rounded-3 mb-2 me-2">
+            Medical Test History
+        </a>
+        <a href=""
+            class="btn btn-sm btn-outline-info rounded-3 mb-2 me-2">
+            Invoices
+        </a>
+        <a href=""
+            class="btn btn-sm btn-outline-info rounded-3 mb-2 me-2">
+            Account Logs
+        </a>
+    </div>
+</div>
+<div class="container mt-3">
+    <div class="fs-4 fw-semibold mb-2">Patient Information</div>
+    <div class="table-responsive">
+        <table class="table table-responsive table-bordered">
+            <tr>
+                <th scope="row">Account ID</th>
+                <td>{{ patient.p_id }}</td>
+                <th scope="row">Username</th>
+                <td>{{ patient.username }}</td>
+                <th scope="row">Gender</th>
+                <td>{{ patient.gender }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Birthdate</th>
+                <td>{{ patient.birthdate }}</td>
+                <th scope="row">Phone</th>
+                <td>{{ patient.phone }}</td>
+                <th scope="row">Email</th>
+                <td>{{ patient.email }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Blood Group</th>
+                <td>{{ patient.blood_group }}</td>
+                <th scope="row">Height</th>
+                <td>{{ patient.height_cm }} CM</td>
+                <th scope="row">Weight</th>
+                <td>{{ patient.weight_kg }} KG</td>
+            </tr>
+            <tr>
+                <th scope="row">Allergies</th>
+                <td colspan="2">{{ patient.allergies }}</td>
+                <th scope="row">Medical Conditions</th>
+                <td colspan="2">{{ patient.medical_conditions }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="container mt-1 mb-3">
+    {% include '/manager/includes/patient_medical_records.html' %}
+</div>
+<script>
+    $(document).ready(function () {
+        $("#side_patient").addClass("text-success-emphasis bg-success-subtle");
+    });
+</script>
+{% endblock content %}

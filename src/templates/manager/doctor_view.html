@@ -43,8 +43,11 @@
                 </span>
                 {% endif %}
             </div>
-            <div class="fs-6 text-secondary">
+            <div class="fs-6 text-secondary mt-1">
                 {{ doctor.title }}
+            </div>
+            <div class="fs-6 mt-1">
+                {{ doctor.phone }}
             </div>
             {% if doctor.appt_status == "Available" %}
             <span class="badge rounded-pill text-bg-success">{{ doctor.appt_status }}</span>
@@ -52,21 +55,20 @@
             <span class="badge rounded-pill text-bg-danger">{{ doctor.appt_status }}</span>
             {% endif %}
             <a href="{{ url_for('manager.change_appt_status', id=doctor.d_id) }}" class="text-decoration-none">(Change)</a>
-            <div class="fs-6">
-                {{ doctor.phone }}
-            </div>
         </div>
         <div class="col-md-6 text-end">
-            <a href="{{ url_for('manager.update_doctor_schedule', id=doctor.d_id) }}"
-                class="btn btn-dark btn-sm pop mb-2">
-                Update Schedule
-            </a>
             <a href="{{ url_for('manager.update_doctor_profile', id=doctor.d_id) }}"
-                class="btn btn-info btn-sm text-white pop mb-2">
+                class="btn btn-outline-secondary btn-sm pop mb-2 rounded-3">
                 Update Profile
             </a>
+            <br>
+            <a href="{{ url_for('manager.update_doctor_schedule', id=doctor.d_id) }}"
+                class="btn btn-outline-secondary btn-sm pop mb-2 rounded-3">
+                Update Schedule
+            </a>
+            <br>
             <button data-bs-toggle="modal" data-bs-target="#doctorPasswordModal"
-                class="btn btn-primary btn-sm pop mb-2">
+                class="btn btn-outline-secondary btn-sm pop mb-2 rounded-3">
                 Change Password
             </button>
         </div>
