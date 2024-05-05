@@ -8,8 +8,8 @@
         <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
             <div class="d-flex justify-content-between">
                 <strong class="fs-6 mt-2 text-gray-dark">
-                    <a href="{{ url_for('doctor.view_patient', patient_id=appt.p_id)}}"
-                        class="text-decoration-none text-info-emphasis">
+                    <a href="{{ url_for('manager.view_patient', id=appt.p_id)}}"
+                        class="text-decoration-none text-info-emphasis" target="_blank">
                         {{ appt.last_name }} {{ appt.first_name }}
                     </a>
                     {% if appt.gender == "Male" %}

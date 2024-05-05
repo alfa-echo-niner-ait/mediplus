@@ -14,12 +14,12 @@ from flask import (
     send_file,
 )
 from flask_login import login_required, current_user
+from sqlalchemy.orm import aliased
 from src.users.models import Users, User_Logs, Patients, Doctors, Managers
 from src.doctor.models import (
     Doctor_Time,
     Appointments,
     Appointment_Details,
-    Prescriptions,
 )
 from src.patient.models import (
     Invoices,
@@ -45,6 +45,8 @@ from src.manager.forms import (
     DoctorPasswordForm,
     RegisterManagerForm,
     SearchInvoiceForm,
+    SearchTestbookForm,
+    SearchAppointmentForm,
 )
 from src.public.forms import SearchTestForm, SearchDoctorForm
 from src import db, hash_manager
@@ -88,37 +90,134 @@ def dashboard():
     )
 
 
-@manager.route("/dashboard/manager/appointments")
+@manager.route("/dashboard/manager/appointments", methods=["GET", "POST"])
 @login_required
 def appointments():
     if current_user.role != "Manager":
         abort(403)
 
     page_num = request.args.get("page", 1, int)
+    title = "Appointments List"
+    search = "no"
+
+    form = SearchAppointmentForm()
+
+    doctors = aliased(Doctors)
+    patients = aliased(Patients)
 
     appointments = (
         Appointments.query.join(
             Appointment_Details, Appointments.appt_id == Appointment_Details.appt_id
         )
-        .join(Doctors, Appointments.appt_doctor_id == Doctors.d_id)
-        .join(Patients, Appointments.appt_patient_id == Patients.p_id)
+        .join(doctors, Appointments.appt_doctor_id == doctors.d_id)
+        .join(patients, Appointments.appt_patient_id == patients.p_id)
         .order_by(Appointments.appt_id.desc())
         .add_columns(
             Appointments.appt_id,
             Appointment_Details.appt_status,
             Appointment_Details.appt_date,
             Appointment_Details.appt_time,
-            Doctors.last_name,
-            Doctors.first_name,
-            Patients.p_id,
+            doctors.d_id.label("doctor_id"),
+            doctors.last_name.label("doctor_last_name"),
+            doctors.first_name.label("doctor_first_name"),
+            patients.p_id.label("patient_id"),
+            patients.last_name.label("patient_last_name"),
+            patients.first_name.label("patient_first_name"),
         )
         .paginate(page=page_num, per_page=15)
     )
 
+    if form.validate_on_submit():
+        if page_num > 1:
+            page_num = 1
+        search = "yes"
+        title = f"Search Result: {form.keyword.data}"
+
+        if form.search_by.data == "patient_name":
+            appointments = (
+                Appointments.query.join(
+                    Appointment_Details,
+                    Appointments.appt_id == Appointment_Details.appt_id,
+                )
+                .join(doctors, Appointments.appt_doctor_id == doctors.d_id)
+                .join(patients, Appointments.appt_patient_id == patients.p_id)
+                .filter(
+                    patients.last_name.icontains(form.keyword.data)
+                    | patients.first_name.icontains(form.keyword.data)
+                )
+                .order_by(Appointments.appt_id.desc())
+                .add_columns(
+                    Appointments.appt_id,
+                    Appointment_Details.appt_status,
+                    Appointment_Details.appt_date,
+                    Appointment_Details.appt_time,
+                    doctors.d_id.label("doctor_id"),
+                    doctors.last_name.label("doctor_last_name"),
+                    doctors.first_name.label("doctor_first_name"),
+                    patients.p_id.label("patient_id"),
+                    patients.last_name.label("patient_last_name"),
+                    patients.first_name.label("patient_first_name"),
+                )
+                .paginate(page=page_num, per_page=15)
+            )
+        elif form.search_by.data == "doctor_name":
+            appointments = (
+                Appointments.query.join(
+                    Appointment_Details,
+                    Appointments.appt_id == Appointment_Details.appt_id,
+                )
+                .join(doctors, Appointments.appt_doctor_id == doctors.d_id)
+                .join(patients, Appointments.appt_patient_id == patients.p_id)
+                .filter(
+                    doctors.last_name.icontains(form.keyword.data)
+                    | doctors.first_name.icontains(form.keyword.data)
+                )
+                .order_by(Appointments.appt_id.desc())
+                .add_columns(
+                    Appointments.appt_id,
+                    Appointment_Details.appt_status,
+                    Appointment_Details.appt_date,
+                    Appointment_Details.appt_time,
+                    doctors.d_id.label("doctor_id"),
+                    doctors.last_name.label("doctor_last_name"),
+                    doctors.first_name.label("doctor_first_name"),
+                    patients.p_id.label("patient_id"),
+                    patients.last_name.label("patient_last_name"),
+                    patients.first_name.label("patient_first_name"),
+                )
+                .paginate(page=page_num, per_page=15)
+            )
+        elif form.search_by.data == "date":
+            appointments = (
+                Appointments.query.join(
+                    Appointment_Details,
+                    Appointments.appt_id == Appointment_Details.appt_id,
+                )
+                .join(doctors, Appointments.appt_doctor_id == doctors.d_id)
+                .join(patients, Appointments.appt_patient_id == patients.p_id)
+                .filter(Appointment_Details.appt_date == form.keyword.data)
+                .order_by(Appointments.appt_id.desc())
+                .add_columns(
+                    Appointments.appt_id,
+                    Appointment_Details.appt_status,
+                    Appointment_Details.appt_date,
+                    Appointment_Details.appt_time,
+                    doctors.d_id.label("doctor_id"),
+                    doctors.last_name.label("doctor_last_name"),
+                    doctors.first_name.label("doctor_first_name"),
+                    patients.p_id.label("patient_id"),
+                    patients.last_name.label("patient_last_name"),
+                    patients.first_name.label("patient_first_name"),
+                )
+                .paginate(page=page_num, per_page=15)
+            )
+
     return render_template(
         "manager/appointments.html",
         appointments=appointments,
-        title="Appointments Management",
+        form=form,
+        search=search,
+        title=title,
     )
 
 
@@ -160,7 +259,14 @@ def cancel_appointment(appt_id):
 @manager.route("/dashboard/manager/tests", methods=["GET", "POST"])
 @login_required
 def tests():
+    if current_user.role != "Manager":
+        abort(403)
+
     page_num = request.args.get("page", 1, int)
+    title = "Medical Tests Booking"
+    search = "no"
+
+    form = SearchTestbookForm()
 
     items = (
         Medical_Test_Book.query.join(
@@ -169,24 +275,119 @@ def tests():
         )
         .order_by(Medical_Test_Book.serial_number.desc())
         .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
+        .join(Patients, Patients.p_id == Invoices.invoice_patient_id)
+        .join(Users, Users.id == Patients.p_id)
         .add_columns(
             Medical_Test_Book.serial_number,
             Medical_Test_Book.invoice_item_id,
             Medical_Test_Book.test_status,
             Invoice_Items.invoice_id,
-            Invoices.invoice_patient_id,
             Invoice_Items.item_desc,
             Invoices.status,
             Invoices.invoice_date,
-            Invoices.invoice_time,
+            Users.gender,
+            Patients.p_id,
+            Patients.last_name,
+            Patients.first_name,
         )
         .paginate(page=page_num, per_page=15)
     )
 
+    if form.validate_on_submit():
+        if page_num > 1:
+            page_num = 1
+        search = "yes"
+        title = f"Test Search: {form.keyword.data}"
+        if form.search_by.data == "serial":
+            items = (
+                Medical_Test_Book.query.filter(
+                    Medical_Test_Book.serial_number == int(form.keyword.data)
+                )
+                .join(
+                    Invoice_Items,
+                    Invoice_Items.item_id == Medical_Test_Book.invoice_item_id,
+                )
+                .order_by(Medical_Test_Book.serial_number.desc())
+                .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
+                .join(Patients, Patients.p_id == Invoices.invoice_patient_id)
+                .join(Users, Users.id == Patients.p_id)
+                .add_columns(
+                    Medical_Test_Book.serial_number,
+                    Medical_Test_Book.invoice_item_id,
+                    Medical_Test_Book.test_status,
+                    Invoice_Items.invoice_id,
+                    Invoice_Items.item_desc,
+                    Invoices.status,
+                    Invoices.invoice_date,
+                    Users.gender,
+                    Patients.p_id,
+                    Patients.last_name,
+                    Patients.first_name,
+                )
+                .paginate(page=page_num, per_page=15)
+            )
+        elif form.search_by.data == "patient_name":
+            items = (
+                Medical_Test_Book.query.join(
+                    Invoice_Items,
+                    Invoice_Items.item_id == Medical_Test_Book.invoice_item_id,
+                )
+                .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
+                .join(Patients, Patients.p_id == Invoices.invoice_patient_id)
+                .filter(
+                    Patients.last_name.icontains(form.keyword.data)
+                    | Patients.first_name.icontains(form.keyword.data)
+                )
+                .join(Users, Users.id == Patients.p_id)
+                .order_by(Medical_Test_Book.serial_number.desc())
+                .add_columns(
+                    Medical_Test_Book.serial_number,
+                    Medical_Test_Book.invoice_item_id,
+                    Medical_Test_Book.test_status,
+                    Invoice_Items.invoice_id,
+                    Invoice_Items.item_desc,
+                    Invoices.status,
+                    Invoices.invoice_date,
+                    Users.gender,
+                    Patients.p_id,
+                    Patients.last_name,
+                    Patients.first_name,
+                )
+                .paginate(page=page_num, per_page=15)
+            )
+        elif form.search_by.data == "date":
+            items = (
+                Medical_Test_Book.query.join(
+                    Invoice_Items,
+                    Invoice_Items.item_id == Medical_Test_Book.invoice_item_id,
+                )
+                .join(Invoices, Invoice_Items.invoice_id == Invoices.invoice_id)
+                .filter(Invoices.invoice_date == form.keyword.data)
+                .join(Patients, Patients.p_id == Invoices.invoice_patient_id)
+                .join(Users, Users.id == Patients.p_id)
+                .order_by(Medical_Test_Book.serial_number.desc())
+                .add_columns(
+                    Medical_Test_Book.serial_number,
+                    Medical_Test_Book.invoice_item_id,
+                    Medical_Test_Book.test_status,
+                    Invoice_Items.invoice_id,
+                    Invoice_Items.item_desc,
+                    Invoices.status,
+                    Invoices.invoice_date,
+                    Users.gender,
+                    Patients.p_id,
+                    Patients.last_name,
+                    Patients.first_name,
+                )
+                .paginate(page=page_num, per_page=15)
+            )
+
     return render_template(
         "manager/tests.html",
+        form=form,
         items=items,
-        title="Tests Management",
+        search=search,
+        title=title,
     )
 
 
@@ -909,7 +1110,7 @@ def view_doctor(id):
             Patients.birthdate,
             Patients.avatar,
         )
-        .paginate(page=page_num, per_page=5)
+        .paginate(page=page_num, per_page=10)
     )
 
     return render_template(
@@ -1346,7 +1547,6 @@ def view_patient_appointments(id):
     appointments = (
         Appointments.query.filter(Appointments.appt_patient_id == patient.p_id)
         .join(Appointment_Details, Appointment_Details.appt_id == Appointments.appt_id)
-        .filter(Appointment_Details.appt_status == "Completed")
         .join(Doctors, Appointments.appt_doctor_id == Doctors.d_id)
         .join(Users, Users.id == Doctors.d_id)
         .order_by(Appointment_Details.appt_date.desc())

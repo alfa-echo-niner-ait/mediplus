@@ -44,8 +44,8 @@
                 <div class="d-flex justify-content-between">
                     <div class="mb-2">
                         <div class="fs-6 fw-bold mt-2 text-gray-dark">
-                            <a href="{{ url_for('public.view_doctor', id=appt.d_id) }}"
-                                class="text-decoration-none text-success">
+                            <a href="{{ url_for('manager.view_doctor', id=appt.d_id) }}"
+                                class="text-decoration-none text-success" target="_blank">
                                 Dr. {{ appt.last_name }} {{ appt.first_name }}
                             </a>
                             {% if appt.gender == "Male" %}
@@ -64,11 +64,12 @@
                     </div>
                     <div class="fw-bold">
                         <div class="fs-6 mb-1">#{{ appt.appt_id }}</div>
-                        {% if current_user.id == appt.d_id %}
-                        <a href="{{ url_for('doctor.appointment_view', appt_id=appt.appt_id) }}"
-                            class="btn btn-outline-info btn-sm rounded-3">
-                            <i class="bi bi-pencil-square"></i> Update
-                        </a>
+                        {% if appt.appt_status == "Completed" %}
+                        <span class="badge bg-success">{{ appt.appt_status }}</span>
+                        {% elif appt.appt_status == "Booked" %}
+                        <span class="badge bg-info">{{ appt.appt_status }}</span>
+                        {% elif appt.appt_status == "Cancelled" %}
+                        <span class="badge bg-danger">{{ appt.appt_status }}</span>
                         {% endif %}
                     </div>
                 </div>

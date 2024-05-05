@@ -21,70 +21,121 @@
         </ol>
     </nav>
 </div>
-
 <div class="container mt-3">
     <div class="text-end">
         <a href="{{ url_for('manager.test_catalog') }}"
-            class="btn btn-primary text-white fw-bold">
+            class="btn btn-primary text-white fw-bold pop">
             <i class="bi bi-card-list"></i> Test Catalog
         </a>
     </div>
 </div>
-
+<!-- Filter -->
+<div class="container mt-3 mb-3">
+    <div class="border rounded mb-3 p-3">
+        <h4 class="fs-5 mb-2">
+            <i class="bi bi-search"></i> Search Tests
+        </h4>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col">
+                    {{ form.search_by.label(class='form-label') }}
+                    {{ form.search_by(class='form-select') }}
+                </div>
+                <div class="col">
+                    {{ form.keyword.label(class='form-label') }}
+                    {{ form.keyword(class='form-control', placeholder='Type Patient Name/Test Date/Serial Number') }}
+                    {% if form.keyword.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.keyword.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col mt-auto">
+                    {{ form.submit(class='btn btn-primary rounded-3 text-white fw-bold pop') }}
+                </div>
+            </div>
+        </form>
+        {% if search == "yes" %}
+        <div class="text-center fw-bold mt-2">
+            <a href="{{ url_for('manager.tests') }}">Show All</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% if items.total > 0 %}
 <!-- Tests -->
 <div class="container mt-3">
-    <table class="table table-striped table-borderless">
-        <thead style="background-color:#84B0CA ;" class="text-white">
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Description</th>
-                <th scope="col">Status</th>
-                <th scope="col">Invoice</th>
-                <th scope="col">Patient #</th>
-                <th scope="col">Invoice Date</th>
-                <th scope="col" class="text-end">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
-            <tr>
-                <th scope="row">{{ item.serial_number }}</th>
-                <td>{{ item.item_desc }}</td>
-                <td>
-                    {% if item.test_status == "Pending" %}
-                    <span class="text-danger spinner-border spinner-border-sm" aria-hidden="true"></span>
-                    <span class="visually-hidden" role="status">Pending...</span>
-                    {% else %}
-                    <i class="text-success bi bi-check-circle-fill"></i>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if item.status == "Unpaid" %}
-                    <span class="badge bg-danger">{{ item.status }}</span>
-                    {% else %}
-                    <span class="badge bg-success">{{ item.status }}</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {{ item.invoice_patient_id }}
-                </td>
-                <td>{{ item.invoice_date}}</td>
-                <td class="text-end">
-                    <a href="{{ url_for('manager.invoice_update', id=item.invoice_id)}}"
-                        class="btn btn-sm btn-secondary text-white pop">
-                        Invoice
-                    </a>
-                    <a href="{{ url_for('manager.test_details', serial_number=item.serial_number)}}"
-                        class="btn btn-sm btn-success text-white pop">
-                        Update
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="fs-4 fw-semibold mb-3">
+        Test Booking List ({{ items.total }})
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-responsive">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Invoice</th>
+                    <th scope="col">Patient</th>
+                    <th scope="col">Invoice Date</th>
+                    <th scope="col" class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <th scope="row">{{ item.serial_number }}</th>
+                    <td>{{ item.item_desc }}</td>
+                    <td>
+                        {% if item.test_status == "Pending" %}
+                        <span class="text-danger spinner-border spinner-border-sm" aria-hidden="true"></span>
+                        <span class="visually-hidden" role="status">Pending...</span>
+                        {% else %}
+                        <i class="text-success bi bi-check-circle-fill"></i>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.status == "Unpaid" %}
+                        <span class="text-danger">{{ item.status }}</span>
+                        {% else %}
+                        <span class="text-success">{{ item.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('manager.view_patient', id=item.p_id)}}"
+                            class="text-decoration-none" target="_blank">
+                            {{ item.last_name }} {{ item.first_name }}
+                        </a>
+                        {% if item.gender == "Male" %}
+                        <span class="badge bg-info-subtle text-info-emphasis rounded-pill">
+                            <i class="bi bi-gender-male"></i>
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill">
+                            <i class="bi bi-gender-female"></i>
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.invoice_date}}</td>
+                    <td class="text-end">
+                        <a href="{{ url_for('manager.invoice_update', id=item.invoice_id)}}"
+                            class="btn btn-sm btn-secondary text-white pop">
+                            Invoice
+                        </a>
+                        <a href="{{ url_for('manager.test_details', serial_number=item.serial_number)}}"
+                            class="btn btn-sm btn-success text-white pop">
+                            Update
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
 <!-- Pagination -->
 <div class="container mt-3 mb-3">
     <div class="d-flex justify-content-center border rounded">
@@ -109,7 +160,15 @@
         {% endfor %}
     </div>
 </div>
-
+{% else %}
+<div class="container mt-3">
+    <div class="alert alert-warning alert-dismissible fade show fw-light" role="alert">
+        <i class="bi bi-info-circle-fill"></i> Sorry, no results found!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+{% endif %}
+    
 <!-- JS -->
 <script>
     $(document).ready(function () {

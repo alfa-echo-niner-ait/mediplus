@@ -93,9 +93,9 @@
                 </td>
                 <td>
                     {% if doc.appt_status == "Available" %}
-                    <span class="badge rounded-pill text-bg-success">{{ doc.appt_status }}</span>
+                    <span class="text-success">{{ doc.appt_status }}</span>
                     {% else %}
-                    <span class="badge rounded-pill text-bg-danger">{{ doc.appt_status }}</span>
+                    <span class="text-danger">{{ doc.appt_status }}</span>
                     {% endif %}
                 </td>
                 <td>{{ doc.phone }}</td>

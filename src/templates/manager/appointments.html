@@ -21,81 +21,140 @@
         </ol>
     </nav>
 </div>
-<div class="container mt-3">
-    <table class="table table-striped table-borderless">
-        <thead style="background-color:#84B0CA ;" class="text-white">
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Doctor</th>
-                <th scope="col">Patient #</th>
-                <th scope="col">Status</th>
-                <th scope="col">Date</th>
-                <th scope="col">Time Slot</th>
-                <th scope="col" class="text-end">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for appt in appointments %}
-            <tr>
-                <th scope="row">{{ appt.appt_id }}</th>
-                <td>Dr. {{ appt.last_name }} {{ appt.first_name }}</td>
-                <td>{{ appt.p_id }}</td>
-                <td>
-                    {% if appt.appt_status == "Completed" %}
-                    <span class="badge bg-success">{{ appt.appt_status }}</span>
-                    {% elif appt.appt_status == "Booked" %}
-                    <span class="badge bg-info">{{ appt.appt_status }}</span>
-                    {% elif appt.appt_status == "Cancelled" %}
-                    <span class="badge bg-danger">{{ appt.appt_status }}</span>
+<!-- Filter -->
+<div class="container mt-3 mb-3">
+    <div class="border rounded mb-3 p-3">
+        <h4 class="fs-5 mb-2">
+            <i class="bi bi-search"></i> Search Appointments
+        </h4>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col">
+                    {{ form.search_by.label(class='form-label') }}
+                    {{ form.search_by(class='form-select') }}
+                </div>
+                <div class="col">
+                    {{ form.keyword.label(class='form-label') }}
+                    {{ form.keyword(class='form-control', placeholder='Type Patient/Doctor Name/Date') }}
+                    {% if form.keyword.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.keyword.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
                     {% endif %}
-                </td>
-                <td>{{ appt.appt_date }}</td>
-                <td>{{ appt.appt_time}}</td>
-                <td class="text-end">
-                    {% if appt.appt_status == "Completed" %}
-                    <a href="{{ url_for('patient.view_prescription', appt_id=appt.appt_id) }}"
-                        class="btn btn-sm btn-info pop" target="_blank">
-                        <i class="bi bi-prescription"></i>
-                    </a>
-                    {% endif %}
-                    {% if appt.appt_status == "Booked" %}
-                    <a href="{{ url_for('manager.cancel_appointment', appt_id=appt.appt_id) }}"
-                        class="btn btn-sm btn-danger"
-                        onclick="return confirm('Cancel Appointment {{ appt.appt_id }}?')">
-                        <i class="bi bi-trash"></i>
-                    </a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+                <div class="col mt-auto">
+                    {{ form.submit(class='btn btn-primary rounded-3 text-white fw-bold pop') }}
+                </div>
+            </div>
+        </form>
+        {% if search == "yes" %}
+        <div class="text-center fw-bold mt-2">
+            <a href="{{ url_for('manager.appointments') }}">Show All</a>
+        </div>
+        {% endif %}
+    </div>
 </div>
-
+{% if appointments.total > 0 %}
+<div class="container mt-3">
+    <div class="fs-4 fw-semibold mb-3">
+        Appointment List ({{ appointments.total }})
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-responsive">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Doctor</th>
+                    <th scope="col">Patient</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time Slot</th>
+                    <th scope="col" class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in appointments %}
+                <tr>
+                    <th scope="row">{{ appt.appt_id }}</th>
+                    <td>
+                        <a href="{{ url_for('manager.view_doctor', id=appt.doctor_id) }}"
+                            class="text-decoration-none" target="_blank">
+                            Dr. {{ appt.doctor_last_name }} {{ appt.doctor_first_name }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('manager.view_patient', id=appt.patient_id)}}"
+                            class="text-decoration-none" target="_blank">
+                            {{ appt.patient_last_name }} {{ appt.patient_first_name }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if appt.appt_status == "Completed" %}
+                        <span class="text-success">{{ appt.appt_status }}</span>
+                        {% elif appt.appt_status == "Booked" %}
+                        <span class="text-info">{{ appt.appt_status }}</span>
+                        {% elif appt.appt_status == "Cancelled" %}
+                        <span class="text-danger">{{ appt.appt_status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ appt.appt_date }}</td>
+                    <td>{{ appt.appt_time}}</td>
+                    <td class="text-center">
+                        {% if appt.appt_status == "Completed" %}
+                        <a href="{{ url_for('patient.view_prescription', appt_id=appt.appt_id) }}"
+                            class="btn btn-sm btn-info pop" target="_blank">
+                            <i class="bi bi-prescription"></i>
+                        </a>
+                        {% endif %}
+                        {% if appt.appt_status == "Booked" %}
+                        <a href="{{ url_for('manager.cancel_appointment', appt_id=appt.appt_id) }}"
+                            class="btn btn-sm btn-danger"
+                            onclick="return confirm('Cancel Appointment {{ appt.appt_id }}?')">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 <!-- Pagination -->
 <div class="container mt-3 mb-3">
     <div class="d-flex justify-content-center border rounded">
         {% for page_num in appointments.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
         {% if appointments.page == page_num %}
-        <a class="btn btn-success m-2 pop" href="{{ url_for('manager.appointments', page=page_num) }}"
+        <a class="btn btn-sm btn-primary m-2 pop" href="{{ url_for('manager.appointments', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
-        <a class="btn btn-outline-success m-2 pop" href="{{ url_for('manager.appointments', page=page_num) }}"
+        <a class="btn btn-sm btn-outline-primary m-2 pop" href="{{ url_for('manager.appointments', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% endif %}
         {% else %}
-        <button class="btn btn-outline-secondary m-2" disabled>
+        <button class="btn btn-sm btn-outline-secondary m-2" disabled>
             ...
         </button>
         {% endif %}
         {% endfor %}
     </div>
 </div>
+{% else %}
+<div class="container mt-3">
+    <div class="alert alert-warning alert-dismissible fade show fw-light" role="alert">
+        <i class="bi bi-info-circle-fill"></i> Sorry, no results found!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+{% endif %}    
 <!-- JS -->
 <script>
     $(document).ready(function () {

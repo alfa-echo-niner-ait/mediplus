@@ -218,3 +218,24 @@ class SearchInvoiceForm(FlaskForm):
     )
     keyword = StringField("Keyword", validators=[DataRequired()])
     submit = SubmitField("Search")
+
+
+class SearchTestbookForm(FlaskForm):
+    search_by = SelectField(
+        "Search by",
+        validators=[DataRequired()],
+        choices=[("patient_name", "Patient Name"), ("serial", "Test Serial"), ("date", "Test Date")],
+    )
+    keyword = StringField("Keyword", validators=[DataRequired()])
+    submit = SubmitField("Search")
+
+
+class SearchAppointmentForm(FlaskForm):
+    search_by = SelectField(
+        "Search by",
+        validators=[DataRequired()],
+        choices=[("patient_name", "Patient Name"), ("doctor_name", "Doctor Name"), ("date", "Test Date")],
+    )
+    keyword = StringField("Keyword", validators=[DataRequired()])
+    submit = SubmitField("Search")
+
