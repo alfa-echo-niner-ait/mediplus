@@ -56,12 +56,18 @@
                 <td>{{ man.email }}</td>
                 <td>{{ man.phone }}</td>
                 <td class="text-end">
-                    <a href="" class="btn btn-sm btn-secondary">View</a>
+                    {% if current_user.id != man.id %}
                     <a href="{{ url_for('manager.delete_manager', id=man.id) }}"
-                        class="btn btn-sm btn-danger"
+                        class="btn btn-sm btn-danger pop"
                         onclick="return confirm('Delete Manager {{ man.username }}?')">
-                        Delete
+                        <i class="bi bi-trash3-fill"></i>
                     </a>
+                    {% else %}
+                    <a href="{{ url_for('manager.account') }}" class="btn btn-sm btn-secondary pop">
+                        <i class="bi bi-eye-fill"></i>
+                    </a>
+                    {% endif %}
+                        
                 </td>
             </tr>
             {% endfor %}
