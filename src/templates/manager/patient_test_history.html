@@ -39,18 +39,25 @@
         {% for test in tests %}
         <div class="d-flex text-muted pt-3">
             <div class="display-6 me-3">
-                #{{ loop.index }}
+                {% if test.test_status == "Pending" %}
+                <button class="btn btn-danger btn-sm" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span class="visually-hidden" role="status">Pending...</span>
+                </button>
+                {% else %}
+                <i class="text-success bi bi-check-circle-fill"></i>
+                {% endif %}
             </div>
             <div class="pb-3 mb-0 lh-sm border-bottom w-100">
                 <div class="d-flex justify-content-between">
                     <strong class="fs-6 mt-2 text-gray-dark">
-                        {{ test.item_desc }}
+                        {{ loop.index }}. {{ test.item_desc }}
                     </strong>
                     <div class="fw-bold">
-                        <!-- <a href=""
-                            class="btn btn-sm btn-outline-info rounded-3">
-                            <i class="bi bi-eye-fill"></i> View Results
-                        </a> -->
+                        <a href="{{ url_for('manager.test_details', serial_number=test.serial_number)}}"
+                            class="btn btn-sm btn-outline-success rounded-3" target="_blank">
+                            <i class="bi bi-pencil-square"></i> Update Test
+                        </a>
                         <button type="button"
                             onclick="showResults('{{ test.serial_number }}')"
                             class="btn btn-sm btn-outline-info rounded-3"
@@ -66,11 +73,12 @@
                         </button>
                     </div>
                 </div>
+                <div class="fs-6">Test Serial: #{{ test.serial_number }}</div>
+                <div class="fs-6">Test Status: {{ test.test_status }}</div>
                 <div class="fs-6">Date: {{ test.invoice_date }}</div>
                 <div id="testFiles{{ test.serial_number }}" class="mt-2" style="display: none;">
                     <table class="table table-borderless table-sm">
                         <tbody id="fileList{{ test.serial_number }}">
-                            
                         </tbody>
                     </table>
                 </div>

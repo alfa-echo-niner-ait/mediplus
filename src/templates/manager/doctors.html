@@ -25,38 +25,42 @@
 <div class="container mt-3">
     <div class="text-end">
         <a href="{{ url_for('manager.register_doctor') }}"
-            class="btn btn-info text-white fw-bold pop">
+            class="btn btn-primary fw-bold pop">
             <i class="bi bi-person-plus-fill"></i> Register New Doctor
         </a>
     </div>
 </div>
-<!-- Filter -->
-<div class="container mt-2">
-    <div class="border rounded mb-3 p-3">
-        <h4 class="fs-5 mb-2">
-            <i class="bi bi-search"></i> Search Doctor
-        </h4>
-        <div class="row">
-            <div class="col">
-                <label class="form-label" for="search_by">Search By</label>
-                <select class="form-select" id="search_by">
-                    <option value="username">Name</option>
-                    <option value="id">User ID</option>
-                </select>
+<!-- Search -->
+<div class="container mt-3 mb-3">
+    <div class="mb-3">
+        <form action="" method="POST">
+            {{ form.hidden_tag() }}
+            <div class="input-group">
+                <div class="input-group-text">
+                    <i class="bi bi-search"></i>
+                </div>
+                {{ form.keyword(class='form-control', placeholder='Doctor Name/Speciality') }}
+                {% if form.keyword.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.keyword.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {{ form.submit(class='input-group-text btn btn-info text-white fw-bold pop') }}
             </div>
-            <div class="col">
-                <label class="form-label" for="keyword">Keyword</label>
-                <input class="form-control" id="keyword" placeholder="Enter Keyword" required type="text">
-            </div>
-            <div class="col mt-auto">
-                <button class="btn btn-success" id="search">Search</button>
-            </div>
+        </form>
+    
+        {% if search == "yes" %}
+        <div class="text-center fw-bold mt-2">
+            <a href="{{ url_for('manager.doctors') }}">Show All</a>
         </div>
-        <div id="msg"></div>
+        {% endif %}
     </div>
 </div>
 <!-- Doctor List -->
-<div class="container mt-3">
+{% if doctors.total > 0 %}
+<div class="container mt-3">        
     <table class="table table-bordered table-hover shadow">
         <thead class="table-info">
             <tr>
@@ -111,7 +115,6 @@
         </tbody>
     </table>
 </div>
-
 <!-- Pagination -->
 <div class="container mt-3 mb-3" id="manager_pagination">
     <div class="d-flex justify-content-center border rounded">
@@ -136,6 +139,14 @@
         {% endfor %}
     </div>
 </div>
+{% else %}
+<div class="container mt-3">
+    <div class="alert alert-warning alert-dismissible fade show fw-light" role="alert">
+        <i class="bi bi-info-circle-fill"></i> Sorry, no results found!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+{% endif %}
 
 <script>
     $(document).ready(function () {

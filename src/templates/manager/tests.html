@@ -39,10 +39,9 @@
                 <th scope="col">#</th>
                 <th scope="col">Description</th>
                 <th scope="col">Status</th>
-                <th scope="col">Invoice #</th>
+                <th scope="col">Invoice</th>
                 <th scope="col">Patient #</th>
                 <th scope="col">Invoice Date</th>
-                <th scope="col">Invoice Time</th>
                 <th scope="col" class="text-end">Action</th>
             </tr>
         </thead>
@@ -70,14 +69,13 @@
                     {{ item.invoice_patient_id }}
                 </td>
                 <td>{{ item.invoice_date}}</td>
-                <td>{{ item.invoice_time }}</td>
                 <td class="text-end">
                     <a href="{{ url_for('manager.invoice_update', id=item.invoice_id)}}"
-                        class="btn btn-sm btn-info text-white pop">
+                        class="btn btn-sm btn-secondary text-white pop">
                         Invoice
                     </a>
                     <a href="{{ url_for('manager.test_details', serial_number=item.serial_number)}}"
-                        class="btn btn-sm btn-warning text-white pop">
+                        class="btn btn-sm btn-success text-white pop">
                         Update
                     </a>
                 </td>
@@ -93,18 +91,18 @@
         {% for page_num in items.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
         {% if items.page == page_num %}
-        <a class="btn btn-success m-2 pop" href="{{ url_for('manager.tests', page=page_num) }}"
+        <a class="btn btn-sm btn-success m-2 pop" href="{{ url_for('manager.tests', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
-        <a class="btn btn-outline-success m-2 pop" href="{{ url_for('manager.tests', page=page_num) }}"
+        <a class="btn btn-sm btn-outline-success m-2 pop" href="{{ url_for('manager.tests', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% endif %}
         {% else %}
-        <button class="btn btn-outline-secondary m-2" disabled>
+        <button class="btn btn-sm btn-outline-secondary m-2" disabled>
             ...
         </button>
         {% endif %}

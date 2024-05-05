@@ -44,8 +44,9 @@ from src.manager.forms import (
     UpdateDoctorForm,
     DoctorPasswordForm,
     RegisterManagerForm,
+    SearchInvoiceForm,
 )
-from src.public.forms import SearchTestForm
+from src.public.forms import SearchTestForm, SearchDoctorForm
 from src import db, hash_manager
 from src.public.utils import (
     get_datetime,
@@ -521,10 +522,13 @@ def delete_test(test_id):
         abort(403)
 
 
-@manager.route("/dashboard/manager/invoices")
+@manager.route("/dashboard/manager/invoices", methods=["GET", "POST"])
 @login_required
 def invoices():
     page_num = request.args.get("page", 1, int)
+    title = "Invoices Management"
+    search = "no"
+    form = SearchInvoiceForm()
 
     invoices = (
         Invoices.query.join(Patients, Invoices.invoice_patient_id == Patients.p_id)
@@ -540,11 +544,64 @@ def invoices():
             Invoices.invoice_date,
             Invoices.invoice_time,
         )
-        .paginate(page=page_num, per_page=12)
+        .paginate(page=page_num, per_page=15)
     )
 
+    if form.validate_on_submit():
+        title = f"Invoice Search: {form.keyword.data}"
+        search = "yes"
+
+        if page_num > 1:
+            page_num = 1
+
+        if form.search_by.data == "invoice_id":
+            invoices = (
+                Invoices.query.filter(Invoices.invoice_id == int(form.keyword.data))
+                .join(Patients, Invoices.invoice_patient_id == Patients.p_id)
+                .order_by(Invoices.invoice_id.desc())
+                .add_columns(
+                    Patients.p_id,
+                    Patients.first_name,
+                    Patients.last_name,
+                    Patients.phone,
+                    Invoices.invoice_id,
+                    Invoices.total_amount,
+                    Invoices.status,
+                    Invoices.invoice_date,
+                    Invoices.invoice_time,
+                )
+                .paginate(page=page_num, per_page=15)
+            )
+        elif form.search_by.data == "patient_name":
+            invoices = (
+                Invoices.query.join(
+                    Patients, Invoices.invoice_patient_id == Patients.p_id
+                )
+                .filter(
+                    Patients.last_name.icontains(form.keyword.data)
+                    | Patients.first_name.icontains(form.keyword.data)
+                )
+                .order_by(Invoices.invoice_id.desc())
+                .add_columns(
+                    Patients.p_id,
+                    Patients.first_name,
+                    Patients.last_name,
+                    Patients.phone,
+                    Invoices.invoice_id,
+                    Invoices.total_amount,
+                    Invoices.status,
+                    Invoices.invoice_date,
+                    Invoices.invoice_time,
+                )
+                .paginate(page=page_num, per_page=20)
+            )
+
     return render_template(
-        "manager/invoices.html", title="Invoices Management", invoices=invoices
+        "manager/invoices.html",
+        search=search,
+        title=title,
+        form=form,
+        invoices=invoices,
     )
 
 
@@ -751,10 +808,13 @@ def delete_manager(id):
     return redirect(url_for("manager.managers"))
 
 
-@manager.route("/dashboard/manager/doctors")
+@manager.route("/dashboard/manager/doctors", methods=["GET", "POST"])
 @login_required
 def doctors():
     page_num = request.args.get("page", 1, int)
+    title = "Doctors"
+    search = "no"
+    form = SearchDoctorForm()
 
     doctors = (
         Doctors.query.join(Users, Doctors.d_id == Users.id)
@@ -772,7 +832,36 @@ def doctors():
         .paginate(page=page_num, per_page=12)
     )
 
-    return render_template("manager/doctors.html", doctors=doctors, title="Doctors")
+    if form.validate_on_submit():
+        if page_num > 1:
+            page_num = 1
+        search = "yes"
+        title = f"Doctor Search: {form.keyword.data}"
+
+        doctors = (
+            Doctors.query.filter(
+                Doctors.title.icontains(form.keyword.data)
+                | Doctors.last_name.icontains(form.keyword.data)
+                | Doctors.first_name.icontains(form.keyword.data)
+            )
+            .join(Users, Doctors.d_id == Users.id)
+            .join(Doctor_Time, Doctor_Time.doctor_id == Doctors.d_id)
+            .add_columns(
+                Users.username,
+                Users.gender,
+                Doctors.d_id,
+                Doctors.title,
+                Doctors.first_name,
+                Doctors.last_name,
+                Doctors.phone,
+                Doctor_Time.appt_status,
+            )
+            .paginate(page=page_num, per_page=12)
+        )
+
+    return render_template(
+        "manager/doctors.html", doctors=doctors, form=form, search=search, title=title
+    )
 
 
 @manager.route("/dashboard/manager/doctors/<id>")
@@ -1224,9 +1313,7 @@ def delete_patient_record_file(patient_id, file_id):
     if file.record_patient_id == int(patient_id):
         date, time = get_datetime()
         new_log = User_Logs(current_user.id, "Delete Patient Record", date, time)
-        new_log.log_desc = (
-            f"Patient #{patient_id}, File:{file.file_name}({file.file_size_kb} KB), {file.file_path_name}"
-        )
+        new_log.log_desc = f"Patient #{patient_id}, File:{file.file_name}({file.file_size_kb} KB), {file.file_path_name}"
 
         os.remove(
             os.path.join(
@@ -1294,20 +1381,18 @@ def view_patient_tests(id):
 
     page_num = request.args.get("page", 1, int)
 
-    patient: Patients = Patients.query.filter(
-        Patients.p_id == int(id)
-    ).first_or_404()
+    patient: Patients = Patients.query.filter(Patients.p_id == int(id)).first_or_404()
     tests = (
         Medical_Test_Book.query.filter(
             Medical_Test_Book.test_patient_id == Patients.p_id
         )
         .filter(Medical_Test_Book.test_patient_id == patient.p_id)
-        .filter(Medical_Test_Book.test_status == "Done")
         .join(Invoice_Items, Invoice_Items.item_id == Medical_Test_Book.invoice_item_id)
         .join(Invoices, Invoices.invoice_id == Invoice_Items.invoice_id)
         .order_by(Invoices.invoice_date.desc())
         .add_columns(
             Medical_Test_Book.serial_number,
+            Medical_Test_Book.test_status,
             Invoice_Items.item_desc,
             Invoices.invoice_date,
         )
@@ -1343,6 +1428,7 @@ def view_patient_invoices(id):
         invoices=invoices,
         title=f"{patient.last_name}'s Invoices",
     )
+
 
 @manager.route("/dashboard/manager/patients/<id>/logs")
 @login_required
@@ -1386,7 +1472,7 @@ def logs():
             Users.username,
             Users.role,
         )
-        .paginate(page=page_num, per_page=12)
+        .paginate(page=page_num, per_page=20)
     )
 
     if form.validate_on_submit():

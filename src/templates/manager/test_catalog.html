@@ -28,7 +28,7 @@
 </div>
 <div class="container">
     <div class="text-end">
-        <button class="btn btn-info text-white fw-bold" data-bs-toggle="modal" data-bs-target="#addTestModal">
+        <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#addTestModal">
             <i class="bi bi-clipboard2-plus"></i> Add New Test
         </button>
     </div>
@@ -36,88 +36,82 @@
 {% include '/manager/modals/add_test_modal.html' %}
 
 <!-- Search -->
-<div class="container mt-3">
-    <div class="border rounded mb-3 p-3">
-        <h4 class="fs-5 mb-3">
-            <i class="bi bi-search"></i> Search Test
-        </h4>
-        <form action="" method="POST">
-            {{ search_form.hidden_tag() }}
-            <div class="input-group">
-                <div class="input-group-text">
-                    <i class="bi bi-clipboard2-pulse"></i>
-                </div>
-                {{ search_form.keyword(class='form-control', placeholder='Type Test Name') }}
-                {% if search_form.keyword.errors %}
-                <div class="invalid-feedback">
-                    {% for error in search_form.keyword.errors %}
-                    {{ error }}
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {{ search_form.submit(class='input-group-text btn btn-success fw-bold pop') }}
+<div class="container mt-4 mb-4">
+    <form action="" method="POST">
+        {{ search_form.hidden_tag() }}
+        <div class="input-group">
+            <div class="input-group-text">
+                <i class="bi bi-search"></i>
             </div>
-        </form>
-
-        {% if search == "yes" %}
-        <div class="text-center fw-bold mt-2">
-            <a href="{{ url_for('manager.test_catalog') }}">Show All</a>
+            {{ search_form.keyword(class='form-control', placeholder='Type Test Name') }}
+            {% if search_form.keyword.errors %}
+            <div class="invalid-feedback">
+                {% for error in search_form.keyword.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {{ search_form.submit(class='input-group-text btn btn-success fw-bold pop') }}
         </div>
-        {% endif %}
+    </form>
 
+    {% if search == "yes" %}
+    <div class="text-center fw-bold mt-2">
+        <a href="{{ url_for('manager.test_catalog') }}">Show All</a>
     </div>
+    {% endif %}
 </div>
 
+{% if tests.total > 0 %}
 <!-- Tests List -->
 <div class="container mt-3">
-    <table class="table table-bordered table-hover shadow">
-        <thead class="table-success">
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Test Name</th>
-                <th scope="col">Price</th>
-                <th scope="col">Description</th>
-                <th scope="col">Action</th>
-            </tr>
-        </thead>
-        {% if tests.total != 0 %}
-        <tbody id="manager_data">
-            {% for test in tests %}
-            <tr>
-                <td>{{ test.test_id }}</td>
-
-                {% if test.test_name|length < 50 %}
-                <td class="text-nowrap">{{ test.test_name }}</td>
-                {% else %}
-                <td>{{ test.test_name }}</td>
-                {% endif %}
-
-                <td>{{ test.test_price }}</td>
-                <td>
-                    <p class="text-break">
-                        {%for line in test.test_desc %}{%if line=='\n'%}
-                        <br>
-                        {% else %}{{line}}{%endif%}{%endfor%}
-                    </p>
-                </td>
-                <td>
-                    <div class="btn-group">
-                        <a href="{{ url_for('manager.view_test', test_id=test.test_id )}}"
-                            class="btn btn-sm btn-success">View</a>
-                        <a href="{{ url_for('manager.delete_test', test_id=test.test_id )}}"
-                            class="btn btn-sm btn-danger"
-                            onclick="return confirm('Delete: {{ test.test_name }}?')">
-                            Delete
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        {% else %}
-        <div class="text-center text-danger fw-bold mb-3">Sorry, no results found!</div>
-        {% endif %}
-    </table>
+    <div class="table-responsive">
+        <table class="table table-bordered table-responsive table-hover shadow">
+            <thead class="table-success">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Test Name</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody id="manager_data">
+                {% for test in tests %}
+                <tr>
+                    <td>{{ test.test_id }}</td>
+                    {% if test.test_name|length < 50 %}
+                    <td class="text-nowrap">{{ test.test_name }}</td>
+                    {% else %}
+                    <td>{{ test.test_name }}</td>
+                    {% endif %}
+    
+                    <td>{{ test.test_price }}</td>
+                    <td>
+                        <p class="text-break">
+                            {%for line in test.test_desc %}{%if line=='\n'%}
+                            <br>
+                            {% else %}{{line}}{%endif%}{%endfor%}
+                        </p>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{{ url_for('manager.view_test', test_id=test.test_id )}}"
+                                class="btn btn-sm btn-secondary">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+                            <a href="{{ url_for('manager.delete_test', test_id=test.test_id )}}"
+                                class="btn btn-sm btn-danger"
+                                onclick="return confirm('Delete: {{ test.test_name }}?')">
+                                <i class="bi bi-trash3-fill"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Pagination -->
@@ -143,6 +137,14 @@
         {% endfor %}
     </div>
 </div>
+{% else %}
+<div class="container mt-3">
+    <div class="alert alert-warning alert-dismissible fade show fw-light" role="alert">
+        <i class="bi bi-info-circle-fill"></i> Sorry, no results found!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+{% endif %}
 
 <!-- JS -->
 <script>

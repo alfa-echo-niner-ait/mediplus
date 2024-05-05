@@ -128,7 +128,11 @@ class RegisterDoctorForm(FlaskForm):
         "Username", validators=[DataRequired(), Length(min=2, max=50)]
     )
     password = PasswordField(
-        "Password", validators=[DataRequired(), EqualTo("confirm_password", "Password Didn't Match!")]
+        "Password",
+        validators=[
+            DataRequired(),
+            EqualTo("confirm_password", "Password Didn't Match!"),
+        ],
     )
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
     email = StringField("Email Address", validators=[DataRequired()])
@@ -167,9 +171,14 @@ class UpdateDoctorForm(FlaskForm):
 
     submit = SubmitField("Update Doctor")
 
+
 class DoctorPasswordForm(FlaskForm):
     new_password = PasswordField(
-        "New Password", validators=[DataRequired(), EqualTo("confirm_password", "Password didn't match!")]
+        "New Password",
+        validators=[
+            DataRequired(),
+            EqualTo("confirm_password", "Password didn't match!"),
+        ],
     )
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
     submit = SubmitField("Change Password")
@@ -199,3 +208,13 @@ class RegisterManagerForm(FlaskForm):
     birthdate = DateField("Birth Date", validators=[DataRequired()], default=date.today)
 
     submit = SubmitField("Register")
+
+
+class SearchInvoiceForm(FlaskForm):
+    search_by = SelectField(
+        "Search by",
+        validators=[DataRequired()],
+        choices=[("patient_name", "Patient Name"), ("invoice_id", "Invoice ID")],
+    )
+    keyword = StringField("Keyword", validators=[DataRequired()])
+    submit = SubmitField("Search")
