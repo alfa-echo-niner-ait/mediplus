@@ -18,37 +18,35 @@
 
 <div class="container mt">
     <div class="display-6">
-        Medical Tests
+        Medical Tests ({{ tests.total }})
     </div>
 </div>
 
 <!-- Search -->
 <div class="container mt-3">
-    <div class="border rounded mb-3 p-3">
-        <form action="" method="POST">
-            {{ form.hidden_tag() }}
-            <div class="input-group">
-                <div class="input-group-text">
-                    <i class="bi bi-search"></i>
-                </div>
-                {{ form.keyword(class='form-control', placeholder='Type Test Name') }}
-                {% if form.keyword.errors %}
-                <div class="invalid-feedback">
-                    {% for error in form.keyword.errors %}
-                    {{ error }}
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {{ form.submit(class='input-group-text btn btn-success fw-bold pop') }}
+    <form action="" method="POST">
+        {{ form.hidden_tag() }}
+        <div class="input-group">
+            <div class="input-group-text">
+                <i class="bi bi-search"></i>
             </div>
-        </form>
-
-        {% if search == "yes" %}
-        <div class="text-center fw-bold mt-2">
-            <a href="{{ url_for('public.tests') }}">Show All</a>
+            {{ form.keyword(class='form-control', placeholder='Type Test Name') }}
+            {% if form.keyword.errors %}
+            <div class="invalid-feedback">
+                {% for error in form.keyword.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {{ form.submit(class='input-group-text btn btn-success fw-bold pop') }}
         </div>
-        {% endif %}
+    </form>
+
+    {% if search == "yes" %}
+    <div class="text-center fw-bold mt-2">
+        <a href="{{ url_for('public.tests') }}">Show All</a>
     </div>
+    {% endif %}
 </div>
 
 <div class="container mt-3">
@@ -68,9 +66,12 @@
 
             {% if current_user.is_authenticated %}
             {% if current_user.role == "Manager" %}
-            <a href="{{ url_for('manager.view_test', test_id=test.test_id) }}" class="btn btn-mint pop">Update</a>
-            {% else %}
-            <button type="button" class="btn btn-mint pop"
+            <a href="{{ url_for('manager.view_test', test_id=test.test_id) }}"
+                class="btn btn-mint rounded-3 pop" target="_blank">
+                Update
+            </a>
+            {% elif current_user.role == "Patient" %}
+            <button type="button" class="btn btn-mint rounded-3 pop"
                 onclick="add_item_to_cart('{{ test.test_id }}', '{{ test.test_name }}', '{{ test.test_price }}')">
                 Add to Cart
             </button>
@@ -82,7 +83,12 @@
     </div>
     {% endfor %}
     {% else %}
-    <div class="text-center text-danger fw-bold">Sorry, no results found!</div>
+    <div class="container mt-3">
+        <div class="alert alert-warning alert-dismissible fade show fw-light" role="alert">
+            <i class="bi bi-info-circle-fill"></i> Sorry, no results found!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
     {% endif %}
 
 </div>

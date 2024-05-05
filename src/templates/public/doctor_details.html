@@ -46,10 +46,12 @@
         </div>
         {% if doctor.appt_status == "Available" %}
         <div class="btn-group mt-2 gap-3">
+            {% if current_user.role == "Patient" %}
             <button class="btn btn-sm btn-mint fw-bold rounded-pill pop"
                 data-bs-toggle="modal" data-bs-target="#apptModal">
                 <i class="bi bi-calendar-plus-fill"></i> Book Meetup
             </button>
+            {% endif %}
             <a href="tel:{{ doctor.phone }}"
                 class="btn btn-sm btn-secondary fw-bold rounded-pill pop">
                 <i class="bi bi-telephone-fill"></i> Make a Call
@@ -62,6 +64,8 @@
 </div>
 
 {% include '/public/includes/doctor_appt_history.html' %}
-{% include '/public/modals/book_appointment_modal.html' %}
 
+{% if current_user.role == "Patient" and doctor.appt_status == "Available" %}
+{% include '/public/modals/book_appointment_modal.html' %}
+{% endif %}
 {% endblock content %}
