@@ -142,12 +142,12 @@
         {% for page_num in items.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
         {% if items.page == page_num %}
-        <a class="btn btn-sm btn-success m-2 pop" href="{{ url_for('manager.tests', page=page_num) }}"
+        <a class="btn btn-sm btn-primary m-2 pop" href="{{ url_for('manager.tests', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
-        <a class="btn btn-sm btn-outline-success m-2 pop" href="{{ url_for('manager.tests', page=page_num) }}"
+        <a class="btn btn-sm btn-outline-primary m-2 pop" href="{{ url_for('manager.tests', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>

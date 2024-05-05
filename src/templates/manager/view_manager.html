@@ -1,0 +1,82 @@
+{% extends 'layout/layout_manager.html' %}
+
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-chevron p-3 bg-body-tertiary rounded-3">
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.index') }}">
+                    <i class="bi bi-house-door-fill"></i> Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('public.dashboard') }}">
+                    Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="link-body-emphasis fw-semibold text-decoration-none" href="{{ url_for('manager.managers') }}">
+                    Managers
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                {{ manager.last_name }} {{ manager.first_name }}
+            </li>
+        </ol>
+    </nav>
+</div>
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-2 align-items-md-center g-5">
+        <div class="col d-flex flex-column align-items-start gap-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <img class="rounded-circle border shadow" height="130px" width="130px"
+                    src="{{ url_for('static', filename='avatars/manager/'~manager.avatar) }}"
+                    alt="{{ manager.username }}" />
+                <div class="ms-3">
+                    <div class="fw-semibold fs-4 text-body-emphasis">
+                        {{ manager.last_name }} {{ manager.first_name }}
+                        {% if manager.gender == "Male" %}
+                        <span class="badge bg-info-subtle text-info-emphasis rounded-pill">
+                            <i class="bi bi-gender-male"></i>
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill">
+                            <i class="bi bi-gender-female"></i>
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="text-secondary fw-semibold">
+                        {{ manager.role }}
+                    </div>
+                    <div class="text-secondary fw-semibold">
+                        #ID: {{ manager.id }}
+                    </div>
+                    <a href="{{ url_for('manager.change_password') }}"
+                        class="btn btn-sm btn-secondary rounded-3 mt-2 me-2 pop">
+                        Change Password
+                    </a>
+                    <a href="{{ url_for('manager.delete_manager', id=manager.id) }}"
+                        class="btn btn-sm btn-danger rounded-3 mt-2 pop"
+                        onclick="return confirm('Delete Manager {{ manager.username }}?')">
+                        Delete Account
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="fs-5">Username: <span class="text-secondary">{{ manager.username }}</span></div>
+            <div class="fs-5">Phone: <span class="text-secondary">{{ manager.phone }}</span></div>
+            <div class="fs-5">Email: <span class="text-secondary">{{ manager.email }}</span></div>
+            <div class="fs-5">Birthdate: <span class="text-secondary">{{ manager.birthdate }}</span></div>
+        </div>
+    </div>
+</div>
+<!-- JS -->
+<script>
+    $(document).ready(function () {
+        $("#side_manager").addClass("text-success-emphasis bg-success-subtle");
+    });
+</script>
+{% endblock content %}

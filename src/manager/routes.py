@@ -65,6 +65,9 @@ manager = Blueprint("manager", __name__)
 @manager.route("/dashboard/manager")
 @login_required
 def dashboard():
+    if current_user.role != "Manager":
+        abort(403)
+
     counts = {
         "patients": Users.query.filter(Users.role == "Patient").count(),
         "managers": Users.query.filter(Users.role == "Manager").count(),
@@ -394,6 +397,9 @@ def tests():
 @manager.route("/dashboard/manager/tests/<serial_number>", methods=["GET", "POST"])
 @login_required
 def test_details(serial_number):
+    if current_user.role != "Manager":
+        abort(403)
+
     upload_form = Test_Result_Upload_Form()
 
     item = (
@@ -475,6 +481,9 @@ def test_mark_as_done(serial_number):
 @manager.route("/dashboard/manager/tests/<serial_number>/upload", methods=["POST"])
 @login_required
 def upload_test_report(serial_number):
+    if current_user.role != "Manager":
+        abort(403)
+
     upload_form = Test_Result_Upload_Form()
 
     # File upload form handler
@@ -610,6 +619,9 @@ def delete_test_report(serial_number, file_id):
 @manager.route("/dashboard/manager/tests/catalog", methods=["GET", "POST"])
 @login_required
 def test_catalog():
+    if current_user.role != "Manager":
+        abort(403)
+
     new_test_form = NewMedicalTestForm()
     search_form = SearchTestForm()
     title = "Medical Tests"
@@ -675,6 +687,9 @@ def add_new_test():
 @manager.route("/dashboard/manager/tests/catalog/<test_id>", methods=["GET", "POST"])
 @login_required
 def view_test(test_id):
+    if current_user.role != "Manager":
+        abort(403)
+
     form = UpdateMedicalTestForm()
     test: Medical_Tests = Medical_Tests.query.filter_by(test_id=test_id).first_or_404()
 
@@ -704,6 +719,9 @@ def view_test(test_id):
 @manager.route("/dashboard/manager/tests/delete/<test_id>")
 @login_required
 def delete_test(test_id):
+    if current_user.role != "Manager":
+        abort(403)
+
     if current_user.role == "Manager":
         test: Medical_Tests = Medical_Tests.query.filter_by(
             test_id=test_id
@@ -726,6 +744,9 @@ def delete_test(test_id):
 @manager.route("/dashboard/manager/invoices", methods=["GET", "POST"])
 @login_required
 def invoices():
+    if current_user.role != "Manager":
+        abort(403)
+
     page_num = request.args.get("page", 1, int)
     title = "Invoices Management"
     search = "no"
@@ -896,6 +917,9 @@ def invoice_payment_update(invoice_id):
 @manager.route("/dashboard/manager/invoices/<invoice_id>/delete/<item_id>")
 @login_required
 def invoice_item_delete(invoice_id, item_id):
+    if current_user.role != "Manager":
+        abort(403)
+
     item: Invoice_Items = Invoice_Items.query.filter_by(item_id=item_id).first_or_404()
     db.session.delete(item)
 
@@ -913,6 +937,9 @@ def invoice_item_delete(invoice_id, item_id):
 @manager.route("/dashboard/manager/managers")
 @login_required
 def managers():
+    if current_user.role != "Manager":
+        abort(403)
+
     page_num = request.args.get("page", 1, int)
 
     managers = (
@@ -933,9 +960,39 @@ def managers():
     return render_template("manager/managers.html", managers=managers, title="Managers")
 
 
+@manager.route("/dashboard/manager/managers/<id>")
+@login_required
+def view_manager(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    manager = (
+        Managers.query.filter(Managers.m_id == int(id))
+        .join(Users, Users.id == Managers.m_id)
+        .add_columns(
+            Users.id,
+            Users.username,
+            Users.gender,
+            Users.email,
+            Users.role,
+            Managers.first_name,
+            Managers.last_name,
+            Managers.phone,
+            Managers.birthdate,
+            Managers.avatar,
+        )
+        .first_or_404()
+    )
+
+    return render_template("manager/view_manager.html", manager=manager, title=f"")
+
+
 @manager.route("/dashboard/manager/managers/register", methods=["GET", "POST"])
 @login_required
 def register_manager():
+    if current_user.role != "Manager":
+        abort(403)
+
     form = RegisterManagerForm()
 
     if form.validate_on_submit():
@@ -1012,6 +1069,9 @@ def delete_manager(id):
 @manager.route("/dashboard/manager/doctors", methods=["GET", "POST"])
 @login_required
 def doctors():
+    if current_user.role != "Manager":
+        abort(403)
+
     page_num = request.args.get("page", 1, int)
     title = "Doctors"
     search = "no"
@@ -1328,6 +1388,9 @@ def update_doctor_password_handler(id):
 @manager.route("/dashboard/manager/doctors/register", methods=["GET", "POST"])
 @login_required
 def register_doctor():
+    if current_user.role != "Manager":
+        abort(403)
+
     form = RegisterDoctorForm()
 
     if form.validate_on_submit():
@@ -1657,6 +1720,9 @@ def view_patient_logs(id):
 @manager.route("/dashboard/manager/logs", methods=["GET", "POST"])
 @login_required
 def logs():
+    if current_user.role != "Manager":
+        abort(403)
+
     page_num = request.args.get("page", 1, int)
 
     form = LogSortForm()
@@ -1775,6 +1841,9 @@ def logs():
 @manager.route("/dashboard/manager/logs/<id>")
 @login_required
 def log_details(id):
+    if current_user.role != "Manager":
+        abort(403)
+
     log = (
         User_Logs.query.filter_by(log_id=int(id))
         .join(Users, User_Logs.user_id == Users.id)
@@ -1801,6 +1870,9 @@ def log_details(id):
 @manager.route("/dashboard/manager/account", methods=["GET", "POST"])
 @login_required
 def account():
+    if current_user.role != "Manager":
+        abort(403)
+
     page_num = request.args.get("page", 1, int)
 
     form = SelfProfileForm()
@@ -1867,6 +1939,9 @@ def account():
 @manager.route("/dashboard/manager/change_password", methods=["GET", "POST"])
 @login_required
 def change_password():
+    if current_user.role != "Manager":
+        abort(403)
+
     form = ChangePasswordForm()
 
     if form.validate_on_submit():
