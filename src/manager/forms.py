@@ -183,6 +183,17 @@ class DoctorPasswordForm(FlaskForm):
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
     submit = SubmitField("Change Password")
 
+class ManagerPasswordForm(FlaskForm):
+    new_password = PasswordField(
+        "New Password",
+        validators=[
+            DataRequired(),
+            EqualTo("confirm_password", "Password didn't match!"),
+        ],
+    )
+    confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
+    submit = SubmitField("Change Password")
+
 
 class RegisterManagerForm(FlaskForm):
     username = StringField(

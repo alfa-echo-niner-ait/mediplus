@@ -43,6 +43,7 @@ from src.manager.forms import (
     RegisterDoctorForm,
     UpdateDoctorForm,
     DoctorPasswordForm,
+    ManagerPasswordForm,
     RegisterManagerForm,
     SearchInvoiceForm,
     SearchTestbookForm,
@@ -966,6 +967,9 @@ def view_manager(id):
     if current_user.role != "Manager":
         abort(403)
 
+    page_num = request.args.get("page", 1, int)
+    password_form = ManagerPasswordForm()
+
     manager = (
         Managers.query.filter(Managers.m_id == int(id))
         .join(Users, Users.id == Managers.m_id)
@@ -983,8 +987,19 @@ def view_manager(id):
         )
         .first_or_404()
     )
+    logs = (
+        User_Logs.query.filter_by(user_id=int(id))
+        .order_by(User_Logs.log_id.desc())
+        .paginate(page=page_num, per_page=15)
+    )
 
-    return render_template("manager/view_manager.html", manager=manager, title=f"")
+    return render_template(
+        "manager/view_manager.html",
+        password_form=password_form,
+        manager=manager,
+        logs=logs,
+        title=f"Manager {manager.last_name} {manager.first_name}",
+    )
 
 
 @manager.route("/dashboard/manager/managers/register", methods=["GET", "POST"])
@@ -1064,6 +1079,36 @@ def delete_manager(id):
 
     flash("Manager Account Deleted Successfully!", category="warning")
     return redirect(url_for("manager.managers"))
+
+
+@manager.route("/dashboard/manager/managers/<id>/update/password", methods=["POST"])
+@login_required
+def update_manager_password_handler(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    password_form = ManagerPasswordForm()
+    if password_form.validate_on_submit():
+        user: Users = Users.query.filter(Users.id == int(id)).first_or_404()
+        
+        password_hash = hash_manager.generate_password_hash(
+            password_form.new_password.data
+        ).decode("utf-8")
+
+        user.password_hash = password_hash
+
+        date, time = get_datetime()
+        new_log = User_Logs(current_user.id, "Update Manager Password", date, time)
+        new_log.log_desc = f"Manager #{id} @ {user.username}"
+        db.session.add(new_log)
+
+        db.session.commit()
+        flash("Password Changed Successfully!", category="success")
+        return redirect(url_for("manager.view_manager", id=id))
+
+    else:
+        flash("Password Change Failed!", category="danger")
+        return redirect(url_for("manager.view_manager", id=id))
 
 
 @manager.route("/dashboard/manager/doctors", methods=["GET", "POST"])
