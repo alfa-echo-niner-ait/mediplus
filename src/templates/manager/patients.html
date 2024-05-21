@@ -83,7 +83,12 @@
                         <td>
                             <a href="{{ url_for('manager.view_patient', id=pat.id)}}"
                                 class="btn btn-sm btn-secondary rounded-3 pop">
-                                <i class="bi bi-eye-fill"></i> Full Details
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+                            <a href="{{ url_for('manager.view_patient', id=pat.id)}}"
+                                class="btn btn-sm btn-danger rounded-3 pop"
+                                onclick="return confirm('Delete Patient {{ pat.last_name }} {{ pat.first_name }}?')">
+                                <i class="bi bi-trash3-fill"></i>
                             </a>
                         </td>
                     </tr>
@@ -160,7 +165,12 @@
                             <td>
                                 <a href="${patient.view_url}"
                                 class="btn btn-sm btn-secondary rounded-3 pop">
-                                <i class="bi bi-eye-fill"></i> Full Details
+                                <i class="bi bi-eye-fill"></i>
+                                </a>
+                                <a href="${patient.delete_url}"
+                                class="btn btn-sm btn-danger rounded-3 pop"
+                                onclick="return confirm('Delete Patient ${patient.last_name} ${patient.first_name}?')">
+                                <i class="bi bi-trash3-fill"></i>
                                 </a>
                             </td>
                         </tr>

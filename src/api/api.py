@@ -131,7 +131,8 @@ def search_patient():
                         "first_name": pat[4],
                         "last_name": pat[5],
                         "birthdate": str(pat[7]),
-                        "view_url": url_for('manager.view_patient', id=pat[1]),
+                        "view_url": url_for("manager.view_patient", id=pat[1]),
+                        "delete_url": url_for("manager.delete_patient", id=pat[1]),
                     }
                     p_data.append(res)
                 response.append({"patients": p_data})
@@ -167,6 +168,7 @@ def search_patient():
                     "last_name": patient.last_name,
                     "birthdate": str(patient.birthdate),
                     "view_url": url_for("manager.view_patient", id=patient.id),
+                    "delete_url": url_for("manager.delete_patient", id=patient.id),
                 }
                 response.append({"patients": [res]})
 
@@ -202,6 +204,7 @@ def search_patient():
                         "last_name": pat[6],
                         "birthdate": str(pat[7]),
                         "view_url": url_for("manager.view_patient", id=pat[1]),
+                        "delete_url": url_for("manager.delete_patient", id=pat[1]),
                     }
                     p_data.append(res)
                 response.append({"patients": p_data})

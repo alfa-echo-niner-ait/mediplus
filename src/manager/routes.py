@@ -1589,6 +1589,23 @@ def view_patient(id):
         files=files,
     )
 
+@manager.route("/dashboard/manager/patients/<id>/delete")
+def delete_patient(id):
+    if current_user.role != "Manager":
+        abort(403)
+
+    user: Users = Users.query.filter(Users.id == int(id)).first_or_404()
+    db.session.delete(user)
+
+    date, time = get_datetime()
+    new_log: User_Logs = User_Logs(current_user.id, "Delete Patient", date, time)
+    new_log.log_desc = f"#{user.id} {user.username}({user.gender}, {user.email})"
+    db.session.add()
+    db.session.commit()
+
+    flash("Patient deleted successfully!", category="warning")
+    return redirect(url_for("manager.patients"))
+
 
 @manager.route("/dashboard/manager/patients/<patient_id>/records/<file_id>")
 @login_required
