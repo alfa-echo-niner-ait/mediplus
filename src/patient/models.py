@@ -173,7 +173,7 @@ class Payments(db.Model):
     payment_amount = db.Column(db.Float, nullable=False)
     payment_date = db.Column(db.Date, nullable=False)
     payment_time = db.Column(db.Time, nullable=False)
-    payment_method = db.Column(db.String(10), nullable=True)
+    payment_method = db.Column(db.String(10), nullable=False)
     payment_note = db.Column(db.String(255), nullable=True)
 
     def __init__(
@@ -201,8 +201,8 @@ class Medical_Tests(db.Model):
     test_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     test_name = db.Column(db.String(200), nullable=False)
     test_price = db.Column(db.Float, nullable=False)
-    add_date = db.Column(db.Date, nullable=True)
-    add_time = db.Column(db.Time, nullable=True)
+    add_date = db.Column(db.Date, nullable=False)
+    add_time = db.Column(db.Time, nullable=False)
     test_desc = db.Column(db.TEXT, nullable=True)
 
     def __init__(

@@ -94,11 +94,11 @@ class Patients(db.Model):
     p_id = db.Column(
         db.Integer, db.ForeignKey("users.id"), primary_key=True, nullable=False
     )
-    first_name = db.Column(db.String(255), nullable=True)
-    last_name = db.Column(db.String(255), nullable=True)
-    phone = db.Column(db.String(20), nullable=True)
-    birthdate = db.Column(db.Date, nullable=True)
-    avatar = db.Column(db.String(100), nullable=True)
+    first_name = db.Column(db.String(255), nullable=False)
+    last_name = db.Column(db.String(255), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
+    birthdate = db.Column(db.Date, nullable=False)
+    avatar = db.Column(db.String(100), nullable=False)
 
     def __init__(self, p_id, fname, lname, bdate, avatar):
         super().__init__()
