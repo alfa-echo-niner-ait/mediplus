@@ -35,7 +35,7 @@ from src.doctor.models import (
     Prescription_Extras,
     Prescribed_Items,
 )
-from src.doctor.form import (
+from src.doctor.forms import (
     UpdateProfileForm,
     ChangePasswordForm,
     UpdateScheduleForm,

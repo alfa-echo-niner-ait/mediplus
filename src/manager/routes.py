@@ -31,7 +31,7 @@ from src.patient.models import (
     Medical_Report_Files,
     Patient_Record_Files,
 )
-from src.doctor.form import UpdateScheduleForm
+from src.doctor.forms import UpdateScheduleForm
 from src.manager.forms import (
     LogSortForm,
     ChangePasswordForm,
