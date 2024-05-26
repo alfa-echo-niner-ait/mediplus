@@ -37,7 +37,7 @@ def profile_picture_saver(picture_data, user_role) -> str:
     #### 1. picture_data
             - Pass the picture data received through form submission
             - Convert input picture to 600x600
-            - Save it with random hex(12) name
+            - Save it with random hex(12) name (24 char)
     #### 2. user_role
             - Pass the user role with small letters
             - Roles: patient, doctor, manager
