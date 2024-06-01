@@ -91,8 +91,8 @@ def user_logs_bar_data(days=7) -> list:
             "y": ["Managers", "Doctors", "Patients"],
             "type": "bar",
             "orientation": "h",
-            "marker": {"color": "#0a3622"},
+            "marker": {"color": "#84d131"},
         }
     ]
-    
+
     return logs

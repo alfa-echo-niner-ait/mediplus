@@ -241,6 +241,7 @@ def change_password():
             return redirect(url_for("patient.change_password"))
         else:
             flash("Sorry, current password didn't match!", category="danger")
+            return redirect(url_for("patient.change_password"))
 
     return render_template(
         "patient/change_password.html", form=form, title="Change Password"

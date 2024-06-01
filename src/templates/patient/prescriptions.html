@@ -26,7 +26,7 @@
     <div class="row">
         <div class="col-md-6">
             <div class="fs-4">
-                <i class="bi bi-prescription"></i> My Prescriptions
+                <i class="bi bi-prescription"></i> My Prescriptions ({{ prescriptions.total }})
             </div>
         </div>
     </div>
@@ -80,23 +80,23 @@
 </div>
 
 <!-- Pagination -->
-<div class="container mt-3 mb-3">
+<div class="container mb-3">
     <div class="d-flex justify-content-center border rounded">
         {% for page_num in prescriptions.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
         {% if prescriptions.page == page_num %}
-        <a class="btn btn-success m-2 pop" href="{{ url_for('patient.prescriptions', page=page_num) }}"
+        <a class="btn btn-sm btn-success m-2 pop" href="{{ url_for('patient.prescriptions', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
-        <a class="btn btn-outline-success m-2 pop" href="{{ url_for('patient.prescriptions', page=page_num) }}"
+        <a class="btn btn-sm btn-outline-success m-2 pop" href="{{ url_for('patient.prescriptions', page=page_num) }}"
             id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% endif %}
         {% else %}
-        <button class="btn btn-outline-secondary m-2" disabled>
+        <button class="btn btn-sm btn-outline-secondary m-2" disabled>
             ...
         </button>
         {% endif %}

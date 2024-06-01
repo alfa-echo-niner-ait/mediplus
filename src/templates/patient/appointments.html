@@ -23,7 +23,7 @@
 </div>
 <div class="container">
     <div class="my-3 p-3 bg-body rounded shadow-sm">
-        <h4 class="border-bottom pb-2 mb-0">Appointments List</h4>
+        <h4 class="border-bottom pb-2 mb-0">Appointments List ({{ appointments.total }})</h4>
         {% if appointments.total != 0 %}
         {% for appt in appointments %}
         <div class="d-flex text-muted pt-3">
@@ -83,7 +83,7 @@
                 {{ page_num }}
             </a>
             {% else %}
-            <a class="btn btn-sm btn-success m-2 pop"
+            <a class="btn btn-sm btn-outline-success m-2 pop"
                 href="{{ url_for('patient.appointments', page=page_num) }}" id="pg_link{{ page_num }}">
                 {{ page_num }}
             </a>

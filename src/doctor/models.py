@@ -55,6 +55,7 @@ class Appointment_Details(db.Model):
     appt_id = db.Column(
         db.Integer,
         db.ForeignKey("appointments.appt_id"),
+        unique=True,
         primary_key=True,
         nullable=False,
     )
@@ -80,7 +81,7 @@ class Prescriptions(db.Model):
 
     prescription_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     pres_appt_id = db.Column(
-        db.Integer, db.ForeignKey("appointments.appt_id"), primary_key=True, nullable=False
+        db.Integer, db.ForeignKey("appointments.appt_id"), primary_key=True, unique=True, nullable=False
     )
     pres_date = db.Column(db.Date, nullable=False)
     last_update_date = db.Column(db.Date, nullable=False)

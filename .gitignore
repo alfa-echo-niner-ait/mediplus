@@ -1,4 +1,6 @@
 __pycache__
 venv
 desktop.ini
-.VSCodeCounter
+.gunicorn_config.py
+run.sh
+test.py

@@ -100,14 +100,18 @@
                     <td>{{ invoice.invoice_time }}</td>
                     <td class="text-end">
                         <!-- View -->
-                        <a href="{{ url_for('public.invoice', id=invoice.invoice_id)}}"
+                        {% if invoice.status == "Paid" %}
+                        <a href="{{ url_for('manager.invoice_update', id=invoice.invoice_id) }}"
                             class="btn btn-sm btn-secondary fw-light" target="_blank">
                             <i class="bi bi-eye-fill"></i>
                         </a>
+                        {% endif %}
                         <!-- Update -->
-                        <a href="{{ url_for('manager.invoice_update', id=invoice.invoice_id)}}"
+                        {% if invoice.status == "Unpaid" %}
+                        <a href="{{ url_for('manager.invoice_update', id=invoice.invoice_id) }}"
                             class="btn btn-sm btn-success">
                             <i class="bi bi-pencil-square"></i>
+                        {% endif %}
                         </a>
                         <!-- Delete -->
                         <a href="{{ url_for('manager.invoice_delete', id=invoice.invoice_id)}}"

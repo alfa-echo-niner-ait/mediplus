@@ -26,7 +26,7 @@
     <div class="row">
         <div class="col-md-6">
             <h4 class="fs-4">
-            <i class="bi bi-clock-history"></i> Activity Logs
+                <i class="bi bi-clock-history"></i> Activity Logs
             </h4>
         </div>
     </div>
@@ -67,8 +67,7 @@
         {% for page_num in logs.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
         {% if logs.page == page_num %}
-        <a class="btn btn-success m-2" href="{{ url_for('patient.logs', page=page_num) }}"
-            id="pg_link{{ page_num }}">
+        <a class="btn btn-success m-2" href="{{ url_for('patient.logs', page=page_num) }}" id="pg_link{{ page_num }}">
             {{ page_num }}
         </a>
         {% else %}
@@ -107,8 +106,7 @@
         });
     }
     $("#closeModal").click(function (e) {
-            $("#logModal").toggle();
-        });
+        $("#logModal").toggle();
+    });
 </script>
 {% endblock content %}
-    
