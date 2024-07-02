@@ -1,9 +1,9 @@
-# MediPlus `(Under Development)`
+# MediPlus
 
 ### Topic: Design and Implementation of Medical Records Management System
 
 
-> Graduation Project
+> Undergraduate Graduation Project
 > 
 > Shandong University of Science and Technology
 
